@@ -1,0 +1,14 @@
+# parish.config.yaml
+name: "Paróquia Imaculada Conceição"
+short_name: "Imaculada Conceição"
+order: "Ordem dos Frades Menores Capuchinhos (OFM Cap.)"
+location:
+  city: "Ponta Grossa"
+  district: "Uvaranas"
+  state: "PR"
+  timezone: "America/Sao_Paulo"
+  adress:
+    street: "Av. Gen. Carlos Cavalcanti, 361"
+    postal_code: "84030-000"
+contact:
+  instagram: "@paroquiaimaculadapg"

@@ -43,10 +43,9 @@ useHead({ title: parishName })
         <span class="tau-mark" v-html="tauRaw" aria-hidden="true" />
         <p class="eyebrow">{{ parishOrder }}</p>
         <h1 class="hero-title">{{ parishShortName }}</h1>
-        <p class="hero-subtitle">{{ parishName }}</p>
-        <span class="diocese-badge">{{ parishDiocese }}</span>
+        <p class="hero-subtitle">{{ parishDiocese }}</p>
         <nav class="hero-links" aria-label="Atalhos">
-          <NuxtLink to="/capelas" class="hero-link hero-link--filled">
+          <NuxtLink to="/capelas" class="hero-link hero-link--outline">
             {{ t('home.hero.link_masses') }}
           </NuxtLink>
           <NuxtLink to="/capelas" class="hero-link hero-link--outline">
@@ -303,15 +302,10 @@ useHead({ title: parishName })
 
 .hero-link:hover { opacity: 0.85; }
 
-.hero-link--filled {
-  background-color: var(--fr-600);
-  color: #fff;
-}
-
 .hero-link--outline {
   background-color: transparent;
   color: var(--fr-600);
-  border: 1px solid var(--fr-400);
+  border: 1px solid var(--fr-600);
 }
 
 /* ── Card shared internals ─────────────────────────────────────── */

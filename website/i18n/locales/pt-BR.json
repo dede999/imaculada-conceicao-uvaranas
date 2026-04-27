@@ -44,7 +44,10 @@
       "col_confession": "Confissão",
       "col_catechism": "Catequese",
       "confession_none": "—",
-      "catechism_none": "—"
+      "catechism_none": "—",
+      "badge_matriz": "Matriz",
+      "badge_branch": "Filial",
+      "card_at": "às"
     },
     "instagram": {
       "eyebrow": "Instagram",

@@ -8,6 +8,7 @@ location:
   district: "Uvaranas"
   state: "PR"
   timezone: "America/Sao_Paulo"
+  locale: "pt-BR"
   adress:
     street: "Av. Gen. Carlos Cavalcanti, 361"
     postal_code: "84030-000"

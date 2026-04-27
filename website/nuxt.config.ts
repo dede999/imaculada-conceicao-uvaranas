@@ -40,6 +40,5 @@ export default defineNuxtConfig({
     locales: [
       { code: 'pt-BR', language: 'pt-BR', file: 'pt-BR.json' },
     ],
-    langDir: 'locales/',
   },
 })

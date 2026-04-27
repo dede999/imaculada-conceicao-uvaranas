@@ -2,6 +2,7 @@
 name: "Paróquia Imaculada Conceição"
 short_name: "Imaculada Conceição"
 order: "Ordem dos Frades Menores Capuchinhos (OFM Cap.)"
+diocese: "Diocese de Ponta Grossa"
 location:
   city: "Ponta Grossa"
   district: "Uvaranas"
@@ -12,3 +13,17 @@ location:
     postal_code: "84030-000"
 contact:
   instagram: "@paroquiaimaculadapg"
+
+# Unidades pastorais
+unidades:
+  - name: "Paróquia Imaculada Conceição"
+    type: "matriz"
+    slug: "imaculada-conceicao"
+
+  - name: "Capela São Vicente"
+    type: "branch"
+    slug: "sao-vicente"
+
+  - name: "Capela Divina Pastora"
+    type: "branch"
+    slug: "divina-pastora"

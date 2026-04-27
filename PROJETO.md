@@ -12,7 +12,7 @@
 | Nome | Paróquia Imaculada Conceição |
 | Localização | Uvaranas, Ponta Grossa — PR |
 | Diocese | Diocese de Ponta Grossa |
-| Irmandade | Franciscana (nome completo a confirmar) |
+| Irmandade | Ordem dos Frades Menores Capuchinhos (OFM Cap.) |
 | Repositório | Template público — forkável por outras paróquias |
 
 ### Unidades

@@ -29,8 +29,8 @@ const nextEvent = computed(() =>
 )
 
 const dayLabel = (day: number): string => t(`w_day.${day}`)
-const formatMasses = (masses: Array<{ day: number; time: string }>): string =>
-  masses.length ? masses.map((m) => `${dayLabel(m.day)} ${m.time}`).join(' · ') : '—'
+const formatMasses = (masses: Array<{ day: number; time: string }> | undefined): string =>
+  masses?.length ? masses.map((m) => `${dayLabel(m.day)} ${m.time}`).join(' · ') : '—'
 
 useHead({ title: parishName })
 </script>
@@ -106,7 +106,7 @@ useHead({ title: parishName })
             <tbody>
               <tr
                 v-for="chapel in chapels"
-                :key="chapel._path"
+                :key="chapel.path"
                 :class="chapel.type === 'matriz' ? 'row-matriz' : 'row-branch'"
               >
                 <td class="cell-name">

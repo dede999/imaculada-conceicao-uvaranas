@@ -5,10 +5,13 @@ import { computed } from 'vue'
  * Composable for time tracking in the parish timezone
  * Uses VueUse's useNow with 60-second intervals
  * Exposes currentDay (0-6) and currentTime (HH:MM) in parish timezone
+ * Timezone is read from nuxt.config.ts (loaded from parish.config.yaml)
  */
 export const useParishTime = () => {
-  // Default to São Paulo timezone (Ponta Grossa, PR is in this timezone)
-  const timezone = 'America/Sao_Paulo'
+  // useRuntimeConfig is auto-imported in Nuxt 3 composables
+  // @ts-expect-error auto-import in Nuxt 3
+  const config = useRuntimeConfig()
+  const timezone = (config.public as any).parishTimezone || 'America/Sao_Paulo'
 
   // Update every 60 seconds
   const now = useNow({ interval: 60000 })

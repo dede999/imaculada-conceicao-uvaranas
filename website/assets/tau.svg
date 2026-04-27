@@ -1,0 +1,8 @@
+<svg viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="
+    M4 8 C4 5 7 2 10 2 L54 2 C57 2 60 5 60 8
+    C60 13 57 17 52 18 L38 19 L38 68
+    C38 74 35 78 32 78 C29 78 26 74 26 68
+    L26 19 L12 18 C7 17 4 13 4 8 Z
+  " fill="currentColor"/>
+</svg>

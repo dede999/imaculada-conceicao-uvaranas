@@ -10,14 +10,13 @@ const parishDiocese = config.public.parishDiocese as string
 const parishOrder = config.public.parishOrder as string
 
 const { data: chapels } = await useAsyncData('capelas', () =>
-  queryCollection('capelas').order('type', 'ASC').all()
+  queryCollection('capelas').order('type', 'DESC').all()
 )
 
 const matrizChapel = computed(() =>
   chapels.value?.find((c) => c.type === 'matriz') ?? null
 )
 
-// No events/news content yet — empty until those collections are created
 const events = ref<any[]>([])
 const latestNews = ref<any>(null)
 const latestAnnouncement = ref<any>(null)
@@ -40,7 +39,6 @@ useHead({ title: parishName })
   <main class="home">
     <div class="bento">
 
-      <!-- ── Hero ─────────────────────────────────────────────── -->
       <article class="card card-hero">
         <span class="tau-mark" v-html="tauRaw" aria-hidden="true" />
         <p class="eyebrow">{{ parishOrder }}</p>
@@ -51,18 +49,16 @@ useHead({ title: parishName })
           <NuxtLink to="/capelas" class="hero-link hero-link--filled">
             {{ t('home.hero.link_masses') }}
           </NuxtLink>
-          <a href="#localizacao" class="hero-link hero-link--outline">
+          <NuxtLink to="/capelas" class="hero-link hero-link--outline">
             {{ t('home.hero.link_location') }}
-          </a>
+          </NuxtLink>
         </nav>
       </article>
 
-      <!-- ── Live status ───────────────────────────────────────── -->
       <article class="card card-status">
         <StatusPanel v-if="matrizChapel" :chapel="(matrizChapel as any)" />
       </article>
 
-      <!-- ── Next event (hidden when none active) ──────────────── -->
       <article v-if="showEvent" class="card card-event">
         <p class="eyebrow">{{ t('home.event.eyebrow') }}</p>
         <h2 class="heading-section card-title">{{ nextEvent?.title }}</h2>
@@ -70,7 +66,6 @@ useHead({ title: parishName })
         <NuxtLink to="/eventos" class="card-link">{{ t('home.event.link') }}</NuxtLink>
       </article>
 
-      <!-- ── Latest news ───────────────────────────────────────── -->
       <article class="card card-news" :class="showEvent ? 'news--with-event' : 'news--solo'">
         <p class="eyebrow">{{ t('home.news.eyebrow') }}</p>
         <template v-if="latestNews">
@@ -84,7 +79,6 @@ useHead({ title: parishName })
         </template>
       </article>
 
-      <!-- ── Announcement ──────────────────────────────────────── -->
       <article class="card card-announcement" :class="showEvent ? 'ann--with-event' : 'ann--solo'">
         <p class="eyebrow">{{ t('home.announcement.eyebrow') }}</p>
         <template v-if="latestAnnouncement">
@@ -98,7 +92,6 @@ useHead({ title: parishName })
         </template>
       </article>
 
-      <!-- ── Chapel summary table ──────────────────────────────── -->
       <article class="card card-chapels">
         <p class="eyebrow">{{ t('home.chapels.eyebrow') }}</p>
         <div class="table-wrap">
@@ -142,7 +135,6 @@ useHead({ title: parishName })
         </div>
       </article>
 
-      <!-- ── Tithe CTA ─────────────────────────────────────────── -->
       <article class="card card-tithe">
         <p class="eyebrow eyebrow-tithe">{{ t('home.tithe.eyebrow') }}</p>
         <h2 class="tithe-title">{{ t('home.tithe.title') }}</h2>
@@ -150,7 +142,6 @@ useHead({ title: parishName })
         <NuxtLink to="/dizimo" class="tithe-cta">{{ t('home.tithe.cta') }}</NuxtLink>
       </article>
 
-      <!-- ── Instagram placeholder ─────────────────────────────── -->
       <article class="card card-instagram">
         <p class="eyebrow">{{ t('home.instagram.eyebrow') }}</p>
         <div class="instagram-placeholder">
@@ -158,7 +149,6 @@ useHead({ title: parishName })
         </div>
       </article>
 
-      <!-- ── Ministries ────────────────────────────────────────── -->
       <article class="card card-ministries">
         <p class="eyebrow">{{ t('home.ministries.eyebrow') }}</p>
         <p class="body-text text-muted">{{ t('home.ministries.empty') }}</p>
@@ -195,6 +185,7 @@ useHead({ title: parishName })
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 /* ── Desktop column placements (12-col) ────────────────────────── */

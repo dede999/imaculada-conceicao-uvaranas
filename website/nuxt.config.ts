@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { readFileSync } from 'fs'
 import { parse as parseYaml } from 'yaml'
 import { fileURLToPath } from 'url'
@@ -12,6 +13,12 @@ const parishConfigPath = join(projectRoot, 'parish.config.yaml')
 const parishConfig = parseYaml(readFileSync(parishConfigPath, 'utf-8'))
 
 export default defineNuxtConfig({
+  css: ['~/assets/css/tokens.css'],
+  vite: {
+    optimizeDeps: {
+      include: ['@vueuse/core'],
+    },
+  },
   modules: [
     '@nuxt/content',
     '@nuxt/eslint',

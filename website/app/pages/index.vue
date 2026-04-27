@@ -93,7 +93,7 @@ useHead({ title: parishName })
 
       <article class="card card-chapels">
         <p class="eyebrow">{{ t('home.chapels.eyebrow') }}</p>
-        <div class="table-wrap">
+        <div class="table-wrap chapels-table">
           <table class="chapel-table">
             <thead>
               <tr>
@@ -131,6 +131,15 @@ useHead({ title: parishName })
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="chapels-carousel">
+          <ChapelCard
+            v-for="chapel in chapels"
+            :key="chapel.path"
+            :chapel="(chapel as any)"
+            class="carousel-item"
+          />
         </div>
       </article>
 
@@ -418,6 +427,29 @@ useHead({ title: parishName })
 }
 
 .text-muted { color: var(--text-muted); }
+
+/* ── Chapel carousel (tablet + mobile) ─────────────────────────── */
+
+.chapels-carousel {
+  display: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: var(--space-16);
+  margin-top: var(--space-16);
+  padding-bottom: var(--space-4);
+}
+
+.carousel-item {
+  flex-shrink: 0;
+  width: 260px;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 1023px) {
+  .chapels-table { display: none; }
+  .chapels-carousel { display: flex; }
+}
 
 /* ── Tithe card ────────────────────────────────────────────────── */
 

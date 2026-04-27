@@ -1,0 +1,10 @@
+{
+  "status_panel": {
+    "mass_label": "Missa",
+    "confession_label": "Confissão",
+    "now": "Agora",
+    "next": "Próxima",
+    "no_mass_scheduled": "Nenhuma missa agendada",
+    "no_next_confession": "Próxima confissão em breve"
+  }
+}

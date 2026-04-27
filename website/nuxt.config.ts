@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     public: {
       parishTimezone: parishConfig.location.timezone,
       parishName: parishConfig.name,
+      parishShortName: parishConfig.short_name,
       parishDiocese: parishConfig.diocese,
       parishOrder: parishConfig.order,
       massDurationMinutes: parishConfig.mass_duration_minutes as number,

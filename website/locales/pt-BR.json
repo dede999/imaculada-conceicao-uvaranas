@@ -6,5 +6,59 @@
     "next": "Próxima",
     "no_mass_scheduled": "Nenhuma missa agendada",
     "no_next_confession": "Próxima confissão em breve"
+  },
+  "w_day": {
+    "0": "Dom",
+    "1": "Seg",
+    "2": "Ter",
+    "3": "Qua",
+    "4": "Qui",
+    "5": "Sex",
+    "6": "Sáb"
+  },
+  "home": {
+    "hero": {
+      "link_masses": "Horários de Missa",
+      "link_location": "Como Chegar"
+    },
+    "event": {
+      "eyebrow": "Próximo Evento",
+      "link": "Ver todos os eventos"
+    },
+    "news": {
+      "eyebrow": "Última Notícia",
+      "empty_title": "Em breve",
+      "empty_body": "Novas publicações serão exibidas aqui.",
+      "link": "Ver todas as notícias"
+    },
+    "announcement": {
+      "eyebrow": "Comunicado",
+      "empty_title": "Sem comunicados",
+      "empty_body": "Avisos e comunicados serão exibidos aqui.",
+      "link": "Ver todos"
+    },
+    "chapels": {
+      "eyebrow": "Nossas Capelas",
+      "col_chapel": "Local",
+      "col_masses": "Missas",
+      "col_confession": "Confissão",
+      "col_catechism": "Catequese",
+      "confession_none": "—",
+      "catechism_none": "—"
+    },
+    "instagram": {
+      "eyebrow": "Instagram",
+      "placeholder": "Feed em breve"
+    },
+    "tithe": {
+      "eyebrow": "Dízimo",
+      "title": "Sustente a missão",
+      "body": "Sua contribuição mantém a vida sacramental, os projetos sociais e a manutenção dos espaços sagrados da comunidade.",
+      "cta": "Saiba como contribuir"
+    },
+    "ministries": {
+      "eyebrow": "Ministérios e Pastorais",
+      "empty": "Em breve"
+    }
   }
 }

@@ -172,11 +172,12 @@ useHead({ title: parishName })
 .home {
   background-color: var(--bg-alt);
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 .bento {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: var(--space-16);
   padding: var(--space-24);
   max-width: 1440px;
@@ -213,7 +214,7 @@ useHead({ title: parishName })
 /* ── Tablet (6-col, 640px–1023px) ──────────────────────────────── */
 
 @media (min-width: 640px) and (max-width: 1023px) {
-  .bento { grid-template-columns: repeat(6, 1fr); }
+  .bento { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 
   .card-hero        { grid-column: 1 / 7; }
   .card-status      { grid-column: 1 / 7; }

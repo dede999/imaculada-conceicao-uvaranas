@@ -38,6 +38,21 @@ export default defineContentConfig({
         type: z.enum(['matriz', 'branch']),
         address: z.string(),
         images: z.array(z.string()).default([]),
+        pastor: z.string().optional(),
+        coordinates: z.object({
+          lat: z.number(),
+          lng: z.number(),
+        }).optional(),
+        contact: z.object({
+          phone: z.string().optional(),
+          whatsapp: z.string().optional(),
+          email: z.string().optional(),
+        }).optional(),
+        social: z.object({
+          instagram: z.string().optional(),
+          facebook: z.string().optional(),
+          youtube: z.string().optional(),
+        }).optional(),
         masses: z.array(
           z.object({
             days: z.array(z.number()),

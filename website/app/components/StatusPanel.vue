@@ -42,37 +42,43 @@ const currentMasses = computed(() => {
   return result
 })
 
-const nextMass = computed(() => {
-  if (currentMasses.value.length) return null
-  if (!chapels.value?.length) return null
+const nextMasses = computed(() => {
+  if (currentMasses.value.length) return []
+  if (!chapels.value?.length) return []
 
-  type Candidate = { chapelName: string; time: string; daysAhead: number; minutesOfDay: number }
-  let best: Candidate | null = null
+  type Entry = { chapelName: string; time: string; daysAhead: number; minutesOfDay: number }
+  const result: Entry[] = []
 
   for (const chapel of chapels.value) {
-    for (const mass of (chapel.masses as Array<{ day: number; time: string }> | undefined) ?? []) {
-      const minutesOfDay = timeToMinutes(mass.time)
-      let daysAhead: number
+    let best: Entry | null = null
+    for (const mass of (chapel.masses as Array<{ days: number[]; times: string[] }> | undefined) ?? []) {
+      for (const day of mass.days) {
+        for (const time of mass.times) {
+          const minutesOfDay = timeToMinutes(time)
+          let daysAhead: number
 
-      if (mass.day === currentDay.value && minutesOfDay > currentMinutes.value) {
-        daysAhead = 0
-      } else if (mass.day !== currentDay.value) {
-        daysAhead = (mass.day - currentDay.value + 7) % 7
-      } else {
-        continue
-      }
+          if (day === currentDay.value && minutesOfDay > currentMinutes.value) {
+            daysAhead = 0
+          } else if (day !== currentDay.value) {
+            daysAhead = (day - currentDay.value + 7) % 7
+          } else {
+            continue
+          }
 
-      const isBetter =
-        !best ||
-        daysAhead < best.daysAhead ||
-        (daysAhead === best.daysAhead && minutesOfDay < best.minutesOfDay)
+          const isBetter =
+            !best ||
+            daysAhead < best.daysAhead ||
+            (daysAhead === best.daysAhead && minutesOfDay < best.minutesOfDay)
 
-      if (isBetter) {
-        best = { chapelName: chapel.name, time: mass.time, daysAhead, minutesOfDay }
+          if (isBetter) {
+            best = { chapelName: chapel.name, time, daysAhead, minutesOfDay }
+          }
+        }
       }
     }
+    if (best) result.push(best)
   }
-  return best
+  return result
 })
 
 const currentConfessions = computed(() => {
@@ -106,11 +112,11 @@ const currentConfessions = computed(() => {
         </div>
       </div>
 
-      <div v-else-if="nextMass" class="status-rows">
-        <div class="status-row">
+      <div v-else-if="nextMasses.length" class="status-rows">
+        <div v-for="entry in nextMasses" :key="entry.chapelName" class="status-row">
           <span class="status-dot dot--upcoming" aria-hidden="true" />
-          <span class="row-name">{{ nextMass.chapelName }}</span>
-          <span class="row-meta">{{ nextMass.time }}</span>
+          <span class="row-name">{{ entry.chapelName }}</span>
+          <span class="row-meta">{{ entry.time }}</span>
         </div>
       </div>
 

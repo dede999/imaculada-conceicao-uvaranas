@@ -1,4 +1,13 @@
 {
+  "nav": {
+    "home": "Início",
+    "chapels": "Capelas",
+    "events": "Eventos",
+    "news": "Notícias",
+    "ministries": "Pastorais",
+    "tithe": "Dízimo",
+    "transparency": "Transparência"
+  },
   "chapel": {
     "type": {
       "matriz": "Matriz",
@@ -44,7 +53,8 @@
     "contact_phone": "Telefone",
     "contact_whatsapp": "WhatsApp",
     "contact_email": "E-mail",
-    "social_links": "Redes Sociais"
+    "social_links": "Redes Sociais",
+    "other_chapels": "Outras Capelas"
   },
   "home": {
     "hero": {

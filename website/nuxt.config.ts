@@ -43,9 +43,21 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    defaultLocale: 'pt-BR',
-    locales: [
-      { code: 'pt-BR', language: 'pt-BR', file: 'pt-BR.json' },
-    ],
+    defaultLocale: parishConfig.i18n.default_locale,
+    strategy: 'prefix_except_default',
+    customRoutes: 'config',
+    locales: (parishConfig.i18n.locales as string[]).map((code: string) => ({
+      code,
+      language: code,
+      file: `${code}.json`,
+    })),
+    pages: {
+      capelas:       { 'pt-BR': '/capelas',       'es': '/capillas',       'en': '/chapels',      'fr': '/chapelles'    },
+      dizimo:        { 'pt-BR': '/dizimo',         'es': '/diezmo',         'en': '/tithe',        'fr': '/dime'         },
+      pastorais:     { 'pt-BR': '/pastorais',      'es': '/pastorales',     'en': '/ministries',   'fr': '/ministeres'   },
+      eventos:       { 'pt-BR': '/eventos',        'es': '/eventos',        'en': '/events',       'fr': '/evenements'   },
+      noticias:      { 'pt-BR': '/noticias',       'es': '/noticias',       'en': '/news',         'fr': '/actualites'   },
+      transparencia: { 'pt-BR': '/transparencia',  'es': '/transparencia',  'en': '/transparency', 'fr': '/transparence' },
+    },
   },
 })

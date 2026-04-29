@@ -43,6 +43,7 @@
 
 - **Dark mode**: desabilitado intencionalmente. Público amplo (idosos, crianças). Não instalar `@nuxtjs/color-mode`. Todos os tokens de cor são fixos em hex.
 - **i18n**: mesmo sem tradução imediata, todos os textos devem vir de arquivos de locale (`locales/pt-BR.json`). Nunca string hardcoded em template.
+- **i18n — localização de rotas**: `parish.config.yaml` é a fonte de verdade para `default_locale` e `locales`. Nunca hardcode esses valores em `nuxt.config.ts`. O bloco `pages` em `nuxt.config.ts → i18n.pages` pré-define os slugs traduzidos para cada rota — toda nova página deve ter suas traduções registradas ali antes de ser criada. A estratégia é `prefix_except_default`: o locale padrão não tem prefixo de URL, locales adicionais ganham prefixo automático (`/en/chapels`, `/fr/chapelles` etc.).
 - **Script financeiro**: compilar o binário no CI antes de rodar. Não usar `go run` ou `cargo run` em produção — recompila toda vez e desperdiça minutos de Action.
 - **Supabase**: documentar schema e RLS policies num `README` dedicado em `/docs/dizimo.md`. Centralizar lógica num composable `useDizimo.ts`.
 

@@ -15,6 +15,10 @@ contact:
   instagram: "@paroquiaimaculadapg"
 mass_duration_minutes: 60
 
+i18n:
+  default_locale: pt-BR
+  locales: [pt-BR]
+
 # Unidades pastorais
 unidades:
   - name: "Paróquia Imaculada Conceição"

@@ -52,12 +52,12 @@ export default defineNuxtConfig({
       file: `${code}.json`,
     })),
     pages: {
-      capelas:       { 'pt-BR': '/capelas',       'es': '/capillas',       'en': '/chapels',      'fr': '/chapelles'    },
-      dizimo:        { 'pt-BR': '/dizimo',         'es': '/diezmo',         'en': '/tithe',        'fr': '/dime'         },
-      pastorais:     { 'pt-BR': '/pastorais',      'es': '/pastorales',     'en': '/ministries',   'fr': '/ministeres'   },
-      eventos:       { 'pt-BR': '/eventos',        'es': '/eventos',        'en': '/events',       'fr': '/evenements'   },
-      noticias:      { 'pt-BR': '/noticias',       'es': '/noticias',       'en': '/news',         'fr': '/actualites'   },
-      transparencia: { 'pt-BR': '/transparencia',  'es': '/transparencia',  'en': '/transparency', 'fr': '/transparence' },
+      'capelas/index':  { 'pt-BR': '/capelas',          'es': '/capillas',          'en': '/chapels',          'fr': '/chapelles'         },
+      dizimo:           { 'pt-BR': '/dizimo',            'es': '/diezmo',            'en': '/tithe',            'fr': '/dime'              },
+      pastorais:        { 'pt-BR': '/pastorais',         'es': '/pastorales',        'en': '/ministries',       'fr': '/ministeres'        },
+      eventos:          { 'pt-BR': '/eventos',           'es': '/eventos',           'en': '/events',           'fr': '/evenements'        },
+      noticias:         { 'pt-BR': '/noticias',          'es': '/noticias',          'en': '/news',             'fr': '/actualites'        },
+      transparencia:    { 'pt-BR': '/transparencia',     'es': '/transparencia',     'en': '/transparency',     'fr': '/transparence'      },
     },
   },
 })

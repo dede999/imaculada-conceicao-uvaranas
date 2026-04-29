@@ -34,7 +34,17 @@
     "catechism_label": "Catequese",
     "no_masses": "Sem missas agendadas",
     "no_confession": "Sem confissão agendada",
-    "branch_section": "Capelas Filiais"
+    "branch_section": "Capelas Filiais",
+    "view_detail": "Ver página completa",
+    "back": "← Capelas",
+    "schedule_section": "Horários",
+    "map_section": "Localização",
+    "content_section": "Sobre a Comunidade",
+    "pastor": "Pároco",
+    "contact_phone": "Telefone",
+    "contact_whatsapp": "WhatsApp",
+    "contact_email": "E-mail",
+    "social_links": "Redes Sociais"
   },
   "home": {
     "hero": {

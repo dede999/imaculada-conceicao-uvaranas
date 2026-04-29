@@ -45,6 +45,10 @@ function formatCatechismDays(group: CatechismGroup): string {
   return group.days.map(dayLabel).join(', ')
 }
 
+function chapelaSlug(path: string): string {
+  return path.split('/').pop() ?? ''
+}
+
 useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName as string}` })
 </script>
 
@@ -137,6 +141,10 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
             </div>
 
           </div>
+
+          <NuxtLink :to="`/capelas/${chapelaSlug(matrizChapel!.path)}`" class="detail-link">
+            {{ t('capelas.view_detail') }}
+          </NuxtLink>
         </div>
       </section>
 
@@ -208,6 +216,10 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
                 <span class="cat-schedule">{{ formatCatechismDays(group) }} · {{ group.time }}</span>
               </div>
             </div>
+
+            <NuxtLink :to="`/capelas/${chapelaSlug(chapel.path)}`" class="detail-link">
+              {{ t('capelas.view_detail') }}
+            </NuxtLink>
 
           </article>
         </div>
@@ -484,4 +496,18 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   padding-top: var(--space-16);
   border-top: 1px solid var(--border-default);
 }
+
+.detail-link {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: var(--space-16);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fr-600);
+  text-decoration: none;
+}
+
+.detail-link:hover { text-decoration: underline; }
 </style>

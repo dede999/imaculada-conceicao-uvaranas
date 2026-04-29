@@ -38,7 +38,7 @@ const route = useRoute()
 const slug = route.params.slug as string
 
 const { data: chapel } = await useAsyncData(`chapel-${slug}`, () =>
-  queryCollectionItemByPath('capelas', `/capelas/${slug}`)
+  queryCollection('capelas').path(`/capelas/${slug}`).first()
 )
 
 if (!chapel.value) {

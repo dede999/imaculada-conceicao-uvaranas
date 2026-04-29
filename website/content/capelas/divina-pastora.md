@@ -5,12 +5,15 @@ address: "Rua Z, 789 — Uvaranas, Ponta Grossa — PR"
 images: []
 
 masses:
-  - day: 0
-    time: "10:30"
+  - days: [0]
+    times: ["10:30"]
 
 confession: []
 
-catechism: []
+catechism:
+  - group: "Crianças"
+    days: [6]
+    time: "08:30"
 ---
 
 # Capela Divina Pastora

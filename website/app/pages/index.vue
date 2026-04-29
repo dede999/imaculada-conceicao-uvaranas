@@ -25,8 +25,18 @@ const nextEvent = computed(() =>
 )
 
 const dayLabel = (day: number): string => t(`w_day.${day}`)
-const formatMasses = (masses: Array<{ day: number; time: string }> | undefined): string =>
-  masses?.length ? masses.map((m) => `${dayLabel(m.day)} ${m.time}`).join(' · ') : '—'
+const formatMasses = (masses: Array<{ days: number[]; times: string[] }> | undefined): string => {
+  if (!masses?.length) return '—'
+  const parts: string[] = []
+  for (const m of masses) {
+    for (const day of m.days) {
+      for (const time of m.times) {
+        parts.push(`${dayLabel(day)} ${time}`)
+      }
+    }
+  }
+  return parts.join(' · ')
+}
 
 const { currentDay, currentTime } = useParishTime()
 const currentMinutes = computed(() => {

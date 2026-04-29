@@ -28,11 +28,13 @@ const currentMasses = computed(() => {
   if (!chapels.value?.length) return []
   const result: Array<{ chapelName: string; endTime: string }> = []
   for (const chapel of chapels.value) {
-    for (const mass of (chapel.masses as Array<{ day: number; time: string }> | undefined) ?? []) {
-      if (mass.day === currentDay.value) {
-        const start = timeToMinutes(mass.time)
-        if (currentMinutes.value >= start && currentMinutes.value < start + massDurationMinutes) {
-          result.push({ chapelName: chapel.name, endTime: addMins(mass.time, massDurationMinutes) })
+    for (const mass of (chapel.masses as Array<{ days: number[]; times: string[] }> | undefined) ?? []) {
+      if (mass.days.includes(currentDay.value)) {
+        for (const time of mass.times) {
+          const start = timeToMinutes(time)
+          if (currentMinutes.value >= start && currentMinutes.value < start + massDurationMinutes) {
+            result.push({ chapelName: chapel.name, endTime: addMins(time, massDurationMinutes) })
+          }
         }
       }
     }

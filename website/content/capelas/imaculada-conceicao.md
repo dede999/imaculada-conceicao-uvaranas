@@ -5,15 +5,18 @@ address: "Rua X, 123 — Uvaranas, Ponta Grossa — PR"
 images: []
 
 masses:
-  - day: 0
-    time: "09:00"
-  - day: 3
-    time: "19:30"
+  - days: [0]
+    times: ["09:00"]
+  - days: [3]
+    times: ["19:30"]
 
 confession:
-  - time_start: "12:00"
-    time_end: "13:00"
-    days: [0, 6]
+  - time_start: "07:30"
+    time_end: "08:00"
+    days: [0]
+  - time_start: "18:30"
+    time_end: "19:00"
+    days: [3, 6]
 
 catechism:
   - group: "Crianças"

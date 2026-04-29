@@ -5,8 +5,8 @@ address: "Rua Y, 456 — Uvaranas, Ponta Grossa — PR"
 images: []
 
 masses:
-  - day: 6
-    time: "18:00"
+  - days: [6]
+    times: ["18:00"]
 
 confession: []
 

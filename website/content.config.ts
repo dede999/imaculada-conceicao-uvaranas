@@ -17,8 +17,8 @@ export default defineContentConfig({
         images: z.array(z.string()).default([]),
         masses: z.array(
           z.object({
-            day: z.number(),
-            time: z.string(),
+            days: z.array(z.number()),
+            times: z.array(z.string()),
           })
         ).default([]),
         confession: z.array(

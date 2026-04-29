@@ -396,10 +396,11 @@ useHead({ title: parishName })
   border-bottom: 1px solid var(--border-default);
   color: var(--text-primary);
   vertical-align: middle;
+  background-color: inherit;
 }
 
-.row-matriz td { background-color: var(--fr-50); }
-.row-branch td { background-color: var(--bg-page); }
+.row-matriz { background-color: var(--fr-50); }
+.row-branch { background-color: var(--bg-page); }
 
 .chapel-table tbody tr:last-child td { border-bottom: none; }
 

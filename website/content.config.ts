@@ -7,6 +7,29 @@ export default defineContentConfig({
       source: '**',
     }),
 
+    events: defineCollection({
+      type: 'page',
+      source: 'events/*.md',
+      schema: z.object({
+        title: z.string(),
+        type: z.enum(['event', 'announcement']),
+        date: z.string(),
+        end_date: z.string().optional(),
+        status: z.enum(['active', 'cancelled', 'postponed']),
+        summary: z.string(),
+      }),
+    }),
+
+    noticias: defineCollection({
+      type: 'page',
+      source: 'noticias/*.md',
+      schema: z.object({
+        title: z.string(),
+        date: z.string(),
+        summary: z.string(),
+      }),
+    }),
+
     capelas: defineCollection({
       type: 'page',
       source: 'capelas/*.md',

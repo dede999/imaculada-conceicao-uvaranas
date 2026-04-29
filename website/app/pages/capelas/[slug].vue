@@ -45,6 +45,15 @@ if (!chapel.value) {
   throw createError({ statusCode: 404, statusMessage: 'Chapel not found' })
 }
 
+const { data: allChapels } = await useChapels()
+const otherChapels = computed(() =>
+  allChapels.value?.filter(c => (c as any).path !== (chapel.value as any)?.path) ?? []
+)
+
+function chapelaSlug(path: string): string {
+  return path.split('/').pop() ?? ''
+}
+
 const isMatriz = computed(() => chapel.value?.type === 'matriz')
 
 const contact = computed((): ChapelContact => (chapel.value as any)?.contact ?? {})
@@ -224,6 +233,29 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
         <ContentRenderer :value="chapel!" class="prose" />
       </section>
 
+      <!-- ── Other chapels ─────────────────────────────────────── -->
+      <section v-if="otherChapels.length" class="other-chapels-section">
+        <p class="section-eyebrow">{{ t('capelas.other_chapels') }}</p>
+        <div class="other-chapels-grid">
+          <NuxtLink
+            v-for="other in otherChapels"
+            :key="(other as any).path"
+            :to="`/capelas/${chapelaSlug((other as any).path)}`"
+            class="other-chapel-card"
+          >
+            <span
+              class="other-type-badge"
+              :class="(other as any).type === 'matriz' ? 'badge--matriz' : 'badge--branch'"
+            >
+              {{ t((other as any).type === 'matriz' ? 'chapel.type.matriz' : 'chapel.type.branch') }}
+            </span>
+            <p class="other-chapel-name">{{ (other as any).name }}</p>
+            <p v-if="(other as any).address" class="other-chapel-address">{{ (other as any).address }}</p>
+            <span class="other-chapel-cta">{{ t('capelas.view_detail') }} →</span>
+          </NuxtLink>
+        </div>
+      </section>
+
     </div>
   </main>
 </template>
@@ -250,15 +282,25 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
 
 .back-link {
   display: inline-flex;
+  align-items: center;
   align-self: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background-color: var(--bg-page);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--fr-600);
+  color: var(--text-primary);
   text-decoration: none;
+  transition: border-color 0.12s, color 0.12s;
 }
 
-.back-link:hover { text-decoration: underline; }
+.back-link:hover {
+  border-color: var(--fr-400);
+  color: var(--fr-800);
+}
 
 /* ── Header card ────────────────────────────────────────────────── */
 
@@ -614,4 +656,72 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
 
 .prose :deep(a) { color: var(--fr-600); }
 .prose :deep(a:hover) { text-decoration: underline; }
+
+/* ── Other chapels ──────────────────────────────────────────────── */
+
+.other-chapels-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.other-chapels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-12);
+}
+
+.other-chapel-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-20);
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.other-chapel-card:hover {
+  border-color: var(--fr-400);
+  box-shadow: var(--shadow-md);
+}
+
+.other-type-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 2px var(--space-8);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.other-chapel-name {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--fr-950);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.other-chapel-address {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin: 0;
+  flex: 1;
+}
+
+.other-chapel-cta {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fr-600);
+  margin-top: var(--space-4);
+}
 </style>

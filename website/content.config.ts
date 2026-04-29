@@ -42,6 +42,8 @@ export default defineContentConfig({
           z.object({
             days: z.array(z.number()),
             times: z.array(z.string()),
+            note: z.string().optional(),
+            note_only_on: z.array(z.number()).optional(),
           })
         ).default([]),
         confession: z.array(

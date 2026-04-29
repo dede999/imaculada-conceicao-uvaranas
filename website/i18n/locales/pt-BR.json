@@ -23,6 +23,19 @@
     "5": "Sex",
     "6": "Sáb"
   },
+  "capelas": {
+    "eyebrow": "Horários",
+    "title": "Nossas Capelas",
+    "page_title": "Capelas e Horários",
+    "subtitle": "Horários de missas, confissões e catequese em todas as unidades da paróquia",
+    "address_label": "Endereço",
+    "masses_label": "Missas",
+    "confession_label": "Confissão",
+    "catechism_label": "Catequese",
+    "no_masses": "Sem missas agendadas",
+    "no_confession": "Sem confissão agendada",
+    "branch_section": "Capelas Filiais"
+  },
   "home": {
     "hero": {
       "link_masses": "Horários de Missa",

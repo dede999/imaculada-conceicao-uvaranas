@@ -13,10 +13,6 @@ const { data: chapels } = await useAsyncData('capelas', () =>
   queryCollection('capelas').order('type', 'DESC').all()
 )
 
-const matrizChapel = computed(() =>
-  chapels.value?.find((c) => c.type === 'matriz') ?? null
-)
-
 const events = ref<any[]>([])
 const latestNews = ref<any>(null)
 const latestAnnouncement = ref<any>(null)
@@ -55,7 +51,7 @@ useHead({ title: parishName })
       </article>
 
       <article class="card card-status">
-        <StatusPanel v-if="matrizChapel" :chapel="(matrizChapel as any)" />
+        <StatusPanel />
       </article>
 
       <article v-if="showEvent" class="card card-event">

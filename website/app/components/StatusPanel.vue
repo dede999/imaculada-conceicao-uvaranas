@@ -1,207 +1,215 @@
-<template>
-  <div class="status-panel" v-if="currentChapel">
-    <div class="status-block mass-status">
-      <div class="status-header">
-        <span class="status-label">{{ t('status_panel.mass_label') }}</span>
-        <span class="status-badge" :class="massBadgeClass">
-          {{ massStatus }}
-        </span>
-      </div>
-      <div v-if="nextMass" class="status-details">
-        <p class="status-info">{{ nextMassLabel }}</p>
-      </div>
-      <div v-else class="status-details">
-        <p class="status-info">{{ t('status_panel.no_mass_scheduled') }}</p>
-      </div>
-    </div>
-
-    <div v-if="currentChapel.confession && currentChapel.confession.length > 0" class="status-block confession-status">
-      <div class="status-header">
-        <span class="status-label">{{ t('status_panel.confession_label') }}</span>
-        <span class="status-badge" :class="confessionBadgeClass">
-          {{ confessionStatus }}
-        </span>
-      </div>
-      <div v-if="nextConfession" class="status-details">
-        <p class="status-info">{{ nextConfessionLabel }}</p>
-      </div>
-      <div v-else class="status-details">
-        <p class="status-info">{{ t('status_panel.no_next_confession') }}</p>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const massDurationMinutes = (config.public.massDurationMinutes as number) || 60
 
-interface Chapel {
-  name: string
-  type: 'matriz' | 'branch'
-  address: string
-  images: string[]
-  masses: Array<{
-    day: number
-    time: string
-  }>
-  confession: Array<{
-    time_start: string
-    time_end: string
-    days: number[]
-  }>
-  catechism: Array<{
-    group: string
-    days: number[]
-    time: string
-  }>
+const { currentDay, currentTime } = useParishTime()
+
+// Reuses the same cache key as index.vue — no duplicate fetch
+const { data: chapels } = useAsyncData('capelas', () =>
+  queryCollection('capelas').all()
+)
+
+function timeToMinutes(s: string): number {
+  const parts = s.split(':').map(Number)
+  return (parts[0] ?? 0) * 60 + (parts[1] ?? 0)
 }
 
-const props = defineProps<{ chapel: Chapel }>()
-
-const { currentDay, currentTime } = useParishTime()
-const currentChapel = computed(() => props.chapel)
-
-const timeToMinutes = (timeStr: string): number => {
-  const [hours, minutes] = timeStr.split(':').map(Number)
-  return hours * 60 + minutes
+function addMins(time: string, mins: number): string {
+  const total = timeToMinutes(time) + mins
+  const h = Math.floor(total / 60) % 24
+  const m = total % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
 const currentMinutes = computed(() => timeToMinutes(currentTime.value))
 
-const isMassNow = computed(() => {
-  if (!currentChapel.value?.masses?.length) return false
-  return currentChapel.value.masses
-    .filter((m: any) => m.day === currentDay.value)
-    .some((m: any) => {
-      const start = timeToMinutes(m.time)
-      return currentMinutes.value >= start && currentMinutes.value < start + massDurationMinutes
-    })
+const currentMasses = computed(() => {
+  if (!chapels.value?.length) return []
+  const result: Array<{ chapelName: string; endTime: string }> = []
+  for (const chapel of chapels.value) {
+    for (const mass of (chapel.masses as Array<{ day: number; time: string }> | undefined) ?? []) {
+      if (mass.day === currentDay.value) {
+        const start = timeToMinutes(mass.time)
+        if (currentMinutes.value >= start && currentMinutes.value < start + massDurationMinutes) {
+          result.push({ chapelName: chapel.name, endTime: addMins(mass.time, massDurationMinutes) })
+        }
+      }
+    }
+  }
+  return result
 })
 
 const nextMass = computed(() => {
-  if (!currentChapel.value?.masses?.length) return null
-  const all = currentChapel.value.masses.map((m: any) => ({ ...m, minutes: timeToMinutes(m.time) }))
+  if (currentMasses.value.length) return null
+  if (!chapels.value?.length) return null
 
-  const today = all.filter((m: any) => m.day === currentDay.value && m.minutes > currentMinutes.value)
-  if (today.length) return today.sort((a: any, b: any) => a.minutes - b.minutes)[0]
+  type Candidate = { chapelName: string; time: string; daysAhead: number; minutesOfDay: number }
+  let best: Candidate | null = null
 
-  for (let d = 1; d <= 6; d++) {
-    const future = all.filter((m: any) => m.day === (currentDay.value + d) % 7)
-    if (future.length) return future.sort((a: any, b: any) => a.minutes - b.minutes)[0]
+  for (const chapel of chapels.value) {
+    for (const mass of (chapel.masses as Array<{ day: number; time: string }> | undefined) ?? []) {
+      const minutesOfDay = timeToMinutes(mass.time)
+      let daysAhead: number
+
+      if (mass.day === currentDay.value && minutesOfDay > currentMinutes.value) {
+        daysAhead = 0
+      } else if (mass.day !== currentDay.value) {
+        daysAhead = (mass.day - currentDay.value + 7) % 7
+      } else {
+        continue
+      }
+
+      const isBetter =
+        !best ||
+        daysAhead < best.daysAhead ||
+        (daysAhead === best.daysAhead && minutesOfDay < best.minutesOfDay)
+
+      if (isBetter) {
+        best = { chapelName: chapel.name, time: mass.time, daysAhead, minutesOfDay }
+      }
+    }
   }
-  return null
+  return best
 })
 
-const massStatus = computed(() => t(isMassNow.value ? 'status_panel.now' : 'status_panel.next'))
-const massBadgeClass = computed(() => isMassNow.value ? 'badge-active' : 'badge-upcoming')
-const nextMassLabel = computed(() =>
-  nextMass.value ? nextMass.value.time : t('status_panel.no_mass_scheduled')
-)
-
-const isConfessionNow = computed(() => {
-  if (!currentChapel.value?.confession?.length) return false
-  return currentChapel.value.confession
-    .filter((c: any) => c.days.includes(currentDay.value))
-    .some((c: any) =>
-      currentMinutes.value >= timeToMinutes(c.time_start) &&
-      currentMinutes.value < timeToMinutes(c.time_end)
-    )
-})
-
-const nextConfession = computed(() => {
-  if (!currentChapel.value?.confession?.length) return null
-  const all = currentChapel.value.confession.map((c: any) => ({
-    ...c,
-    startMinutes: timeToMinutes(c.time_start),
-  }))
-
-  const today = all.filter((c: any) => c.days.includes(currentDay.value) && c.startMinutes > currentMinutes.value)
-  if (today.length) return today.sort((a: any, b: any) => a.startMinutes - b.startMinutes)[0]
-
-  for (let d = 1; d <= 6; d++) {
-    const future = all.filter((c: any) => c.days.includes((currentDay.value + d) % 7))
-    if (future.length) return future.sort((a: any, b: any) => a.startMinutes - b.startMinutes)[0]
+const currentConfessions = computed(() => {
+  if (!chapels.value?.length) return []
+  const result: Array<{ chapelName: string; time_start: string; time_end: string }> = []
+  for (const chapel of chapels.value) {
+    for (const conf of (chapel.confession as Array<{ time_start: string; time_end: string; days: number[] }> | undefined) ?? []) {
+      if (conf.days.includes(currentDay.value)) {
+        const start = timeToMinutes(conf.time_start)
+        const end = timeToMinutes(conf.time_end)
+        if (currentMinutes.value >= start && currentMinutes.value < end) {
+          result.push({ chapelName: chapel.name, time_start: conf.time_start, time_end: conf.time_end })
+        }
+      }
+    }
   }
-  return null
+  return result
 })
-
-const confessionStatus = computed(() => t(isConfessionNow.value ? 'status_panel.now' : 'status_panel.next'))
-const confessionBadgeClass = computed(() => isConfessionNow.value ? 'badge-active' : 'badge-upcoming')
-const nextConfessionLabel = computed(() =>
-  nextConfession.value
-    ? `${nextConfession.value.time_start}–${nextConfession.value.time_end}`
-    : t('status_panel.no_next_confession')
-)
 </script>
+
+<template>
+  <div class="status-panel">
+    <div class="status-section mass-section">
+      <p class="section-eyebrow">{{ t('status_panel.mass_label') }}</p>
+
+      <div v-if="currentMasses.length" class="status-rows">
+        <div v-for="entry in currentMasses" :key="entry.chapelName" class="status-row">
+          <span class="status-dot dot--active" aria-hidden="true" />
+          <span class="row-name">{{ entry.chapelName }}</span>
+          <span class="row-meta">{{ t('status_panel.in_progress_until') }} {{ entry.endTime }}</span>
+        </div>
+      </div>
+
+      <div v-else-if="nextMass" class="status-rows">
+        <div class="status-row">
+          <span class="status-dot dot--upcoming" aria-hidden="true" />
+          <span class="row-name">{{ nextMass.chapelName }}</span>
+          <span class="row-meta">{{ nextMass.time }}</span>
+        </div>
+      </div>
+
+      <p v-else class="empty-text">{{ t('status_panel.no_mass_scheduled') }}</p>
+    </div>
+
+    <div v-if="currentConfessions.length" class="status-section confession-section">
+      <p class="section-eyebrow">{{ t('status_panel.confession_label') }}</p>
+      <div class="status-rows">
+        <div v-for="entry in currentConfessions" :key="entry.chapelName" class="status-row">
+          <span class="status-dot dot--active" aria-hidden="true" />
+          <span class="row-name">{{ entry.chapelName }}</span>
+          <span class="row-meta">{{ entry.time_start }}–{{ entry.time_end }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .status-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-16);
-  padding: var(--space-24);
+  flex: 1;
   background-color: var(--bg-page);
   border-left: 4px solid var(--fr-600);
 }
 
-.status-block {
+.status-section {
+  padding: var(--space-20) var(--space-24);
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
 }
 
-.status-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-12);
+.mass-section {
+  flex: 1;
 }
 
-.status-label {
+.confession-section {
+  border-top: 1px solid var(--border-default);
+}
+
+.section-eyebrow {
   font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-8) var(--space-12);
-  border-radius: var(--radius-md);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.badge-active {
-  background-color: var(--cv-50);
-  color: var(--cv-600);
-}
-
-.badge-upcoming {
-  background-color: var(--fr-50);
   color: var(--fr-600);
+  margin: 0;
 }
 
-.status-details {
+.status-rows {
   display: flex;
   flex-direction: column;
+  gap: var(--space-12);
+}
+
+.status-row {
+  display: flex;
+  align-items: flex-start;
   gap: var(--space-8);
 }
 
-.status-info {
+.status-dot {
+  flex-shrink: 0;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+}
+
+.dot--active   { background-color: var(--cv-400); }
+.dot--upcoming { background-color: var(--fr-400); }
+
+.row-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: var(--line-height-normal);
-  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.row-meta {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.empty-text {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
   margin: 0;
 }
 </style>

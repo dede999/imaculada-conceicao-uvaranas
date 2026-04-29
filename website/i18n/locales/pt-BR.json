@@ -11,7 +11,8 @@
     "now": "Agora",
     "next": "Próxima",
     "no_mass_scheduled": "Nenhuma missa agendada",
-    "no_next_confession": "Próxima confissão em breve"
+    "no_next_confession": "Próxima confissão em breve",
+    "in_progress_until": "Em andamento · termina"
   },
   "w_day": {
     "0": "Dom",

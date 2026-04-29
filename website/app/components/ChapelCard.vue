@@ -66,7 +66,7 @@ function formatConfession(slot: ConfessionSlot): string {
       class="type-badge"
       :class="chapel.type === 'matriz' ? 'badge--matriz' : 'badge--branch'"
     >
-      {{ chapel.type === 'matriz' ? t('home.chapels.badge_matriz') : t('home.chapels.badge_branch') }}
+      {{ t(chapel.type === 'matriz' ? 'chapel.type.matriz' : 'chapel.type.branch') }}
     </span>
 
     <h3 class="chapel-name">{{ chapel.name }}</h3>

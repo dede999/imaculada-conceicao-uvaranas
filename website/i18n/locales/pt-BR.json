@@ -1,4 +1,10 @@
 {
+  "chapel": {
+    "type": {
+      "matriz": "Matriz",
+      "branch": "Capela Irmã"
+    }
+  },
   "status_panel": {
     "mass_label": "Missa",
     "confession_label": "Confissão",

@@ -28,6 +28,23 @@ const dayLabel = (day: number): string => t(`w_day.${day}`)
 const formatMasses = (masses: Array<{ day: number; time: string }> | undefined): string =>
   masses?.length ? masses.map((m) => `${dayLabel(m.day)} ${m.time}`).join(' · ') : '—'
 
+const { currentDay, currentTime } = useParishTime()
+const currentMinutes = computed(() => {
+  const parts = currentTime.value.split(':').map(Number)
+  return (parts[0] ?? 0) * 60 + (parts[1] ?? 0)
+})
+
+function isConfessionNow(chapel: any): boolean {
+  if (!chapel.confession?.length) return false
+  return chapel.confession.some((c: any) => {
+    if (!c.days.includes(currentDay.value)) return false
+    const parts = (s: string) => s.split(':').map(Number)
+    const start = (parts(c.time_start)[0] ?? 0) * 60 + (parts(c.time_start)[1] ?? 0)
+    const end   = (parts(c.time_end)[0]   ?? 0) * 60 + (parts(c.time_end)[1]   ?? 0)
+    return currentMinutes.value >= start && currentMinutes.value < end
+  })
+}
+
 useHead({ title: parishName })
 </script>
 
@@ -111,7 +128,7 @@ useHead({ title: parishName })
                 </td>
                 <td class="cell-masses">{{ formatMasses(chapel.masses) }}</td>
                 <td class="cell-confession">
-                  <span v-if="chapel.confession?.length" class="confession-dot" aria-label="Sim" />
+                  <span v-if="isConfessionNow(chapel)" class="confession-dot" aria-label="Sim" />
                   <span v-else class="text-muted">{{ t('home.chapels.confession_none') }}</span>
                 </td>
                 <td class="cell-catechism">

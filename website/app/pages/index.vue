@@ -9,9 +9,7 @@ const parishShortName = (config.public as any).parishShortName as string
 const parishDiocese = config.public.parishDiocese as string
 const parishOrder = config.public.parishOrder as string
 
-const { data: chapels } = await useAsyncData('capelas', () =>
-  queryCollection('capelas').order('type', 'DESC').all()
-)
+const { data: chapels } = await useChapels()
 
 const events = ref<any[]>([])
 const latestNews = ref<any>(null)

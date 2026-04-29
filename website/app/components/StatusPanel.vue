@@ -5,10 +5,7 @@ const massDurationMinutes = (config.public.massDurationMinutes as number) || 60
 
 const { currentDay, currentTime } = useParishTime()
 
-// Reuses the same cache key as index.vue — no duplicate fetch
-const { data: chapels } = useAsyncData('capelas', () =>
-  queryCollection('capelas').all()
-)
+const { data: chapels } = useChapels()
 
 function timeToMinutes(s: string): number {
   const parts = s.split(':').map(Number)

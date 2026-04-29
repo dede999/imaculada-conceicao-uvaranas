@@ -14,7 +14,7 @@ interface CatechismGroup {
 interface Chapel {
   name: string
   type: string
-  masses?: Array<{ day: number; time: string }>
+  masses?: Array<{ days: number[]; times: string[] }>
   confession?: ConfessionSlot[]
   catechism?: CatechismGroup[]
 }
@@ -74,11 +74,15 @@ function formatConfession(slot: ConfessionSlot): string {
     <div class="card-section">
       <p class="section-label">{{ t('home.chapels.col_masses') }}</p>
       <div v-if="chapel.masses?.length" class="pills-row">
-        <span
-          v-for="m in chapel.masses"
-          :key="`${m.day}-${m.time}`"
-          class="mass-pill"
-        >{{ dayLabel(m.day) }} {{ m.time }}</span>
+        <template v-for="m in chapel.masses">
+          <template v-for="day in m.days">
+            <span
+              v-for="time in m.times"
+              :key="`${day}-${time}`"
+              class="mass-pill"
+            >{{ dayLabel(day) }} {{ time }}</span>
+          </template>
+        </template>
       </div>
       <span v-else class="no-data">{{ t('home.chapels.confession_none') }}</span>
     </div>

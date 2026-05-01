@@ -1,16 +1,37 @@
 ---
 name: "Capela São Vicente"
 type: "branch"
-address: "Rua Y, 456 — Uvaranas, Ponta Grossa — PR"
+address: "R. Emíliano Perneta, 553 - Uvaranas, Ponta Grossa - PR, 84025-410, Brasil"
 images: []
 
+coordinates:
+  lat: -25.096216767421247
+  lng: -50.141902245379036
+
 masses:
-  - days: [6]
-    times: ["18:00"]
+  - days: [0]
+    times: ["09:00"]
 
 confession: []
 
-catechism: []
+pastor: "Padre Frei Pedro Brondani, OFMcap"
+
+catechism:
+  - group: "1º Tempo"
+    days: []
+    time: ""
+  - group: "2º Tempo"
+    days: []
+    time: ""
+  - group: "3º Tempo"
+    days: [5]
+    time: "18:00"
+  - group: "4º Tempo"
+    days: [6]
+    time: "13:00"
+  - group: "5º Tempo"
+    days: [6]
+    time: "14:00"
 ---
 
 # Capela São Vicente

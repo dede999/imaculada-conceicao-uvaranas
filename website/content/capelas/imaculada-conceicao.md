@@ -4,15 +4,15 @@ type: "matriz"
 address: "Av. Gen. Carlos Cavalcanti, 361 — Uvaranas, Ponta Grossa — PR"
 images: []
 
-pastor: "Fr. Exemplo, OFM Cap."
+pastor: "Padre Frei Pedro Brondani, OFMcap"
 
 coordinates:
-  lat: -25.0976
-  lng: -50.1557
+  lat: -25.090067292243273
+  lng: -50.148260988374844
 
 contact:
-  phone: "(42) 3232-0000"
-  whatsapp: "(42) 99900-0000"
+  phone: "+55 42 9924-1515"
+  whatsapp: "+55 42 9924-1515"
   email: "paroquia.imaculada@exemplo.com.br"
 
 social:
@@ -21,8 +21,10 @@ social:
 
 masses:
   - days: [0]
-    times: ["09:00"]
+    times: ["06:30", "08:00", "10:00", "17:30", "19:30"]
   - days: [3]
+    times: ["08:30", "19:30"]
+  - days: [1, 2, 4, 5, 6]
     times: ["19:30"]
 
 confession:

@@ -113,7 +113,10 @@ const currentConfessions = computed(() => {
         <div v-for="entry in nextMasses" :key="entry.chapelName" class="status-row">
           <span class="status-dot dot--upcoming" aria-hidden="true" />
           <span class="row-name">{{ entry.chapelName }}</span>
-          <span class="row-meta">{{ entry.time }}</span>
+          <span class="row-meta">
+            {{ entry.daysAhead === 0 ? t('status_panel.today') : t(`w_day.${(currentDay + entry.daysAhead) % 7}`) }}
+            {{ entry.time }}
+          </span>
         </div>
       </div>
 

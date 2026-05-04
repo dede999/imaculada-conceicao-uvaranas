@@ -32,6 +32,11 @@ interface ChapelSocial {
   youtube?: string
 }
 
+interface ChapelImage {
+  url: string
+  caption?: string
+}
+
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const route = useRoute()
@@ -106,6 +111,57 @@ const whatsappUrl = computed(() =>
     ? `https://wa.me/${contact.value.whatsapp.replace(/\D/g, '')}`
     : null
 )
+
+// ── Image gallery ──────────────────────────────────────────────────
+const hasText = computed(() => !!chapel.value?.body)
+const images = computed((): ChapelImage[] => (chapel.value as any)?.images ?? [])
+const hasImages = computed(() => images.value.length > 0)
+
+// ── Modal ──────────────────────────────────────────────────────────
+const modalOpen = ref(false)
+const modalIndex = ref(0)
+
+function openModal(index: number) {
+  modalIndex.value = index
+  modalOpen.value = true
+}
+
+function closeModal() {
+  modalOpen.value = false
+}
+
+function prevImage() {
+  modalIndex.value = (modalIndex.value - 1 + images.value.length) % images.value.length
+}
+
+function nextImage() {
+  modalIndex.value = (modalIndex.value + 1) % images.value.length
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (!modalOpen.value) return
+  if (e.key === 'Escape') closeModal()
+  if (e.key === 'ArrowLeft') prevImage()
+  if (e.key === 'ArrowRight') nextImage()
+}
+
+const touchStartX = ref(0)
+
+function onTouchStart(e: TouchEvent) {
+  touchStartX.value = e.touches[0].clientX
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const dx = e.changedTouches[0].clientX - touchStartX.value
+  if (Math.abs(dx) > 50) dx < 0 ? nextImage() : prevImage()
+}
+
+onMounted(() => window.addEventListener('keydown', handleKeydown))
+onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
+
+watch(modalOpen, (open) => {
+  if (import.meta.client) document.body.style.overflow = open ? 'hidden' : ''
+})
 
 useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as string}` })
 </script>
@@ -227,10 +283,50 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
 
       </div>
 
-      <!-- ── Body content ───────────────────────────────────────── -->
-      <section v-if="chapel!.body" class="content-section">
+      <!-- ── Body content + images ──────────────────────────────── -->
+      <section v-if="hasText || hasImages" class="content-section">
         <p class="section-eyebrow">{{ t('capelas.content_section') }}</p>
-        <ContentRenderer :value="chapel!" class="prose" />
+
+        <!-- Case 3: only images, no text -->
+        <div v-if="hasImages && !hasText" class="images-only">
+          <figure
+            v-for="(img, i) in images"
+            :key="i"
+            class="image-figure image-figure--centered"
+          >
+            <img
+              :src="img.url"
+              :alt="img.caption ?? ''"
+              class="chapel-image"
+              @click="openModal(i)"
+            />
+            <figcaption v-if="img.caption" class="image-caption">{{ img.caption }}</figcaption>
+          </figure>
+        </div>
+
+        <!-- Case 1 & 2: text with images floated right -->
+        <div v-else-if="hasText && hasImages" class="text-with-images">
+          <div class="images-float">
+            <figure
+              v-for="(img, i) in images"
+              :key="i"
+              class="image-figure"
+            >
+              <img
+                :src="img.url"
+                :alt="img.caption ?? ''"
+                class="chapel-image"
+                @click="openModal(i)"
+              />
+              <figcaption v-if="img.caption" class="image-caption">{{ img.caption }}</figcaption>
+            </figure>
+          </div>
+          <ContentRenderer :value="chapel!" class="prose" />
+          <div class="clearfix" />
+        </div>
+
+        <!-- Case 4: only text -->
+        <ContentRenderer v-else :value="chapel!" class="prose" />
       </section>
 
       <!-- ── Other chapels ─────────────────────────────────────── -->
@@ -258,6 +354,60 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
 
     </div>
   </main>
+
+  <!-- ── Image modal ────────────────────────────────────────────── -->
+  <Teleport to="body">
+    <div
+      v-if="modalOpen"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('capelas.modal_label')"
+      @click.self="closeModal"
+      @touchstart="onTouchStart"
+      @touchend="onTouchEnd"
+    >
+      <button
+        class="modal-close"
+        :aria-label="t('capelas.modal_close')"
+        @click="closeModal"
+      >
+        ✕
+      </button>
+
+      <button
+        v-if="images.length > 1"
+        class="modal-nav modal-prev"
+        :aria-label="t('capelas.modal_prev')"
+        @click="prevImage"
+      >
+        ‹
+      </button>
+
+      <figure class="modal-content">
+        <Transition name="modal-fade" mode="out-in">
+          <img
+            :key="modalIndex"
+            :src="images[modalIndex].url"
+            :alt="images[modalIndex].caption ?? ''"
+            class="modal-image"
+          />
+        </Transition>
+        <figcaption v-if="images[modalIndex].caption" class="modal-caption">
+          {{ images[modalIndex].caption }}
+        </figcaption>
+      </figure>
+
+      <button
+        v-if="images.length > 1"
+        class="modal-nav modal-next"
+        :aria-label="t('capelas.modal_next')"
+        @click="nextImage"
+      >
+        ›
+      </button>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -474,7 +624,6 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
 .schedule-block {
   display: flex;
   flex-direction: column;
-  gap: var(--space-10);
   gap: 10px;
   padding-top: var(--space-16);
   border-top: 1px solid var(--border-default);
@@ -606,7 +755,7 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
   color: var(--text-muted);
 }
 
-/* ── Body content ───────────────────────────────────────────────── */
+/* ── Body content card ──────────────────────────────────────────── */
 
 .content-section {
   background-color: var(--bg-page);
@@ -618,6 +767,72 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
   flex-direction: column;
   gap: var(--space-20);
 }
+
+/* ── Float image layout ─────────────────────────────────────────── */
+
+.images-float {
+  float: right;
+  width: 45%;
+  margin-left: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.images-only {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-24);
+}
+
+.image-figure {
+  margin: 0;
+}
+
+.image-figure--centered {
+  width: 60%;
+}
+
+.chapel-image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: block;
+  transition: opacity 0.15s;
+}
+
+.chapel-image:hover { opacity: 0.85; }
+
+.image-caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-align: center;
+  margin: var(--space-4) 0 0;
+  font-style: italic;
+}
+
+.clearfix::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+@media (max-width: 767px) {
+  .images-float {
+    float: none;
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: var(--space-16);
+  }
+
+  .image-figure--centered { width: 100%; }
+}
+
+/* ── Prose ──────────────────────────────────────────────────────── */
 
 .prose {
   font-family: var(--font-sans);
@@ -723,5 +938,92 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
   font-weight: 500;
   color: var(--fr-600);
   margin-top: var(--space-4);
+}
+
+/* ── Image modal ────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-16);
+  padding: var(--space-24);
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-16);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: var(--text-lg);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.modal-close:hover { background: rgba(255, 255, 255, 0.3); }
+
+.modal-nav {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: var(--text-2xl);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.modal-nav:hover { background: rgba(255, 255, 255, 0.3); }
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
+  margin: 0;
+}
+
+.modal-image {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.modal-caption {
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  text-align: center;
+  margin: 0;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 </style>

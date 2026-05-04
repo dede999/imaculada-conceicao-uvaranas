@@ -24,7 +24,7 @@ masses:
 
   - days: [6]
     times: ["15:00"]
-    note: "Legião de Maria" 
+    note: "Participação da equipe de liturgia da Legião de Maria" 
 
 confession: []
 
@@ -34,13 +34,13 @@ catechism:
     time: "10:15"
   - group: "2º Tempo"
     days: [6]
-    time: "13:00"
+    time: "10:00"
   - group: "3º Tempo"
     days: [6]
     time: "09:00"
   - group: "4º Tempo"
     days: [6]
-    time: "10:00"
+    time: "13:00"
   - group: "5º Tempo"
     days: [6]
     time: "09:00"

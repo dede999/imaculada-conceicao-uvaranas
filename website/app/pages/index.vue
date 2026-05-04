@@ -421,7 +421,7 @@ useHead({ title: parishName })
 .dot-matriz { background-color: var(--fr-400); }
 .dot-branch { background-color: var(--border-default); }
 
-.cell-masses { color: var(--text-muted); white-space: nowrap; }
+.cell-masses { color: var(--text-muted); }
 
 .confession-dot {
   display: inline-block;

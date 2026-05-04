@@ -130,24 +130,28 @@ useHead({ title: parishName })
                 :key="chapel.path"
                 :class="chapel.type === 'matriz' ? 'row-matriz' : 'row-branch'"
               >
-                <td class="cell-name">
-                  <span class="type-dot" :class="chapel.type === 'matriz' ? 'dot-matriz' : 'dot-branch'" />
-                  {{ chapel.name }}
+                <td>
+                  <div class="cell-name">
+                    <span class="type-dot" :class="chapel.type === 'matriz' ? 'dot-matriz' : 'dot-branch'" />
+                    {{ chapel.name }}
+                  </div>
                 </td>
                 <td class="cell-masses">{{ formatMasses(chapel.masses) }}</td>
                 <td class="cell-confession">
                   <span v-if="isConfessionNow(chapel)" class="confession-dot" aria-label="Sim" />
                   <span v-else class="text-muted">{{ t('home.chapels.confession_none') }}</span>
                 </td>
-                <td class="cell-catechism">
-                  <template v-if="chapel.catechism?.length">
-                    <span
-                      v-for="cat in chapel.catechism"
-                      :key="cat.group"
-                      class="cat-pill"
-                    >{{ cat.group }}</span>
-                  </template>
-                  <span v-else class="text-muted">{{ t('home.chapels.catechism_none') }}</span>
+                <td>
+                  <div class="cell-catechism">
+                    <template v-if="chapel.catechism?.length">
+                      <span
+                        v-for="cat in chapel.catechism"
+                        :key="cat.group"
+                        class="cat-pill"
+                      >{{ cat.group }}</span>
+                    </template>
+                    <span v-else class="text-muted">{{ t('home.chapels.catechism_none') }}</span>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -403,8 +407,8 @@ useHead({ title: parishName })
 .chapel-table tbody tr:last-child td { border-bottom: none; }
 
 .cell-name {
-  display: flex;
-  align-items: flex-start;
+  display: inline-flex;
+  align-items: center;
   gap: var(--space-8);
   font-weight: 500;
   white-space: nowrap;
@@ -416,7 +420,6 @@ useHead({ title: parishName })
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 4px;
 }
 
 .dot-matriz { background-color: var(--fr-400); }
@@ -435,6 +438,7 @@ useHead({ title: parishName })
 .cell-catechism {
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   gap: var(--space-4);
 }
 

@@ -61,6 +61,29 @@
     "modal_prev": "Imagem anterior",
     "modal_next": "Próxima imagem"
   },
+  "dizimo": {
+    "page_title": "Dízimo",
+    "eyebrow": "Colabore",
+    "title": "Dízimo",
+    "subtitle": "Uma forma de gratidão e missão",
+    "section_what": "O que é o dízimo",
+    "section_dimensions": "As dimensões do dízimo",
+    "section_how": "Como contribuir",
+    "dim_financial_title": "Dízimo financeiro",
+    "dim_financial_body": "A contribuição material — uma parte da renda — sustenta a vida sacramental, a manutenção dos espaços sagrados e os projetos sociais da paróquia. É o gesto mais visível de corresponsabilidade com a missão da Igreja.",
+    "dim_time_title": "Dízimo do tempo",
+    "dim_time_body": "Participar das celebrações, servir nas pastorais e ajudar nas atividades comunitárias é também uma forma de dízimo. O dom do tempo dedicado à comunidade constrói a Igreja tanto quanto qualquer contribuição financeira.",
+    "dim_talent_title": "Dízimo dos talentos",
+    "dim_talent_body": "Habilidades profissionais, artísticas ou manuais colocadas a serviço da comunidade são sementes de evangelização. Cada talento oferecido gratuitamente multiplica os frutos da missão.",
+    "pix_label": "Pix",
+    "pix_key_label": "Chave Pix",
+    "bank_label": "Transferência bancária",
+    "bank_agency": "Agência",
+    "bank_account": "Conta",
+    "bank_name": "Favorecido",
+    "inperson_label": "Presencialmente",
+    "inperson_body": "Contribuições podem ser entregues durante as missas ou diretamente na secretaria paroquial, de segunda a sexta, das 08h às 17h."
+  },
   "home": {
     "hero": {
       "link_masses": "Horários de Missa",

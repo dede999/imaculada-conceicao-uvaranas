@@ -718,6 +718,7 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
   font-weight: 400;
   color: var(--fr-600);
   font-size: 11px;
+  margin-left: var(--space-4);
 }
 
 /* ── Confession rows ────────────────────────────────────────────── */

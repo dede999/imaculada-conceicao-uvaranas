@@ -47,11 +47,23 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
               >
                 <summary class="accordion-summary">
                   <span class="dim-number">0{{ i + 1 }}</span>
-                  <span class="dim-title">{{ t(`dizimo.dim_${dim}_title`) }}</span>
+                  <span class="dim-title">{{ t(`dizimo.dimensions.${dim}.title`) }}</span>
                   <span class="accordion-icon" aria-hidden="true" />
                 </summary>
                 <div class="accordion-body">
-                  <p class="dim-body">{{ t(`dizimo.dim_${dim}_body`) }}</p>
+                  <p class="dim-body">{{ t(`dizimo.dimensions.${dim}.body`) }}</p>
+
+                  <div class="bible-section">
+                    <p class="bible-eyebrow">{{ t('dizimo.section_bible') }}</p>
+                    <div class="bible-block">
+                      <p class="bible-testament">{{ t(`dizimo.dimensions.${dim}.bible_ot_title`) }}</p>
+                      <blockquote class="bible-quote">{{ t(`dizimo.dimensions.${dim}.bible_ot_body`) }}</blockquote>
+                    </div>
+                    <div class="bible-block">
+                      <p class="bible-testament">{{ t(`dizimo.dimensions.${dim}.bible_nt_title`) }}</p>
+                      <blockquote class="bible-quote">{{ t(`dizimo.dimensions.${dim}.bible_nt_body`) }}</blockquote>
+                    </div>
+                  </div>
                 </div>
               </details>
             </div>
@@ -307,7 +319,52 @@ details[open] > .accordion-summary .accordion-icon::after {
   font-size: var(--text-sm);
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
+  margin: 0 0 var(--space-20);
+}
+
+.bible-section {
+  border-top: 1px solid var(--fr-200);
+  padding-top: var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.bible-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fr-600);
   margin: 0;
+}
+
+.bible-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.bible-testament {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.bible-quote {
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--fr-800);
+  border-left: 3px solid var(--fr-200);
+  padding-left: var(--space-12);
+  margin: 0;
+  font-style: italic;
 }
 
 /* ── Sidebar ─────────────────────────────────────────────────────── */

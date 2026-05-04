@@ -70,16 +70,43 @@
     "what_bullet_1": "Dízimo é compaixão de quem nada tem",
     "what_bullet_2": "Dízimo é gratidão pelo dom da partilha",
     "what_bullet_3": "Dízimo é oportunidade de demonstrar minha fé na providência divina",
+    "section_bible": "Dízimo na Bíblia",
     "section_dimensions": "As dimensões do dízimo",
     "section_how": "Como contribuir",
-    "dim_caritativa_title": "Caritativa",
-    "dim_caritativa_body": "Nessa dimensão o cristão manifesta o cuidado com os pobres de sua comunidade. A devolução do Dízimo serve para fazer caridade a quem bate a porta da Igreja. Há muitas pessoas que em algumas circunstâncias necessitam de ajuda material. O exemplo de Cristo que esteve do lado do pobre o dizimista aprende a ser caridoso. A caridade é uma virtude do cristão. Quando há doação generosa do cristão a comunidade tem recursos para ajudar os pobres (Doc. 106 CNBB nº 32).",
-    "dim_religiosa_title": "Religiosa",
-    "dim_religiosa_body": "Texto em elaboração. Esta dimensão será preenchida em breve com o conteúdo pastoral da Diocese de Ponta Grossa.",
-    "dim_missionaria_title": "Missionária",
-    "dim_missionaria_body": "Texto em elaboração. Esta dimensão será preenchida em breve com o conteúdo pastoral da Diocese de Ponta Grossa.",
-    "dim_eclesial_title": "Eclesial",
-    "dim_eclesial_body": "Texto em elaboração. Esta dimensão será preenchida em breve com o conteúdo pastoral da Diocese de Ponta Grossa.",
+    "dimensions": {
+      "caritativa": {
+        "title": "Caritativa",
+        "body": "Nessa dimensão o cristão manifesta o cuidado com os pobres de sua comunidade. A devolução do Dízimo serve para fazer caridade a quem bate a porta da Igreja. Há muitas pessoas que em algumas circunstâncias necessitam de ajuda material. O exemplo de Cristo que esteve do lado do pobre o dizimista aprende a ser caridoso. A caridade é uma virtude do cristão. Quando há doação generosa do cristão a comunidade tem recursos para ajudar os pobres (Doc. 106 CNBB nº 32).",
+        "bible_ot_title": "Antigo Testamento",
+        "bible_ot_body": "\"…Tomarás o Dízimo de tua colheita e o colocarás em tuas portas. Virá então o levita, o estrangeiro, o órfão e a viúva que vivem nas tuas cidades, e eles comerão e se saciarão. Deste modo o Senhor teu Deus te abençoará em todo trabalho que a tua mão realizar\" (Deuteronômio 14,28-29).",
+        "bible_nt_title": "Novo Testamento",
+        "bible_nt_body": "\"Entre eles ninguém passava necessidade\", pois tudo \"era distribuído conforme a necessidade de cada um\" (At 4,34-35). A atenção com os pobres e suas necessidades é uma característica da Igreja Apostólica. Ao reconhecerem a autenticidade do ministério de São Paulo, os apóstolos pediram que não se esquecesse dos pobres (Gl 2,10). \"A opção preferencial pelos pobres está implícita na fé cristológica\" e a caridade para com os pobres \"é uma dimensão constitutiva da missão da Igreja e expressão irrenunciável da sua própria essência\"."
+      },
+      "religiosa": {
+        "title": "Religiosa",
+        "body": "Texto em elaboração. Esta dimensão será preenchida em breve com o conteúdo pastoral da Diocese de Ponta Grossa.",
+        "bible_ot_title": "Antigo Testamento",
+        "bible_ot_body": "Passagem a ser preenchida.",
+        "bible_nt_title": "Novo Testamento",
+        "bible_nt_body": "Passagem a ser preenchida."
+      },
+      "missionaria": {
+        "title": "Missionária",
+        "body": "Texto em elaboração. Esta dimensão será preenchida em breve com o conteúdo pastoral da Diocese de Ponta Grossa.",
+        "bible_ot_title": "Antigo Testamento",
+        "bible_ot_body": "Passagem a ser preenchida.",
+        "bible_nt_title": "Novo Testamento",
+        "bible_nt_body": "Passagem a ser preenchida."
+      },
+      "eclesial": {
+        "title": "Eclesial",
+        "body": "Texto em elaboração. Esta dimensão será preenchida em breve com o conteúdo pastoral da Diocese de Ponta Grossa.",
+        "bible_ot_title": "Antigo Testamento",
+        "bible_ot_body": "Passagem a ser preenchida.",
+        "bible_nt_title": "Novo Testamento",
+        "bible_nt_body": "Passagem a ser preenchida."
+      }
+    },
     "pix_label": "Pix",
     "pix_key_label": "Chave Pix",
     "bank_label": "Transferência bancária",

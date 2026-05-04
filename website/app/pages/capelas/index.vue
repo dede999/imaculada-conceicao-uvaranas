@@ -502,13 +502,19 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   display: inline-flex;
   align-self: flex-start;
   margin-top: auto;
-  padding-top: var(--space-16);
+  padding: var(--space-8) var(--space-16);
+  border: 1px solid var(--fr-400);
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--fr-600);
+  color: var(--fr-800);
   text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
-.detail-link:hover { text-decoration: underline; }
+.detail-link:hover {
+  background-color: var(--fr-50);
+  border-color: var(--fr-600);
+}
 </style>

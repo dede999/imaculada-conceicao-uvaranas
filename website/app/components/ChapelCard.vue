@@ -263,6 +263,8 @@ function formatConfession(slot: ConfessionSlot): string {
 }
 
 .conf-text {
+  min-width: 0;
+  overflow-wrap: break-word;
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   color: var(--text-primary);

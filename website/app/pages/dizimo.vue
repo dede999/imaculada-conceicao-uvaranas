@@ -4,6 +4,8 @@ import tauRaw from '~/assets/tau.svg?raw'
 const { t } = useI18n()
 const config = useRuntimeConfig()
 
+const dimensions = ['caritativa', 'religiosa', 'missionaria', 'eclesial'] as const
+
 useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName as string}` })
 </script>
 
@@ -25,38 +27,33 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
           <!-- O que é o dízimo -->
           <section class="content-section">
             <h2 class="section-heading">{{ t('dizimo.section_what') }}</h2>
-            <p class="body-text">
-              O dízimo é a prática bíblica e eclesial de destinar uma parte do que se recebe —
-              tradicionalmente um décimo — para sustentar a missão da Igreja. Mais do que uma
-              obrigação, é um gesto de gratidão e confiança na providência de Deus: ao devolver
-              uma fração do que recebemos, reconhecemos que tudo vem d'Ele e que somos
-              administradores, não donos, dos bens que possuímos.
-            </p>
-            <p class="body-text">
-              Na tradição franciscana, o dízimo é vivido com especial alegria, como expressão
-              da pobreza evangélica e da partilha fraterna. Dar não empobrece — liberta.
-            </p>
+            <ol class="what-list">
+              <li>{{ t('dizimo.what_bullet_1') }}</li>
+              <li>{{ t('dizimo.what_bullet_2') }}</li>
+              <li>{{ t('dizimo.what_bullet_3') }}</li>
+            </ol>
           </section>
 
           <!-- As dimensões -->
           <section class="content-section">
             <h2 class="section-heading">{{ t('dizimo.section_dimensions') }}</h2>
-            <div class="dimensions-grid">
-              <article class="dimension-card">
-                <p class="dim-eyebrow">01</p>
-                <h3 class="dim-title">{{ t('dizimo.dim_financial_title') }}</h3>
-                <p class="dim-body">{{ t('dizimo.dim_financial_body') }}</p>
-              </article>
-              <article class="dimension-card">
-                <p class="dim-eyebrow">02</p>
-                <h3 class="dim-title">{{ t('dizimo.dim_time_title') }}</h3>
-                <p class="dim-body">{{ t('dizimo.dim_time_body') }}</p>
-              </article>
-              <article class="dimension-card">
-                <p class="dim-eyebrow">03</p>
-                <h3 class="dim-title">{{ t('dizimo.dim_talent_title') }}</h3>
-                <p class="dim-body">{{ t('dizimo.dim_talent_body') }}</p>
-              </article>
+
+            <div class="accordion">
+              <details
+                v-for="(dim, i) in dimensions"
+                :key="dim"
+                class="accordion-item"
+                :open="i === 0"
+              >
+                <summary class="accordion-summary">
+                  <span class="dim-number">0{{ i + 1 }}</span>
+                  <span class="dim-title">{{ t(`dizimo.dim_${dim}_title`) }}</span>
+                  <span class="accordion-icon" aria-hidden="true" />
+                </summary>
+                <div class="accordion-body">
+                  <p class="dim-body">{{ t(`dizimo.dim_${dim}_body`) }}</p>
+                </div>
+              </details>
             </div>
           </section>
 
@@ -129,18 +126,11 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
   margin-bottom: var(--space-16);
 }
 
-.tau-mark :deep(svg) {
-  width: 100%;
-  height: 100%;
-}
+.tau-mark :deep(svg) { width: 100%; height: 100%; }
 
-.page-title {
-  margin: var(--space-8) 0 var(--space-12);
-}
+.page-title { margin: var(--space-8) 0 var(--space-12); }
 
-.page-subtitle {
-  color: var(--text-muted);
-}
+.page-subtitle { color: var(--text-muted); }
 
 /* ── Content grid ────────────────────────────────────────────────── */
 
@@ -152,9 +142,7 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
 }
 
 @media (max-width: 1023px) {
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
+  .content-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Main column ─────────────────────────────────────────────────── */
@@ -168,7 +156,7 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
 .content-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-16);
+  gap: var(--space-20);
 }
 
 .section-heading {
@@ -182,66 +170,147 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
   border-bottom: 1px solid var(--fr-200);
 }
 
-.body-text {
+/* ── What-is list ────────────────────────────────────────────────── */
+
+.what-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  counter-reset: what-counter;
+}
+
+.what-list li {
+  counter-increment: what-counter;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-12);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
-  margin: 0;
 }
 
-/* ── Dimensions grid ─────────────────────────────────────────────── */
-
-.dimensions-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-16);
-  margin-top: var(--space-8);
+.what-list li::before {
+  content: counter(what-counter) '.';
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--fr-400);
+  flex-shrink: 0;
+  width: 20px;
 }
 
-@media (max-width: 767px) {
-  .dimensions-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* ── Accordion ───────────────────────────────────────────────────── */
 
-.dimension-card {
-  background-color: var(--bg-page);
-  border: 1px solid var(--border-default);
-  border-top: 3px solid var(--fr-400);
-  border-radius: var(--radius-lg);
-  padding: var(--space-20);
+.accordion {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  border: 1px solid var(--fr-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
-.dim-eyebrow {
+.accordion-item {
+  border-bottom: 1px solid var(--fr-200);
+}
+
+.accordion-item:last-child {
+  border-bottom: none;
+}
+
+.accordion-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-20);
+  cursor: pointer;
+  list-style: none;
+  background-color: var(--bg-page);
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.accordion-summary::-webkit-details-marker { display: none; }
+
+.accordion-summary:hover {
+  background-color: var(--fr-50);
+}
+
+details[open] > .accordion-summary {
+  background-color: var(--fr-50);
+  border-bottom: 1px solid var(--fr-200);
+}
+
+.dim-number {
   font-family: var(--font-sans);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   color: var(--fr-400);
-  margin: 0;
+  flex-shrink: 0;
 }
 
 .dim-title {
+  flex: 1;
   font-family: var(--font-serif);
   font-size: var(--text-lg);
   font-weight: 500;
   color: var(--fr-950);
-  margin: 0;
+}
+
+.accordion-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  color: var(--fr-400);
+}
+
+.accordion-icon::before,
+.accordion-icon::after {
+  content: '';
+  position: absolute;
+  background-color: currentColor;
+  border-radius: 1px;
+}
+
+.accordion-icon::before {
+  width: 10px;
+  height: 2px;
+  top: 7px;
+  left: 3px;
+}
+
+.accordion-icon::after {
+  width: 2px;
+  height: 10px;
+  top: 3px;
+  left: 7px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+details[open] > .accordion-summary .accordion-icon::after {
+  transform: scaleY(0);
+  opacity: 0;
+}
+
+.accordion-body {
+  padding: var(--space-20);
+  background-color: var(--bg-page);
 }
 
 .dim-body {
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   line-height: var(--line-height-relaxed);
-  color: var(--text-muted);
+  color: var(--text-primary);
   margin: 0;
 }
 
-/* ── How to contribute (sidebar) ─────────────────────────────────── */
+/* ── Sidebar ─────────────────────────────────────────────────────── */
 
 .side-col {
   position: sticky;
@@ -259,15 +328,12 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
   gap: var(--space-24);
 }
 
-.how-heading {
-  border-bottom-color: var(--fr-200);
-}
+.how-heading { border-bottom-color: var(--fr-200); }
 
 .how-method {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  padding-top: var(--space-4);
 }
 
 .method-label {

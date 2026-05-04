@@ -393,7 +393,7 @@ useHead({ title: parishName })
   padding: var(--space-12);
   border-bottom: 1px solid var(--border-default);
   color: var(--text-primary);
-  vertical-align: middle;
+  vertical-align: top;
   background-color: inherit;
 }
 
@@ -404,7 +404,7 @@ useHead({ title: parishName })
 
 .cell-name {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-8);
   font-weight: 500;
   white-space: nowrap;
@@ -416,6 +416,7 @@ useHead({ title: parishName })
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+  margin-top: 4px;
 }
 
 .dot-matriz { background-color: var(--fr-400); }

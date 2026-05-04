@@ -54,7 +54,11 @@
     "contact_whatsapp": "WhatsApp",
     "contact_email": "E-mail",
     "social_links": "Redes Sociais",
-    "other_chapels": "Outras Capelas"
+    "other_chapels": "Outras Capelas",
+    "modal_label": "Galeria de imagens",
+    "modal_close": "Fechar",
+    "modal_prev": "Imagem anterior",
+    "modal_next": "Próxima imagem"
   },
   "home": {
     "hero": {

@@ -2,7 +2,17 @@
 name: "Paróquia Imaculada Conceição"
 type: "matriz"
 address: "Av. Gen. Carlos Cavalcanti, 361 — Uvaranas, Ponta Grossa — PR"
-images: []
+images:
+  - url: "https://placehold.co/600x400/FAEEDA/412402?text=Fachada"
+    caption: "Fachada da Paróquia Imaculada Conceição"
+  - url: "https://placehold.co/600x400/FAEEDA/412402?text=Interior"
+    caption: "Interior da paróquia"
+  - url: "https://placehold.co/600x400/FAEEDA/412402?text=Altar"
+    caption: "Altar principal"
+  - url: "https://placehold.co/600x400/FAEEDA/412402?text=Comunidade"
+    caption: "Comunidade reunida"
+  - url: "https://placehold.co/600x400/FAEEDA/412402?text=Salão"
+    caption: "Salão paroquial"
 
 pastor: "Padre Frei Pedro Brondani, OFMcap"
 

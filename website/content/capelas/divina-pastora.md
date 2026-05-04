@@ -2,7 +2,11 @@
 name: "Capela Divina Pastora"
 type: "branch"
 address: "R. Tomazina, 675 - Uvaranas, Ponta Grossa - PR, 84025-510, Brasil"
-images: []
+images:
+  - url: "https://placehold.co/600x400/E1F5EE/04342C?text=Fachada"
+    caption: "Fachada da Capela Divina Pastora"
+  - url: "https://placehold.co/600x400/E1F5EE/04342C?text=Interior"
+    caption: "Interior da capela"
 
 coordinates:
   lat: -25.098121096522533

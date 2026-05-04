@@ -33,7 +33,7 @@
 | Conteúdo estático | @nuxt/content (Markdown + YAML frontmatter) |
 | Estilo | Tailwind CSS (ou UnoCSS) — light mode fixo, sem color-mode |
 | i18n | @nuxtjs/i18n — estruturar desde o início, começar só com `pt-BR` |
-| Formulários / LGPD | Supabase (dízimo, cadastro, exclusão de dados) |
+| Formulários / LGPD | Supabase (transparência financeira; dízimo é página estática) |
 | Dados financeiros | Script em Go ou Rust que lê `.xlsx` e gera `.json` |
 | CI/CD | GitHub Actions — deploy automático + script financeiro agendado (dia 1 de cada mês) |
 | Hospedagem | Netlify ou Vercel (tier gratuito) |
@@ -45,7 +45,7 @@
 - **i18n**: mesmo sem tradução imediata, todos os textos devem vir de arquivos de locale (`locales/pt-BR.json`). Nunca string hardcoded em template.
 - **i18n — localização de rotas**: `parish.config.yaml` é a fonte de verdade para `default_locale` e `locales`. Nunca hardcode esses valores em `nuxt.config.ts`. O bloco `pages` em `nuxt.config.ts → i18n.pages` pré-define os slugs traduzidos para cada rota — toda nova página deve ter suas traduções registradas ali antes de ser criada. A estratégia é `prefix_except_default`: o locale padrão não tem prefixo de URL, locales adicionais ganham prefixo automático (`/en/chapels`, `/fr/chapelles` etc.).
 - **Script financeiro**: compilar o binário no CI antes de rodar. Não usar `go run` ou `cargo run` em produção — recompila toda vez e desperdiça minutos de Action.
-- **Supabase**: documentar schema e RLS policies num `README` dedicado em `/docs/dizimo.md`. Centralizar lógica num composable `useDizimo.ts`.
+- **Supabase**: reservado para módulos futuros que requeiram persistência (ex.: transparência interativa). A página de dízimo é estática.
 
 ---
 
@@ -55,7 +55,7 @@
 |---|---|
 | `/` | Home — layout bento |
 | `/capelas` | Lista de capelas/paróquias |
-| `/dizimo` | Dízimo — dimensões, meios, cadastro, LGPD |
+| `/dizimo` | Dízimo — o que é, dimensões e meios de contribuição (página estática, sem cadastro) |
 | `/pastorais` | Lista de pastorais (conteúdo em Markdown) |
 | `/eventos` | Eventos futuros e passados + comunicados |
 | `/noticias` | Blog de notícias (página separada) |

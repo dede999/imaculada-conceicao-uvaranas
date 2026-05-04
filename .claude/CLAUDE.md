@@ -67,9 +67,9 @@ If `showEvent` is false, the event card is hidden and the news + announcement ca
 
 Located in `scripts/parse_sheet/`. Always compile the binary before running — never use `go run` or `cargo run` in CI. Output goes to `content/transparencia/dados.json`.
 
-## Supabase (tithe module)
+## Dízimo
 
-Schema and RLS policy documentation in `docs/dizimo.md`. All logic centralized in `composables/useDizimo.ts`. Never spread Supabase calls across components.
+`/dizimo` is a static informational page only. No Supabase, no registration, no monetary transactions, no forms. Sections: (1) O que é o dízimo, (2) As dimensões do dízimo, (3) Como contribuir — Pix key and bank data only.
 
 ## What not to do
 

@@ -14,9 +14,11 @@ const feedId = config.public.beholdFeedId as string
 const instagramHandle = (config.public.parishInstagram as string).replace('@', '')
 
 const { data: posts } = await useAsyncData<BeholdPost[] | null>('instagram-feed', async () => {
-  if (!feedId) return null
-  const data = await $fetch<BeholdPost[]>(`https://feeds.behold.so/${feedId}`)
-  return data.slice(0, 9)
+  const url = feedId
+    ? `https://feeds.behold.so/${feedId}`
+    : '/instagram-feed.json'
+  const data = await $fetch<BeholdPost[]>(url)
+  return data.length ? data.slice(0, 9) : null
 })
 
 const instagramUrl = instagramHandle ? `https://instagram.com/${instagramHandle}` : null

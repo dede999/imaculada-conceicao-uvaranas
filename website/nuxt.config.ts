@@ -16,7 +16,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/tokens.css'],
   vite: {
     optimizeDeps: {
-      include: ['@vueuse/core'],
+      include: ['@vueuse/core', '@vue/devtools-core', '@vue/devtools-kit'],
     },
   },
   modules: [

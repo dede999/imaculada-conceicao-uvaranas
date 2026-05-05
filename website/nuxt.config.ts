@@ -28,6 +28,7 @@ export default defineNuxtConfig({
     '@nuxt/scripts',
     '@nuxt/a11y',
     '@nuxtjs/i18n',
+    '@nuxtjs/supabase',
   ],
   devtools: { enabled: true },
   compatibilityDate: '2024-04-03',
@@ -42,6 +43,9 @@ export default defineNuxtConfig({
       parishInstagram: (parishConfig.contact?.instagram ?? '') as string,
       beholdFeedId: (parishConfig.contact?.behold_feed_id ?? '') as string,
     },
+  },
+  supabase: {
+    redirect: false,
   },
   i18n: {
     defaultLocale: parishConfig.i18n.default_locale,

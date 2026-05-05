@@ -51,6 +51,19 @@ function dayLabel(day: number): string {
   return t(`w_day.${day}`)
 }
 
+const massesByDay = computed(() => {
+  const map = new Map<number, Set<string>>()
+  for (const entry of props.chapel.masses ?? []) {
+    for (const day of entry.days) {
+      if (!map.has(day)) map.set(day, new Set())
+      entry.times.forEach(time => map.get(day)!.add(time))
+    }
+  }
+  return Array.from(map.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([day, times]) => ({ day, times: Array.from(times).sort() }))
+})
+
 function formatConfession(slot: ConfessionSlot): string {
   const days = slot.days.map(dayLabel).join(', ')
   return `${days} · ${slot.time_start}–${slot.time_end}`
@@ -74,15 +87,11 @@ function formatConfession(slot: ConfessionSlot): string {
     <div class="card-section">
       <p class="section-label">{{ t('home.chapels.col_masses') }}</p>
       <div v-if="chapel.masses?.length" class="pills-row">
-        <template v-for="m in chapel.masses">
-          <template v-for="day in m.days">
-            <span
-              v-for="time in m.times"
-              :key="`${day}-${time}`"
-              class="mass-pill"
-            >{{ dayLabel(day) }} {{ time }}</span>
-          </template>
-        </template>
+        <span
+          v-for="group in massesByDay"
+          :key="group.day"
+          class="mass-pill"
+        >{{ dayLabel(group.day) }} ({{ group.times.join(' · ') }})</span>
       </div>
       <span v-else class="no-data">{{ t('home.chapels.confession_none') }}</span>
     </div>

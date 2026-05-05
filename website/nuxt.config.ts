@@ -23,7 +23,6 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/fonts',
-    '@nuxt/hints',
     '@nuxt/icon',
     '@nuxt/image',
     '@nuxt/scripts',

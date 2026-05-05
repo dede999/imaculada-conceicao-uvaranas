@@ -13,10 +13,22 @@ const { data: chapels } = await useChapels()
 
 const todayStr = new Date().toISOString().slice(0, 10)
 
-const [{ data: eventsData }, { data: newsData }] = await Promise.all([
+const [{ data: eventsData }, { data: newsData }, { data: pastoraisData }] = await Promise.all([
   useAsyncData('home-events', () => queryCollection('events').all()),
   useAsyncData('home-noticias', () => queryCollection('noticias').order('date', 'DESC').all()),
+  useAsyncData('home-pastorais', () => queryCollection('pastorais').all()),
 ])
+
+const MINISTRY_CATEGORIES = ['liturgia', 'formacao', 'social', 'movimentos', 'comunicacao'] as const
+
+const ministryGroups = computed(() =>
+  MINISTRY_CATEGORIES
+    .map(cat => ({
+      key: cat,
+      count: (pastoraisData.value ?? []).filter((p: any) => p.category === cat).length,
+    }))
+    .filter(g => g.count > 0)
+)
 
 const showEvent = computed(() =>
   (eventsData.value ?? []).some(e => e.status === 'active' && e.date >= todayStr)
@@ -192,14 +204,23 @@ useHead({ title: parishName })
 
       <article class="card card-instagram">
         <p class="eyebrow">{{ t('home.instagram.eyebrow') }}</p>
-        <div class="instagram-placeholder">
-          <p class="body-text text-muted">{{ t('home.instagram.placeholder') }}</p>
-        </div>
+        <InstagramFeed />
       </article>
 
       <article class="card card-ministries">
         <p class="eyebrow">{{ t('home.ministries.eyebrow') }}</p>
-        <p class="body-text text-muted">{{ t('home.ministries.empty') }}</p>
+        <nav class="ministry-list" aria-label="Categorias de pastorais">
+          <NuxtLink
+            v-for="group in ministryGroups"
+            :key="group.key"
+            to="/pastorais"
+            class="ministry-row"
+          >
+            <span class="ministry-name">{{ t(`pastorais.categories.${group.key}`) }}</span>
+            <span class="ministry-count">{{ group.count }}</span>
+          </NuxtLink>
+        </nav>
+        <NuxtLink to="/pastorais" class="card-link">{{ t('home.ministries.link') }}</NuxtLink>
       </article>
 
     </div>
@@ -538,16 +559,43 @@ useHead({ title: parishName })
 
 .tithe-cta:hover { opacity: 0.85; }
 
-/* ── Instagram placeholder ─────────────────────────────────────── */
+/* ── Ministry list ─────────────────────────────────────────────── */
 
-.instagram-placeholder {
+.ministry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   flex: 1;
+  margin-top: var(--space-8);
+}
+
+.ministry-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-top: var(--space-16);
-  border: 2px dashed var(--border-default);
-  border-radius: var(--radius-md);
-  min-height: 180px;
+  justify-content: space-between;
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background-color 0.1s;
+}
+
+.ministry-row:hover { background-color: var(--fr-50); }
+
+.ministry-name {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.ministry-count {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  background-color: var(--bg-alt);
+  border-radius: 999px;
+  padding: 1px var(--space-8);
+  min-width: 24px;
+  text-align: center;
 }
 </style>

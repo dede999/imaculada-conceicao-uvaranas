@@ -61,6 +61,26 @@
     "modal_prev": "Imagem anterior",
     "modal_next": "Próxima imagem"
   },
+  "eventos": {
+    "page_title": "Eventos e Comunicados",
+    "eyebrow": "Agenda",
+    "upcoming": "Próximos eventos",
+    "past": "Eventos anteriores",
+    "empty_upcoming": "Nenhum evento programado",
+    "badge_event": "Evento",
+    "badge_announcement": "Comunicado",
+    "status_cancelled": "Cancelado",
+    "status_postponed": "Adiado",
+    "read_more": "Leia mais →",
+    "back": "← Eventos"
+  },
+  "noticias": {
+    "page_title": "Notícias",
+    "eyebrow": "Notícias da Paróquia",
+    "empty": "Nenhuma publicação disponível",
+    "read_more": "Leia mais →",
+    "back": "← Notícias"
+  },
   "dizimo": {
     "page_title": "Dízimo",
     "eyebrow": "Colabore",

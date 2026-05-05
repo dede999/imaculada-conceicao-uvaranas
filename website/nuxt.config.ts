@@ -39,6 +39,8 @@ export default defineNuxtConfig({
       parishDiocese: parishConfig.diocese,
       parishOrder: parishConfig.order,
       massDurationMinutes: parishConfig.mass_duration_minutes as number,
+      parishInstagram: (parishConfig.contact?.instagram ?? '') as string,
+      beholdFeedId: (parishConfig.contact?.behold_feed_id ?? '') as string,
     },
   },
   i18n: {

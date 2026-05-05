@@ -61,6 +61,21 @@
     "modal_prev": "Imagem anterior",
     "modal_next": "Próxima imagem"
   },
+  "pastorais": {
+    "page_title": "Pastorais e Movimentos",
+    "eyebrow": "Comunidade",
+    "subtitle": "Grupos e movimentos que animam a missão da paróquia",
+    "coordinator": "Coordenador",
+    "meetings": "Encontros",
+    "back": "← Pastorais",
+    "categories": {
+      "liturgia": "Liturgia e Sacramentos",
+      "formacao": "Formação na Fé",
+      "social": "Ação Social e Serviço",
+      "movimentos": "Movimentos e Associações",
+      "comunicacao": "Comunicação"
+    }
+  },
   "eventos": {
     "page_title": "Eventos e Comunicados",
     "eyebrow": "Agenda",

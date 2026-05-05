@@ -250,7 +250,8 @@
     },
     "ministries": {
       "eyebrow": "Ministérios e Pastorais",
-      "empty": "Em breve"
+      "empty": "Em breve",
+      "link": "Ver todas as pastorais →"
     }
   }
 }

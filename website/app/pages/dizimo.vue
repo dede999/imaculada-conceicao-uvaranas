@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import tauRaw from '~/assets/tau.svg?raw'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const config = useRuntimeConfig()
 
 const dimensions = ['caritativa', 'religiosa', 'missionaria', 'eclesial'] as const
@@ -24,16 +24,6 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
 
         <div class="main-col">
 
-          <!-- O que é o dízimo -->
-          <section class="content-section">
-            <h2 class="section-heading">{{ t('dizimo.section_what') }}</h2>
-            <ol class="what-list">
-              <li>{{ t('dizimo.what_bullet_1') }}</li>
-              <li>{{ t('dizimo.what_bullet_2') }}</li>
-              <li>{{ t('dizimo.what_bullet_3') }}</li>
-            </ol>
-          </section>
-
           <!-- As dimensões -->
           <section class="content-section">
             <h2 class="section-heading">{{ t('dizimo.section_dimensions') }}</h2>
@@ -53,6 +43,15 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
                 <div class="accordion-body">
                   <p class="dim-body">{{ t(`dizimo.dimensions.${dim}.body`) }}</p>
 
+                  <div class="dim-subsection">
+                    <p class="subsection-heading">{{ t('dizimo.section_what') }}</p>
+                    <ol class="what-list">
+                      <li>{{ t(`dizimo.dimensions.${dim}.what_bullet_1`) }}</li>
+                      <li>{{ t(`dizimo.dimensions.${dim}.what_bullet_2`) }}</li>
+                      <li>{{ t(`dizimo.dimensions.${dim}.what_bullet_3`) }}</li>
+                    </ol>
+                  </div>
+
                   <div class="bible-section">
                     <p class="bible-eyebrow">{{ t('dizimo.section_bible') }}</p>
                     <div class="bible-block">
@@ -63,6 +62,41 @@ useHead({ title: `${t('dizimo.page_title')} — ${config.public.parishShortName 
                       <p class="bible-testament">{{ t(`dizimo.dimensions.${dim}.bible_nt_title`) }}</p>
                       <blockquote class="bible-quote">{{ t(`dizimo.dimensions.${dim}.bible_nt_body`) }}</blockquote>
                     </div>
+                  </div>
+
+                  <div v-if="te(`dizimo.dimensions.${dim}.dimension_body`)" class="dim-subsection">
+                    <p class="subsection-heading">{{ t('dizimo.section_dimension_prefix') }} {{ t(`dizimo.dimensions.${dim}.title`) }}</p>
+                    <p class="dim-body">{{ t(`dizimo.dimensions.${dim}.dimension_body`) }}</p>
+                  </div>
+
+                  <div class="dim-subsection">
+                    <p class="subsection-heading">{{ t('dizimo.section_evangeliza') }}</p>
+                    <p class="dim-body">{{ t(`dizimo.dimensions.${dim}.evangeliza_body`) }}</p>
+                  </div>
+
+                  <div class="dim-subsection">
+                    <p class="subsection-heading">{{ t('dizimo.section_challenges') }}</p>
+                    <p class="dim-body">{{ t(`dizimo.dimensions.${dim}.challenges_body`) }}</p>
+                  </div>
+
+                  <div class="dim-subsection">
+                    <p class="subsection-heading">{{ t('dizimo.section_where') }}</p>
+                    <p class="dim-body">{{ t(`dizimo.dimensions.${dim}.where_body`) }}</p>
+                  </div>
+
+                  <div class="dim-subsection">
+                    <p class="subsection-heading">{{ t('dizimo.section_prayers') }}</p>
+                    <div class="prayers-list">
+                      <div v-for="n in 4" :key="n" class="prayer-pair">
+                        <p class="prayer-text">{{ t(`dizimo.dimensions.${dim}.prayer_${n}`) }}</p>
+                        <p class="prayer-response">{{ t(`dizimo.dimensions.${dim}.prayer_response`) }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="dim-subsection oracao-subsection">
+                    <p class="subsection-heading">{{ t('dizimo.section_oracao') }}</p>
+                    <p class="dim-body oracao-body">{{ t(`dizimo.dimensions.${dim}.oracao_body`) }}</p>
                   </div>
                 </div>
               </details>
@@ -312,6 +346,9 @@ details[open] > .accordion-summary .accordion-icon::after {
 .accordion-body {
   padding: var(--space-20);
   background-color: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
 }
 
 .dim-body {
@@ -319,8 +356,60 @@ details[open] > .accordion-summary .accordion-icon::after {
   font-size: var(--text-sm);
   line-height: var(--line-height-relaxed);
   color: var(--text-primary);
-  margin: 0 0 var(--space-20);
+  margin: 0;
+  white-space: pre-line;
 }
+
+.dim-subsection {
+  border-top: 1px solid var(--fr-200);
+  padding-top: var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.subsection-heading {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fr-600);
+  margin: 0;
+}
+
+.prayers-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.prayer-pair {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.prayer-text {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.prayer-response {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--fr-600);
+  margin: 0;
+}
+
+.oracao-subsection { background-color: var(--fr-50); border-radius: var(--radius-sm); padding: var(--space-16); border-top: none; margin-top: var(--space-4); }
+
+.oracao-body { font-family: var(--font-serif); font-style: italic; color: var(--fr-800); }
 
 .bible-section {
   border-top: 1px solid var(--fr-200);

@@ -53,7 +53,7 @@ export default defineNuxtConfig({
     pages: {
       'capelas/index':  { 'pt-BR': '/capelas',          'es': '/capillas',          'en': '/chapels',          'fr': '/chapelles'         },
       dizimo:           { 'pt-BR': '/dizimo',            'es': '/diezmo',            'en': '/tithe',            'fr': '/dime'              },
-      pastorais:        { 'pt-BR': '/pastorais',         'es': '/pastorales',        'en': '/ministries',       'fr': '/ministeres'        },
+      'pastorais/index':{ 'pt-BR': '/pastorais',         'es': '/pastorales',        'en': '/ministries',       'fr': '/ministeres'        },
       'eventos/index':  { 'pt-BR': '/eventos',           'es': '/eventos',           'en': '/events',           'fr': '/evenements'        },
       'noticias/index': { 'pt-BR': '/noticias',          'es': '/noticias',          'en': '/news',             'fr': '/actualites'        },
       transparencia:    { 'pt-BR': '/transparencia',     'es': '/transparencia',     'en': '/transparency',     'fr': '/transparence'      },

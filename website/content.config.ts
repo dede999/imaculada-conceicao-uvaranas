@@ -30,6 +30,18 @@ export default defineContentConfig({
       }),
     }),
 
+    pastorais: defineCollection({
+      type: 'page',
+      source: 'pastorais/*.md',
+      schema: z.object({
+        name: z.string(),
+        category: z.enum(['liturgia', 'formacao', 'social', 'movimentos', 'comunicacao']),
+        summary: z.string(),
+        coordinator: z.string().optional(),
+        meetings: z.string().optional(),
+      }),
+    }),
+
     capelas: defineCollection({
       type: 'page',
       source: 'capelas/*.md',

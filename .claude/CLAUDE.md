@@ -71,6 +71,13 @@ Located in `scripts/parse_sheet/`. Always compile the binary before running — 
 
 `/dizimo` is a static informational page only. No Supabase, no registration, no monetary transactions, no forms. Sections: (1) O que é o dízimo, (2) As dimensões do dízimo, (3) Como contribuir — Pix key and bank data only.
 
+## Commits
+
+- Always atomic: one logical change per commit — never bundle unrelated changes
+- Use conventional commit messages: `feat|fix|refactor|chore|docs(scope): description`
+- Prefer many small commits over one large commit
+- Never use `--no-verify` or skip hooks
+
 ## What not to do
 
 - Do not install carousel libraries — CSS scroll-snap is enough

@@ -16,6 +16,7 @@ const links = [
   { to: '/eventos',      label: 'nav.events',        exact: false },
   { to: '/noticias',     label: 'nav.news',          exact: false },
   { to: '/pastorais',    label: 'nav.ministries',    exact: false },
+  { to: '/dizimo',       label: 'nav.tithe',         exact: false },
   { to: '/transparencia',label: 'nav.transparency',  exact: false },
 ]
 </script>

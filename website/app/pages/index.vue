@@ -25,15 +25,17 @@ const nextEvent = computed(() =>
 const dayLabel = (day: number): string => t(`w_day.${day}`)
 const formatMasses = (masses: Array<{ days: number[]; times: string[] }> | undefined): string => {
   if (!masses?.length) return '—'
-  const parts: string[] = []
+  const map = new Map<number, Set<string>>()
   for (const m of masses) {
     for (const day of m.days) {
-      for (const time of m.times) {
-        parts.push(`${dayLabel(day)} ${time}`)
-      }
+      if (!map.has(day)) map.set(day, new Set())
+      m.times.forEach(time => map.get(day)!.add(time))
     }
   }
-  return parts.join(' · ')
+  return Array.from(map.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([day, times]) => `${dayLabel(day)} (${Array.from(times).sort().join(' · ')})`)
+    .join(' · ')
 }
 
 const { currentDay, currentTime } = useParishTime()

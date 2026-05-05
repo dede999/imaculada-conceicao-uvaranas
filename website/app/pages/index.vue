@@ -11,15 +11,28 @@ const parishOrder = config.public.parishOrder as string
 
 const { data: chapels } = await useChapels()
 
-const events = ref<any[]>([])
-const latestNews = ref<any>(null)
-const latestAnnouncement = ref<any>(null)
+const todayStr = new Date().toISOString().slice(0, 10)
+
+const [{ data: eventsData }, { data: newsData }] = await Promise.all([
+  useAsyncData('home-events', () => queryCollection('events').all()),
+  useAsyncData('home-noticias', () => queryCollection('noticias').order('date', 'DESC').all()),
+])
 
 const showEvent = computed(() =>
-  events.value.some((e) => e.status === 'active' && new Date(e.date) > new Date())
+  (eventsData.value ?? []).some(e => e.status === 'active' && e.date >= todayStr)
 )
 const nextEvent = computed(() =>
-  events.value.find((e) => e.status === 'active' && new Date(e.date) > new Date()) ?? null
+  (eventsData.value ?? [])
+    .filter(e => e.status === 'active' && e.date >= todayStr)
+    .sort((a, b) => a.date.localeCompare(b.date))[0] ?? null
+)
+const latestNews = computed(() =>
+  (newsData.value ?? [])[0] ?? null
+)
+const latestAnnouncement = computed(() =>
+  (eventsData.value ?? [])
+    .filter(e => e.type === 'announcement' && e.status === 'active')
+    .sort((a, b) => b.date.localeCompare(a.date))[0] ?? null
 )
 
 const dayLabel = (day: number): string => t(`w_day.${day}`)

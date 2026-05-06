@@ -2,13 +2,11 @@
 const { t } = useI18n()
 const config = useRuntimeConfig()
 
-const { data: noticias } = await useAsyncData('noticias-list', () =>
-  queryCollection('noticias').order('date', 'DESC').all()
-)
+interface NoticiaItem { id: string; slug: string; title: string; date: string; summary: string }
 
-function itemSlug(path: string): string {
-  return path.split('/').pop() ?? ''
-}
+const { data: noticias } = await useAsyncData('noticias-list',
+  () => $fetch<NoticiaItem[]>('/api/noticias'),
+)
 
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
@@ -32,8 +30,8 @@ useHead({ title: `${t('noticias.page_title')} — ${config.public.parishShortNam
       <div v-if="noticias?.length" class="noticias-list">
         <NuxtLink
           v-for="noticia in noticias"
-          :key="noticia.path"
-          :to="`/noticias/${itemSlug(noticia.path)}`"
+          :key="noticia.slug"
+          :to="`/noticias/${noticia.slug}`"
           class="noticia-card"
         >
           <time class="noticia-date" :datetime="noticia.date">{{ formatDate(noticia.date) }}</time>

@@ -4,12 +4,14 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const slug = route.params.slug as string
 
-const { data: noticia } = await useAsyncData(`noticia-${slug}`, () =>
-  queryCollection('noticias').path(`/noticias/${slug}`).first()
+interface Noticia { id: string; slug: string; title: string; date: string; summary: string; body: string }
+
+const { data: noticia } = await useAsyncData(`noticia-${slug}`,
+  () => $fetch<Noticia>(`/api/noticias/${slug}`).catch(() => null),
 )
 
 if (!noticia.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Notícia not found' })
+  throw createError({ statusCode: 404, statusMessage: 'Notícia não encontrada' })
 }
 
 function formatDate(dateStr: string): string {
@@ -38,7 +40,8 @@ useHead({ title: `${noticia.value?.title} — ${config.public.parishShortName}` 
 
         <div class="article-divider" />
 
-        <ContentRenderer :value="noticia!" class="prose" />
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div class="prose" v-html="noticia!.body" />
 
       </article>
 

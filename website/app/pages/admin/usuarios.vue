@@ -20,6 +20,7 @@ interface Profile {
 
 const { data, refresh, error: fetchError } = await useAsyncData('admin-usuarios', () =>
   $fetch<{ requests: UserRequest[]; users: Profile[] }>('/api/admin/usuarios'),
+  { server: false },
 )
 
 const pending = computed(() => (data.value?.requests ?? []).filter(r => r.status === 'pending'))

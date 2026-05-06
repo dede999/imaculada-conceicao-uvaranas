@@ -46,6 +46,41 @@ export interface Database {
           reviewed_at?: string | null
         }
       }
+      noticias: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          date: string
+          summary: string
+          body: string
+          published: boolean
+          created_at: string
+          created_by: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          slug: string
+          title: string
+          date: string
+          summary?: string
+          body?: string
+          published?: boolean
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          slug?: string
+          title?: string
+          date?: string
+          summary?: string
+          body?: string
+          published?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+      }
       audit_log: {
         Row: {
           id: number

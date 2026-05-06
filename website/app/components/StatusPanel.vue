@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { ChapelListItem, Mass, Confession } from '~/server/api/chapels/index.get'
+
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const massDurationMinutes = (config.public.massDurationMinutes as number) || 60
 
 const { currentDay, currentTime } = useParishTime()
-
-const { data: chapels } = useChapels()
+const { data: chapels } = await useChapels()
 
 function timeToMinutes(s: string): number {
   const parts = s.split(':').map(Number)
@@ -25,13 +26,11 @@ const currentMasses = computed(() => {
   if (!chapels.value?.length) return []
   const result: Array<{ chapelName: string; endTime: string }> = []
   for (const chapel of chapels.value) {
-    for (const mass of (chapel.masses as Array<{ days: number[]; times: string[] }> | undefined) ?? []) {
-      if (mass.days.includes(currentDay.value)) {
-        for (const time of mass.times) {
-          const start = timeToMinutes(time)
-          if (currentMinutes.value >= start && currentMinutes.value < start + massDurationMinutes) {
-            result.push({ chapelName: chapel.name, endTime: addMins(time, massDurationMinutes) })
-          }
+    for (const mass of chapel.masses as Mass[]) {
+      if (mass.day_of_week === currentDay.value) {
+        const start = timeToMinutes(mass.time)
+        if (currentMinutes.value >= start && currentMinutes.value < start + massDurationMinutes) {
+          result.push({ chapelName: chapel.name, endTime: addMins(mass.time, massDurationMinutes) })
         }
       }
     }
@@ -48,29 +47,25 @@ const nextMasses = computed(() => {
 
   for (const chapel of chapels.value) {
     let best: Entry | null = null
-    for (const mass of (chapel.masses as Array<{ days: number[]; times: string[] }> | undefined) ?? []) {
-      for (const day of mass.days) {
-        for (const time of mass.times) {
-          const minutesOfDay = timeToMinutes(time)
-          let daysAhead: number
+    for (const mass of chapel.masses as Mass[]) {
+      const minutesOfDay = timeToMinutes(mass.time)
+      let daysAhead: number
 
-          if (day === currentDay.value && minutesOfDay > currentMinutes.value) {
-            daysAhead = 0
-          } else if (day !== currentDay.value) {
-            daysAhead = (day - currentDay.value + 7) % 7
-          } else {
-            continue
-          }
+      if (mass.day_of_week === currentDay.value && minutesOfDay > currentMinutes.value) {
+        daysAhead = 0
+      } else if (mass.day_of_week !== currentDay.value) {
+        daysAhead = (mass.day_of_week - currentDay.value + 7) % 7
+      } else {
+        continue
+      }
 
-          const isBetter =
-            !best ||
-            daysAhead < best.daysAhead ||
-            (daysAhead === best.daysAhead && minutesOfDay < best.minutesOfDay)
+      const isBetter =
+        !best ||
+        daysAhead < best.daysAhead ||
+        (daysAhead === best.daysAhead && minutesOfDay < best.minutesOfDay)
 
-          if (isBetter) {
-            best = { chapelName: chapel.name, time, daysAhead, minutesOfDay }
-          }
-        }
+      if (isBetter) {
+        best = { chapelName: chapel.name, time: mass.time, daysAhead, minutesOfDay }
       }
     }
     if (best) result.push(best)
@@ -82,8 +77,8 @@ const currentConfessions = computed(() => {
   if (!chapels.value?.length) return []
   const result: Array<{ chapelName: string; time_start: string; time_end: string }> = []
   for (const chapel of chapels.value) {
-    for (const conf of (chapel.confession as Array<{ time_start: string; time_end: string; days: number[] }> | undefined) ?? []) {
-      if (conf.days.includes(currentDay.value)) {
+    for (const conf of chapel.confessions as Confession[]) {
+      if (conf.day_of_week === currentDay.value) {
         const start = timeToMinutes(conf.time_start)
         const end = timeToMinutes(conf.time_end)
         if (currentMinutes.value >= start && currentMinutes.value < end) {
@@ -152,13 +147,9 @@ const currentConfessions = computed(() => {
   gap: var(--space-12);
 }
 
-.mass-section {
-  flex: 1;
-}
+.mass-section { flex: 1; }
 
-.confession-section {
-  border-top: 1px solid var(--border-default);
-}
+.confession-section { border-top: 1px solid var(--border-default); }
 
 .section-eyebrow {
   font-family: var(--font-sans);
@@ -170,17 +161,9 @@ const currentConfessions = computed(() => {
   margin: 0;
 }
 
-.status-rows {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-12);
-}
+.status-rows { display: flex; flex-direction: column; gap: var(--space-12); }
 
-.status-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-8);
-}
+.status-row { display: flex; align-items: flex-start; gap: var(--space-8); }
 
 .status-dot {
   flex-shrink: 0;

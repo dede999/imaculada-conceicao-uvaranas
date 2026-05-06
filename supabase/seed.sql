@@ -1,6 +1,30 @@
 -- Dados iniciais de exemplo
 -- Execute após as migrations em ambiente de desenvolvimento
 
+insert into public.eventos (slug, title, type, date, end_date, status, summary, body, published) values
+(
+  'festa-padroeira-2026',
+  'Festa da Padroeira — Imaculada Conceição',
+  'event',
+  '2026-05-15',
+  '2026-05-15',
+  'active',
+  'Celebração solene da Festa da Padroeira com missa festiva às 10h, procissão pelas ruas do bairro e confraternização comunitária no pátio da paróquia.',
+  '<p>A comunidade está convidada para celebrar a Festa da Padroeira em honra à Nossa Senhora da Imaculada Conceição.</p><h2>Programação</h2><ul><li><strong>9h30</strong> — Concentração no pátio</li><li><strong>10h00</strong> — Missa Solene presidida pelo pároco</li><li><strong>11h30</strong> — Procissão pelas ruas do bairro</li><li><strong>12h30</strong> — Almoço comunitário (inscrições na secretaria)</li></ul><p>Venha celebrar com sua família!</p>',
+  true
+),
+(
+  'comunicado-voluntarios-pastoral',
+  'Pastoral da Criança abre inscrições para voluntários',
+  'announcement',
+  '2026-04-29',
+  null,
+  'active',
+  'A Pastoral da Criança abre inscrições para novos voluntários. Venha fazer parte desta missão de amor e serviço às famílias mais vulneráveis da nossa comunidade.',
+  '<p>A Pastoral da Criança da Paróquia Imaculada Conceição está buscando voluntários para reforçar o trabalho junto às famílias atendidas em Uvaranas.</p><h2>Como participar</h2><p>Compareça à secretaria paroquial de segunda a sexta, das 9h às 12h, e solicite a ficha de cadastro de voluntário.</p><p><strong>Requisitos</strong>: maior de 18 anos, disponibilidade de meio turno por semana.</p><p>Formação inicial será realizada na primeira semana de maio.</p>',
+  true
+);
+
 insert into public.noticias (slug, title, date, summary, body, published) values
 (
   'campanha-agasalho-2026',

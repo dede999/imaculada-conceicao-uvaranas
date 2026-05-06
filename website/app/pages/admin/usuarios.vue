@@ -18,7 +18,7 @@ interface Profile {
   created_at: string
 }
 
-const { data, refresh } = await useAsyncData('admin-usuarios', () =>
+const { data, refresh, error: fetchError } = await useAsyncData('admin-usuarios', () =>
   $fetch<{ requests: UserRequest[]; users: Profile[] }>('/api/admin/usuarios'),
 )
 
@@ -78,6 +78,12 @@ function formatDate(iso: string) {
 <template>
   <div class="usuarios">
     <h1 class="page-title">Usuários</h1>
+    <p v-if="fetchError" class="action-error">
+      Erro ao carregar dados: {{ fetchError.message }}
+      <span v-if="(fetchError as { statusCode?: number }).statusCode === 403">
+        — seu usuário precisa ter role <strong>admin</strong> no Supabase.
+      </span>
+    </p>
     <p v-if="actionError" class="action-error">{{ actionError }}</p>
 
     <!-- ── Solicitações pendentes ────────────────────────────── -->

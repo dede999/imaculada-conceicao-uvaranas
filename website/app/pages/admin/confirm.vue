@@ -5,12 +5,20 @@ const supabase = useSupabaseClient()
 const error = ref('')
 
 onMounted(async () => {
-  const { error: err } = await supabase.auth.getSession()
-  if (err) {
-    error.value = err.message
-  } else {
-    await navigateTo('/admin/dashboard')
+  // Handle PKCE flow (?code=...) and implicit flow (#access_token=...)
+  const code = new URL(window.location.href).searchParams.get('code')
+  if (code) {
+    const { error: err } = await supabase.auth.exchangeCodeForSession(code)
+    if (err) { error.value = err.message; return }
   }
+
+  const { data: { session }, error: sessErr } = await supabase.auth.getSession()
+  if (sessErr || !session) {
+    error.value = sessErr?.message ?? 'Link inválido ou expirado'
+    return
+  }
+
+  await navigateTo('/admin/dashboard')
 })
 </script>
 
@@ -20,7 +28,7 @@ onMounted(async () => {
       <span class="brand-tau">τ</span>
       <p v-if="!error" class="confirm-msg">Verificando acesso…</p>
       <p v-else class="confirm-error">
-        Erro ao verificar link: {{ error }}<br />
+        {{ error }}<br />
         <NuxtLink to="/admin/login">Tentar novamente</NuxtLink>
       </p>
     </div>

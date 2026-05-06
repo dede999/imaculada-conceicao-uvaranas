@@ -1,3 +1,6 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
+import { requireAdmin } from '../../../utils/requireAdmin'
+
 export default defineEventHandler(async (event) => {
   const { user: actor, profile: actorProfile } = await requireAdmin(event)
   const { id } = await readBody<{ id: string }>(event)
@@ -10,7 +13,7 @@ export default defineEventHandler(async (event) => {
     status: 'rejected',
     reviewed_by: actor.id,
     reviewed_at: new Date().toISOString(),
-  }).eq('id', id).eq('status', 'pending')
+  } as never).eq('id', id).eq('status', 'pending')
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })
 
@@ -20,7 +23,7 @@ export default defineEventHandler(async (event) => {
     action: 'reject',
     actor_id: actor.id,
     actor_name: actorProfile.name,
-  })
+  } as never)
 
   return { ok: true }
 })

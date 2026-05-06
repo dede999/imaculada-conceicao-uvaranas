@@ -1,3 +1,5 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
+
 export default defineEventHandler(async (event) => {
   const { name, email, parish_role } = await readBody<{
     name: string
@@ -15,7 +17,7 @@ export default defineEventHandler(async (event) => {
     name: name.trim(),
     email: email.trim().toLowerCase(),
     parish_role: parish_role.trim(),
-  })
+  } as never)
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })
 

@@ -5,5 +5,7 @@ const route = useRoute()
 <template>
   <NuxtRouteAnnouncer />
   <AppNav v-if="!route.path.startsWith('/admin')" />
-  <NuxtPage />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>

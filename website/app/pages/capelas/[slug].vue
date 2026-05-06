@@ -1,50 +1,16 @@
 <script setup lang="ts">
 import tauRaw from '~/assets/tau.svg?raw'
+import type { ChapelContact, ChapelImage, Mass, Confession, CatechismGroup } from '~/composables/useChapels'
 
-interface MassEntry {
-  days: number[]
-  times: string[]
-  note?: string
-  note_only_on?: number[]
-}
-
-interface ConfessionSlot {
-  days: number[]
-  time_start: string
-  time_end: string
-}
-
-interface CatechismGroup {
-  group: string
-  days: number[]
-  time: string
-}
-
-interface ChapelContact {
-  phone?: string
-  whatsapp?: string
-  email?: string
-}
-
-interface ChapelSocial {
-  instagram?: string
-  facebook?: string
-  youtube?: string
-}
-
-interface ChapelImage {
-  url: string
-  caption?: string
-}
+const SOCIAL_TYPES = new Set(['instagram', 'facebook', 'youtube', 'tiktok'])
+const PRIMARY_TYPES = new Set(['phone', 'whatsapp', 'email'])
 
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const route = useRoute()
 const slug = route.params.slug as string
 
-const { data: chapel } = await useAsyncData(`chapel-${slug}`, () =>
-  queryCollection('capelas').path(`/capelas/${slug}`).first()
-)
+const { data: chapel } = await useChapel(slug)
 
 if (!chapel.value) {
   throw createError({ statusCode: 404, statusMessage: 'Chapel not found' })
@@ -52,23 +18,40 @@ if (!chapel.value) {
 
 const { data: allChapels } = await useChapels()
 const otherChapels = computed(() =>
-  allChapels.value?.filter(c => (c as any).path !== (chapel.value as any)?.path) ?? []
+  allChapels.value?.filter(c => c.slug !== chapel.value?.slug) ?? []
 )
-
-function chapelaSlug(path: string): string {
-  return path.split('/').pop() ?? ''
-}
 
 const isMatriz = computed(() => chapel.value?.type === 'matriz')
 
-const contact = computed((): ChapelContact => (chapel.value as any)?.contact ?? {})
-const social = computed((): ChapelSocial => (chapel.value as any)?.social ?? {})
-const pastor = computed((): string | undefined => (chapel.value as any)?.pastor)
-const coordinates = computed(() => (chapel.value as any)?.coordinates as { lat: number; lng: number } | undefined)
+const primaryContacts = computed(() =>
+  (chapel.value?.contacts ?? []).filter(c => PRIMARY_TYPES.has(c.type))
+)
+const socialContacts = computed(() =>
+  (chapel.value?.contacts ?? []).filter(c => SOCIAL_TYPES.has(c.type))
+)
+
+function contactUrl(contact: ChapelContact): string | null {
+  if (contact.type === 'phone') return `tel:${contact.value}`
+  if (contact.type === 'whatsapp') return `https://wa.me/${contact.value.replace(/\D/g, '')}`
+  if (contact.type === 'email') return `mailto:${contact.value}`
+  if (contact.type === 'instagram') return `https://instagram.com/${contact.value.replace('@', '')}`
+  if (contact.type === 'facebook') return `https://facebook.com/${contact.value}`
+  if (contact.type === 'youtube') return `https://youtube.com/@${contact.value.replace('@', '')}`
+  if (contact.type === 'tiktok') return `https://tiktok.com/@${contact.value.replace('@', '')}`
+  return null
+}
+
+function contactLabel(type: string): string {
+  const map: Record<string, string> = {
+    phone: 'Telefone', whatsapp: 'WhatsApp', email: 'E-mail',
+    instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube', tiktok: 'TikTok',
+  }
+  return map[type] ?? type
+}
 
 const mapSrc = computed(() => {
-  if (coordinates.value) {
-    return `https://maps.google.com/maps?q=${coordinates.value.lat},${coordinates.value.lng}&z=16&output=embed`
+  if (chapel.value?.lat && chapel.value?.lng) {
+    return `https://maps.google.com/maps?q=${chapel.value.lat},${chapel.value.lng}&z=16&output=embed`
   }
   const address = chapel.value?.address ?? ''
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=15&output=embed`
@@ -78,43 +61,23 @@ function dayLabel(day: number): string {
   return t(`w_day.${day}`)
 }
 
-function massNoteApplies(entry: MassEntry, day: number): boolean {
-  if (!entry.note) return false
-  return !entry.note_only_on || entry.note_only_on.includes(day)
+function groupConfessions(confessions: Confession[]) {
+  const map = new Map<string, number[]>()
+  for (const c of confessions) {
+    const key = `${c.time_start}-${c.time_end}`
+    const days = map.get(key) ?? []
+    days.push(c.day_of_week)
+    map.set(key, days)
+  }
+  return Array.from(map.entries()).map(([key, days]) => {
+    const [time_start, time_end] = key.split('-')
+    return { key, time_start, time_end, days: [...new Set(days)].sort() }
+  })
 }
-
-function formatConfessionDays(slot: ConfessionSlot): string {
-  return slot.days.map(dayLabel).join(', ')
-}
-
-function formatCatechismDays(group: CatechismGroup): string {
-  return group.days.map(dayLabel).join(', ')
-}
-
-const instagramUrl = computed(() =>
-  social.value.instagram
-    ? `https://instagram.com/${social.value.instagram.replace('@', '')}`
-    : null
-)
-const facebookUrl = computed(() =>
-  social.value.facebook
-    ? `https://facebook.com/${social.value.facebook}`
-    : null
-)
-const youtubeUrl = computed(() =>
-  social.value.youtube
-    ? `https://youtube.com/@${social.value.youtube.replace('@', '')}`
-    : null
-)
-const whatsappUrl = computed(() =>
-  contact.value.whatsapp
-    ? `https://wa.me/${contact.value.whatsapp.replace(/\D/g, '')}`
-    : null
-)
 
 // ── Image gallery ──────────────────────────────────────────────────
 const hasText = computed(() => !!chapel.value?.body)
-const images = computed((): ChapelImage[] => (chapel.value as any)?.images ?? [])
+const images = computed((): ChapelImage[] => chapel.value?.images ?? [])
 const hasImages = computed(() => images.value.length > 0)
 
 // ── Modal ──────────────────────────────────────────────────────────
@@ -181,7 +144,7 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
               {{ t(isMatriz ? 'chapel.type.matriz' : 'chapel.type.branch') }}
             </span>
             <h1 class="chapel-name">{{ chapel!.name }}</h1>
-            <p v-if="pastor" class="pastor-text">{{ t('capelas.pastor') }}: {{ pastor }}</p>
+            <p v-if="chapel!.pastor" class="pastor-text">{{ t('capelas.pastor') }}: {{ chapel!.pastor }}</p>
           </div>
         </div>
 
@@ -191,26 +154,34 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
               <span class="contact-label">{{ t('capelas.address_label') }}</span>
               <span>{{ chapel!.address }}</span>
             </p>
-            <p v-if="contact.phone" class="contact-row">
-              <span class="contact-label">{{ t('capelas.contact_phone') }}</span>
-              <a :href="`tel:${contact.phone}`" class="contact-link">{{ contact.phone }}</a>
-            </p>
-            <p v-if="contact.whatsapp" class="contact-row">
-              <span class="contact-label">{{ t('capelas.contact_whatsapp') }}</span>
-              <a :href="whatsappUrl!" class="contact-link" target="_blank" rel="noopener">{{ contact.whatsapp }}</a>
-            </p>
-            <p v-if="contact.email" class="contact-row">
-              <span class="contact-label">{{ t('capelas.contact_email') }}</span>
-              <a :href="`mailto:${contact.email}`" class="contact-link">{{ contact.email }}</a>
+            <p
+              v-for="contact in primaryContacts"
+              :key="contact.id"
+              class="contact-row"
+            >
+              <span class="contact-label">{{ contactLabel(contact.type) }}</span>
+              <a
+                v-if="contactUrl(contact)"
+                :href="contactUrl(contact)!"
+                class="contact-link"
+                :target="contact.type === 'email' || contact.type === 'phone' ? undefined : '_blank'"
+                :rel="contact.type === 'email' || contact.type === 'phone' ? undefined : 'noopener'"
+              >{{ contact.value }}</a>
+              <span v-else>{{ contact.value }}</span>
             </p>
           </div>
 
-          <div v-if="instagramUrl || facebookUrl || youtubeUrl" class="social-block">
+          <div v-if="socialContacts.length" class="social-block">
             <p class="contact-label">{{ t('capelas.social_links') }}</p>
             <div class="social-links">
-              <a v-if="instagramUrl" :href="instagramUrl" target="_blank" rel="noopener" class="social-link">Instagram</a>
-              <a v-if="facebookUrl" :href="facebookUrl" target="_blank" rel="noopener" class="social-link">Facebook</a>
-              <a v-if="youtubeUrl" :href="youtubeUrl" target="_blank" rel="noopener" class="social-link">YouTube</a>
+              <a
+                v-for="contact in socialContacts"
+                :key="contact.id"
+                :href="contactUrl(contact) ?? '#'"
+                target="_blank"
+                rel="noopener"
+                class="social-link"
+              >{{ contactLabel(contact.type) }}</a>
             </div>
           </div>
         </div>
@@ -224,45 +195,44 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
 
           <div class="schedule-block">
             <p class="section-label">{{ t('capelas.masses_label') }}</p>
-            <template v-if="(chapel!.masses as MassEntry[] | undefined)?.length">
-              <div v-for="(entry, i) in (chapel!.masses as MassEntry[])" :key="i" class="mass-entry">
-                <div class="pills-row">
-                  <template v-for="day in entry.days" :key="day">
-                    <span
-                      v-for="time in entry.times"
-                      :key="`${day}-${time}`"
-                      class="mass-pill"
-                      :class="{ 'mass-pill--noted': massNoteApplies(entry, day) }"
-                    >{{ dayLabel(day) }} {{ time }}<em v-if="massNoteApplies(entry, day)" class="pill-note"> {{ entry.note }}</em>
-                    </span>
-                  </template>
-                </div>
-              </div>
-            </template>
+            <div v-if="(chapel!.masses as Mass[]).length" class="pills-row">
+              <span
+                v-for="mass in (chapel!.masses as Mass[])"
+                :key="`${mass.day_of_week}-${mass.time}`"
+                class="mass-pill"
+                :class="{ 'mass-pill--noted': !!mass.note }"
+              >
+                {{ dayLabel(mass.day_of_week) }} {{ mass.time }}
+                <em v-if="mass.note" class="pill-note"> {{ mass.note }}</em>
+              </span>
+            </div>
             <p v-else class="empty-text">{{ t('capelas.no_masses') }}</p>
           </div>
 
-          <div v-if="(chapel!.confession as ConfessionSlot[] | undefined)?.length" class="schedule-block">
+          <div v-if="(chapel!.confessions as Confession[]).length" class="schedule-block">
             <p class="section-label">{{ t('capelas.confession_label') }}</p>
             <div
-              v-for="(slot, i) in (chapel!.confession as ConfessionSlot[])"
-              :key="i"
+              v-for="slot in groupConfessions(chapel!.confessions as Confession[])"
+              :key="slot.key"
               class="conf-row"
             >
               <span class="conf-dot" aria-hidden="true" />
-              <span class="conf-text">{{ formatConfessionDays(slot) }} · {{ slot.time_start }}–{{ slot.time_end }}</span>
+              <span class="conf-text">{{ slot.days.map(dayLabel).join(', ') }} · {{ slot.time_start }}–{{ slot.time_end }}</span>
             </div>
           </div>
 
-          <div v-if="(chapel!.catechism as CatechismGroup[] | undefined)?.length" class="schedule-block">
+          <div v-if="(chapel!.catechism_groups as CatechismGroup[]).length" class="schedule-block">
             <p class="section-label">{{ t('capelas.catechism_label') }}</p>
             <div
-              v-for="group in (chapel!.catechism as CatechismGroup[])"
-              :key="group.group"
+              v-for="group in (chapel!.catechism_groups as CatechismGroup[])"
+              :key="group.id"
               class="cat-row"
             >
-              <span class="cat-name">{{ group.group }}</span>
-              <span class="cat-schedule">{{ formatCatechismDays(group) }} · {{ group.time }}</span>
+              <span class="cat-name">{{ group.group_name }}</span>
+              <span class="cat-schedule">
+                {{ group.day_of_week != null ? dayLabel(group.day_of_week) : '—' }}
+                {{ group.time ? `· ${group.time}` : '' }}
+              </span>
             </div>
           </div>
         </section>
@@ -287,11 +257,11 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
       <section v-if="hasText || hasImages" class="content-section">
         <p class="section-eyebrow">{{ t('capelas.content_section') }}</p>
 
-        <!-- Case 3: only images, no text -->
+        <!-- only images, no text -->
         <div v-if="hasImages && !hasText" class="images-only">
           <figure
             v-for="(img, i) in images"
-            :key="i"
+            :key="img.id"
             class="image-figure image-figure--centered"
           >
             <img
@@ -304,12 +274,12 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
           </figure>
         </div>
 
-        <!-- Case 1 & 2: text with images floated right -->
+        <!-- text with images floated right -->
         <div v-else-if="hasText && hasImages" class="text-with-images">
           <div class="images-float">
             <figure
               v-for="(img, i) in images"
-              :key="i"
+              :key="img.id"
               class="image-figure"
             >
               <img
@@ -321,12 +291,12 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
               <figcaption v-if="img.caption" class="image-caption">{{ img.caption }}</figcaption>
             </figure>
           </div>
-          <ContentRenderer :value="chapel!" class="prose" />
+          <div v-html="chapel!.body" class="prose" />
           <div class="clearfix" />
         </div>
 
-        <!-- Case 4: only text -->
-        <ContentRenderer v-else :value="chapel!" class="prose" />
+        <!-- only text -->
+        <div v-else v-html="chapel!.body" class="prose" />
       </section>
 
       <!-- ── Other chapels ─────────────────────────────────────── -->
@@ -335,18 +305,18 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
         <div class="other-chapels-grid">
           <NuxtLink
             v-for="other in otherChapels"
-            :key="(other as any).path"
-            :to="`/capelas/${chapelaSlug((other as any).path)}`"
+            :key="other.slug"
+            :to="`/capelas/${other.slug}`"
             class="other-chapel-card"
           >
             <span
               class="other-type-badge"
-              :class="(other as any).type === 'matriz' ? 'badge--matriz' : 'badge--branch'"
+              :class="other.type === 'matriz' ? 'badge--matriz' : 'badge--branch'"
             >
-              {{ t((other as any).type === 'matriz' ? 'chapel.type.matriz' : 'chapel.type.branch') }}
+              {{ t(other.type === 'matriz' ? 'chapel.type.matriz' : 'chapel.type.branch') }}
             </span>
-            <p class="other-chapel-name">{{ (other as any).name }}</p>
-            <p v-if="(other as any).address" class="other-chapel-address">{{ (other as any).address }}</p>
+            <p class="other-chapel-name">{{ other.name }}</p>
+            <p v-if="other.address" class="other-chapel-address">{{ other.address }}</p>
             <span class="other-chapel-cta">{{ t('capelas.view_detail') }} →</span>
           </NuxtLink>
         </div>
@@ -692,8 +662,6 @@ useHead({ title: `${chapel.value?.name} — ${config.public.parishShortName as s
 }
 
 /* ── Mass pills ─────────────────────────────────────────────────── */
-
-.mass-entry { display: flex; flex-direction: column; gap: var(--space-4); }
 
 .pills-row { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 

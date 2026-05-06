@@ -1,24 +1,6 @@
 <script setup lang="ts">
 import tauRaw from '~/assets/tau.svg?raw'
-
-interface MassEntry {
-  days: number[]
-  times: string[]
-  note?: string
-  note_only_on?: number[]
-}
-
-interface ConfessionSlot {
-  days: number[]
-  time_start: string
-  time_end: string
-}
-
-interface CatechismGroup {
-  group: string
-  days: number[]
-  time: string
-}
+import type { ChapelListItem, Mass, Confession, CatechismGroup, ChapelContact } from '~/server/api/chapels/index.get'
 
 const { t } = useI18n()
 const config = useRuntimeConfig()
@@ -32,22 +14,39 @@ function dayLabel(day: number): string {
   return t(`w_day.${day}`)
 }
 
-function massNoteApplies(entry: MassEntry, day: number): boolean {
-  if (!entry.note) return false
-  return !entry.note_only_on || entry.note_only_on.includes(day)
+function contactUrl(contact: ChapelContact): string | null {
+  if (contact.type === 'phone') return `tel:${contact.value}`
+  if (contact.type === 'whatsapp') return `https://wa.me/${contact.value.replace(/\D/g, '')}`
+  if (contact.type === 'email') return `mailto:${contact.value}`
+  if (contact.type === 'instagram') return `https://instagram.com/${contact.value.replace('@', '')}`
+  if (contact.type === 'facebook') return `https://facebook.com/${contact.value}`
+  if (contact.type === 'youtube') return `https://youtube.com/@${contact.value.replace('@', '')}`
+  return null
 }
 
-function formatConfessionDays(slot: ConfessionSlot): string {
-  return slot.days.map(dayLabel).join(', ')
+function contactLabel(type: string): string {
+  const map: Record<string, string> = {
+    phone: 'Telefone', whatsapp: 'WhatsApp', email: 'E-mail',
+    instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube', tiktok: 'TikTok',
+  }
+  return map[type] ?? type
 }
 
-function formatCatechismDays(group: CatechismGroup): string {
-  return group.days.map(dayLabel).join(', ')
+function groupConfessions(confessions: Confession[]) {
+  const map = new Map<string, number[]>()
+  for (const c of confessions) {
+    const key = `${c.time_start}-${c.time_end}`
+    const days = map.get(key) ?? []
+    days.push(c.day_of_week)
+    map.set(key, days)
+  }
+  return Array.from(map.entries()).map(([key, days]) => {
+    const [time_start, time_end] = key.split('-')
+    return { key, time_start, time_end, days: [...new Set(days)].sort() }
+  })
 }
 
-function chapelaSlug(path: string): string {
-  return path.split('/').pop() ?? ''
-}
+function chapelaSlug(slug: string): string { return slug }
 
 useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName as string}` })
 </script>
@@ -56,7 +55,6 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   <main class="capelas-page">
     <div class="page-container">
 
-      <!-- ── Page header ────────────────────────────────────────── -->
       <header class="page-header">
         <p class="eyebrow">{{ t('capelas.eyebrow') }}</p>
         <h1 class="heading-page page-title">{{ t('capelas.title') }}</h1>
@@ -83,42 +81,31 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
 
             <div class="schedule-col">
               <p class="section-label">{{ t('capelas.masses_label') }}</p>
-              <template v-if="(matrizChapel.masses as MassEntry[] | undefined)?.length">
-                <div
-                  v-for="(entry, i) in (matrizChapel.masses as MassEntry[])"
-                  :key="i"
-                  class="mass-entry"
+              <div v-if="matrizChapel.masses.length" class="pills-row">
+                <span
+                  v-for="mass in (matrizChapel.masses as Mass[])"
+                  :key="`${mass.day_of_week}-${mass.time}`"
+                  class="mass-pill"
+                  :class="{ 'mass-pill--noted': !!mass.note }"
                 >
-                  <div class="pills-row">
-                    <template v-for="day in entry.days" :key="day">
-                      <span
-                        v-for="time in entry.times"
-                        :key="`${day}-${time}`"
-                        class="mass-pill"
-                        :class="{ 'mass-pill--noted': massNoteApplies(entry, day) }"
-                      >{{ dayLabel(day) }} {{ time }}<em
-                        v-if="massNoteApplies(entry, day)"
-                        class="pill-note"
-                      > {{ entry.note }}</em>
-                      </span>
-                    </template>
-                  </div>
-                </div>
-              </template>
+                  {{ dayLabel(mass.day_of_week) }} {{ mass.time }}
+                  <em v-if="mass.note" class="pill-note"> {{ mass.note }}</em>
+                </span>
+              </div>
               <p v-else class="empty-text">{{ t('capelas.no_masses') }}</p>
             </div>
 
             <div class="schedule-col">
               <p class="section-label">{{ t('capelas.confession_label') }}</p>
-              <template v-if="(matrizChapel.confession as ConfessionSlot[] | undefined)?.length">
+              <template v-if="matrizChapel.confessions.length">
                 <div
-                  v-for="(slot, i) in (matrizChapel.confession as ConfessionSlot[])"
-                  :key="i"
+                  v-for="slot in groupConfessions(matrizChapel.confessions as Confession[])"
+                  :key="slot.key"
                   class="conf-row"
                 >
                   <span class="conf-dot" aria-hidden="true" />
                   <span class="conf-text">
-                    {{ formatConfessionDays(slot) }} · {{ slot.time_start }}–{{ slot.time_end }}
+                    {{ slot.days.map(dayLabel).join(', ') }} · {{ slot.time_start }}–{{ slot.time_end }}
                   </span>
                 </div>
               </template>
@@ -127,14 +114,17 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
 
             <div class="schedule-col">
               <p class="section-label">{{ t('capelas.catechism_label') }}</p>
-              <template v-if="(matrizChapel.catechism as CatechismGroup[] | undefined)?.length">
+              <template v-if="matrizChapel.catechism_groups.length">
                 <div
-                  v-for="group in (matrizChapel.catechism as CatechismGroup[])"
-                  :key="group.group"
+                  v-for="group in (matrizChapel.catechism_groups as CatechismGroup[])"
+                  :key="group.id"
                   class="cat-row"
                 >
-                  <span class="cat-name">{{ group.group }}</span>
-                  <span class="cat-schedule">{{ formatCatechismDays(group) }} · {{ group.time }}</span>
+                  <span class="cat-name">{{ group.group_name }}</span>
+                  <span class="cat-schedule">
+                    {{ group.day_of_week != null ? dayLabel(group.day_of_week) : '—' }}
+                    {{ group.time ? `· ${group.time}` : '' }}
+                  </span>
                 </div>
               </template>
               <p v-else class="empty-text">{{ t('capelas.catechism_label') }}</p>
@@ -142,7 +132,7 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
 
           </div>
 
-          <NuxtLink :to="`/capelas/${chapelaSlug(matrizChapel!.path)}`" class="detail-link">
+          <NuxtLink :to="`/capelas/${chapelaSlug(matrizChapel.slug)}`" class="detail-link">
             {{ t('capelas.view_detail') }}
           </NuxtLink>
         </div>
@@ -154,8 +144,8 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
 
         <div class="branches-grid">
           <article
-            v-for="chapel in branchChapels"
-            :key="chapel.path"
+            v-for="chapel in (branchChapels as ChapelListItem[])"
+            :key="chapel.slug"
             class="branch-card"
           >
             <div class="branch-header">
@@ -166,58 +156,50 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
 
             <div class="schedule-section">
               <p class="section-label">{{ t('capelas.masses_label') }}</p>
-              <template v-if="(chapel.masses as MassEntry[] | undefined)?.length">
-                <div
-                  v-for="(entry, i) in (chapel.masses as MassEntry[])"
-                  :key="i"
-                  class="mass-entry"
+              <div v-if="chapel.masses.length" class="pills-row">
+                <span
+                  v-for="mass in (chapel.masses as Mass[])"
+                  :key="`${mass.day_of_week}-${mass.time}`"
+                  class="mass-pill"
+                  :class="{ 'mass-pill--noted': !!mass.note }"
                 >
-                  <div class="pills-row">
-                    <template v-for="day in entry.days" :key="day">
-                      <span
-                        v-for="time in entry.times"
-                        :key="`${day}-${time}`"
-                        class="mass-pill"
-                        :class="{ 'mass-pill--noted': massNoteApplies(entry, day) }"
-                      >{{ dayLabel(day) }} {{ time }}<em
-                        v-if="massNoteApplies(entry, day)"
-                        class="pill-note"
-                      > {{ entry.note }}</em>
-                      </span>
-                    </template>
-                  </div>
-                </div>
-              </template>
+                  {{ dayLabel(mass.day_of_week) }} {{ mass.time }}
+                  <em v-if="mass.note" class="pill-note"> {{ mass.note }}</em>
+                </span>
+              </div>
               <p v-else class="empty-text">{{ t('capelas.no_masses') }}</p>
             </div>
 
-            <div v-if="(chapel.confession as ConfessionSlot[] | undefined)?.length" class="schedule-section">
+            <div v-if="chapel.confessions.length" class="schedule-section">
               <p class="section-label">{{ t('capelas.confession_label') }}</p>
               <div
-                v-for="(slot, i) in (chapel.confession as ConfessionSlot[])"
-                :key="i"
+                v-for="slot in groupConfessions(chapel.confessions as Confession[])"
+                :key="slot.key"
                 class="conf-row"
               >
                 <span class="conf-dot" aria-hidden="true" />
                 <span class="conf-text">
-                  {{ formatConfessionDays(slot) }} · {{ slot.time_start }}–{{ slot.time_end }}
+                  {{ slot.days.map(dayLabel).join(', ') }} · {{ slot.time_start }}–{{ slot.time_end }}
                 </span>
               </div>
             </div>
 
-            <div v-if="(chapel.catechism as CatechismGroup[] | undefined)?.length" class="schedule-section">
+            <div v-if="chapel.catechism_groups.length" class="schedule-section">
               <p class="section-label">{{ t('capelas.catechism_label') }}</p>
               <div
-                v-for="group in (chapel.catechism as CatechismGroup[])"
-                :key="group.group"
+                v-for="group in (chapel.catechism_groups as CatechismGroup[])"
+                :key="group.id"
                 class="cat-row"
               >
-                <span class="cat-name">{{ group.group }}</span>
-                <span class="cat-schedule">{{ formatCatechismDays(group) }} · {{ group.time }}</span>
+                <span class="cat-name">{{ group.group_name }}</span>
+                <span class="cat-schedule">
+                  {{ group.day_of_week != null ? dayLabel(group.day_of_week) : '—' }}
+                  {{ group.time ? `· ${group.time}` : '' }}
+                </span>
               </div>
             </div>
 
-            <NuxtLink :to="`/capelas/${chapelaSlug(chapel.path)}`" class="detail-link">
+            <NuxtLink :to="`/capelas/${chapelaSlug(chapel.slug)}`" class="detail-link">
               {{ t('capelas.view_detail') }}
             </NuxtLink>
 
@@ -230,8 +212,6 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
 </template>
 
 <style scoped>
-/* ── Page shell ─────────────────────────────────────────────────── */
-
 .capelas-page {
   background-color: var(--bg-alt);
   min-height: 100vh;
@@ -247,16 +227,8 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   gap: var(--space-40);
 }
 
-/* ── Page header ────────────────────────────────────────────────── */
-
 .page-title { margin: var(--space-8) 0 var(--space-12); }
-
-.page-subtitle {
-  color: var(--text-muted);
-  max-width: 560px;
-}
-
-/* ── Matriz card ────────────────────────────────────────────────── */
+.page-subtitle { color: var(--text-muted); max-width: 560px; }
 
 .matriz-card {
   background-color: var(--fr-50);
@@ -269,11 +241,7 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   gap: var(--space-24);
 }
 
-.matriz-top {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-20);
-}
+.matriz-top { display: flex; align-items: flex-start; gap: var(--space-20); }
 
 .tau-mark {
   flex-shrink: 0;
@@ -284,18 +252,9 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   margin-top: var(--space-4);
 }
 
-.tau-mark :deep(svg) {
-  width: 100%;
-  height: 100%;
-}
+.tau-mark :deep(svg) { width: 100%; height: 100%; }
 
-.matriz-identity {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
-
-/* ── Chapel identity shared ─────────────────────────────────────── */
+.matriz-identity { display: flex; flex-direction: column; gap: var(--space-8); }
 
 .type-badge {
   display: inline-flex;
@@ -309,15 +268,8 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   text-transform: uppercase;
 }
 
-.badge--matriz {
-  background-color: var(--fr-200);
-  color: var(--fr-950);
-}
-
-.badge--branch {
-  background-color: var(--bg-alt);
-  color: var(--text-muted);
-}
+.badge--matriz { background-color: var(--fr-200); color: var(--fr-950); }
+.badge--branch { background-color: var(--bg-alt); color: var(--text-muted); }
 
 .chapel-name {
   font-family: var(--font-serif);
@@ -335,12 +287,7 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   margin: 0;
 }
 
-.address-label {
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-/* ── Schedule grid (inside matriz) ─────────────────────────────── */
+.address-label { font-weight: 500; color: var(--text-primary); }
 
 .schedule-grid {
   display: grid;
@@ -350,17 +297,9 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   border-top: 1px solid var(--fr-200);
 }
 
-@media (max-width: 767px) {
-  .schedule-grid { grid-template-columns: 1fr; }
-}
+@media (max-width: 767px) { .schedule-grid { grid-template-columns: 1fr; } }
 
-.schedule-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-12);
-}
-
-/* ── Section labels ─────────────────────────────────────────────── */
+.schedule-col { display: flex; flex-direction: column; gap: var(--space-12); }
 
 .section-label {
   font-family: var(--font-sans);
@@ -379,19 +318,7 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   margin: 0;
 }
 
-/* ── Mass pills ─────────────────────────────────────────────────── */
-
-.mass-entry {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.pills-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
+.pills-row { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 
 .mass-pill {
   display: inline-flex;
@@ -417,13 +344,7 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   margin-left: var(--space-4);
 }
 
-/* ── Confession rows ────────────────────────────────────────────── */
-
-.conf-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-}
+.conf-row { display: flex; align-items: center; gap: var(--space-8); }
 
 .conf-dot {
   flex-shrink: 0;
@@ -433,34 +354,11 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   background-color: var(--cv-400);
 }
 
-.conf-text {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-}
+.conf-text { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--text-primary); }
 
-/* ── Catechism rows ─────────────────────────────────────────────── */
-
-.cat-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.cat-name {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.cat-schedule {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-
-/* ── Branches section ───────────────────────────────────────────── */
+.cat-row { display: flex; flex-direction: column; gap: 2px; }
+.cat-name { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); }
+.cat-schedule { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--text-muted); }
 
 .branches-eyebrow { margin-bottom: var(--space-16); }
 
@@ -470,9 +368,7 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   gap: var(--space-16);
 }
 
-@media (max-width: 639px) {
-  .branches-grid { grid-template-columns: 1fr; }
-}
+@media (max-width: 639px) { .branches-grid { grid-template-columns: 1fr; } }
 
 .branch-card {
   background-color: var(--bg-page);
@@ -484,11 +380,7 @@ useHead({ title: `${t('capelas.page_title')} — ${config.public.parishShortName
   gap: var(--space-16);
 }
 
-.branch-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
+.branch-header { display: flex; flex-direction: column; gap: var(--space-8); }
 
 .schedule-section {
   display: flex;

@@ -18,6 +18,9 @@
     "@nuxt/scripts": "1.0.2",
     "@nuxtjs/i18n": "^10.3.0",
     "@nuxtjs/supabase": "^2.0.6",
+    "@tiptap/pm": "^3.22.5",
+    "@tiptap/starter-kit": "^3.22.5",
+    "@tiptap/vue-3": "^3.22.5",
     "@unhead/vue": "^2.0.3",
     "eslint": "^9.0.0 || ^10.0.0",
     "nuxt": "^4.4.2"

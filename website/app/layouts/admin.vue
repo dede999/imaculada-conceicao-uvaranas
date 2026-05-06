@@ -29,6 +29,10 @@ async function signOut() {
           <Icon name="lucide:calendar" />
           Eventos
         </NuxtLink>
+        <NuxtLink to="/admin/capelas" class="sidebar-link">
+          <Icon name="lucide:church" />
+          Capelas
+        </NuxtLink>
         <NuxtLink to="/admin/missas" class="sidebar-link">
           <Icon name="lucide:clock" />
           Missas

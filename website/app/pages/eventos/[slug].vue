@@ -4,12 +4,17 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const slug = route.params.slug as string
 
-const { data: event } = await useAsyncData(`event-${slug}`, () =>
-  queryCollection('events').path(`/events/${slug}`).first()
+interface Evento {
+  id: string; slug: string; title: string; type: string
+  date: string; end_date: string | null; status: string; summary: string; body: string
+}
+
+const { data: evento } = await useAsyncData(`evento-${slug}`,
+  () => $fetch<Evento>(`/api/eventos/${slug}`).catch(() => null),
 )
 
-if (!event.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Event not found' })
+if (!evento.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Evento não encontrado' })
 }
 
 function formatDate(dateStr: string): string {
@@ -19,10 +24,10 @@ function formatDate(dateStr: string): string {
   }).format(new Date(Date.UTC(year!, month! - 1, day!)))
 }
 
-const isCancelled = computed(() => event.value?.status === 'cancelled')
-const isPostponed = computed(() => event.value?.status === 'postponed')
+const isCancelled = computed(() => evento.value?.status === 'cancelled')
+const isPostponed = computed(() => evento.value?.status === 'postponed')
 
-useHead({ title: `${event.value?.title} — ${config.public.parishShortName}` })
+useHead({ title: `${evento.value?.title} — ${config.public.parishShortName}` })
 </script>
 
 <template>
@@ -41,24 +46,25 @@ useHead({ title: `${event.value?.title} — ${config.public.parishShortName}` })
           <div class="header-meta">
             <span
               class="type-badge"
-              :class="event!.type === 'event' ? 'badge--event' : 'badge--announcement'"
+              :class="evento!.type === 'event' ? 'badge--event' : 'badge--announcement'"
             >
-              {{ t(event!.type === 'event' ? 'eventos.badge_event' : 'eventos.badge_announcement') }}
+              {{ t(evento!.type === 'event' ? 'eventos.badge_event' : 'eventos.badge_announcement') }}
             </span>
-            <time class="event-date" :datetime="event!.date">{{ formatDate(event!.date) }}</time>
-            <time v-if="event!.end_date && event!.end_date !== event!.date" class="event-date">
-              — {{ formatDate(event!.end_date!) }}
+            <time class="event-date" :datetime="evento!.date">{{ formatDate(evento!.date) }}</time>
+            <time v-if="evento!.end_date && evento!.end_date !== evento!.date" class="event-date">
+              — {{ formatDate(evento!.end_date) }}
             </time>
           </div>
           <h1 class="article-title" :class="{ 'title--cancelled': isCancelled }">
-            {{ event!.title }}
+            {{ evento!.title }}
           </h1>
-          <p class="article-summary">{{ event!.summary }}</p>
+          <p class="article-summary">{{ evento!.summary }}</p>
         </header>
 
         <div class="article-divider" />
 
-        <ContentRenderer :value="event!" class="prose" />
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div class="prose" v-html="evento!.body" />
 
       </article>
 

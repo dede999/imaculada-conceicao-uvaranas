@@ -2,27 +2,28 @@
 const { t } = useI18n()
 const config = useRuntimeConfig()
 
-const { data: events } = await useAsyncData('events-list', () =>
-  queryCollection('events').all()
+interface EventoItem {
+  id: string; slug: string; title: string; type: string
+  date: string; end_date: string | null; status: string; summary: string
+}
+
+const { data: eventos } = await useAsyncData('eventos-list',
+  () => $fetch<EventoItem[]>('/api/eventos'),
 )
 
 const todayStr = new Date().toISOString().slice(0, 10)
 
 const upcoming = computed(() =>
-  (events.value ?? [])
+  (eventos.value ?? [])
     .filter(e => e.date >= todayStr)
     .sort((a, b) => a.date.localeCompare(b.date))
 )
 
 const past = computed(() =>
-  (events.value ?? [])
+  (eventos.value ?? [])
     .filter(e => e.date < todayStr)
     .sort((a, b) => b.date.localeCompare(a.date))
 )
-
-function itemSlug(path: string): string {
-  return path.split('/').pop() ?? ''
-}
 
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
@@ -48,8 +49,8 @@ useHead({ title: `${t('eventos.page_title')} — ${config.public.parishShortName
         <div v-if="upcoming.length" class="events-list">
           <NuxtLink
             v-for="event in upcoming"
-            :key="event.path"
-            :to="`/eventos/${itemSlug(event.path)}`"
+            :key="event.slug"
+            :to="`/eventos/${event.slug}`"
             class="event-card"
             :class="{ 'event-card--cancelled': event.status === 'cancelled' }"
           >
@@ -80,8 +81,8 @@ useHead({ title: `${t('eventos.page_title')} — ${config.public.parishShortName
         <div class="events-list">
           <NuxtLink
             v-for="event in past"
-            :key="event.path"
-            :to="`/eventos/${itemSlug(event.path)}`"
+            :key="event.slug"
+            :to="`/eventos/${event.slug}`"
             class="event-card event-card--past"
           >
             <div class="card-meta">

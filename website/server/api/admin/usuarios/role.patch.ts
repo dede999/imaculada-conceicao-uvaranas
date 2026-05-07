@@ -1,5 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
+import { insertAuditLog } from '../../../utils/auditLog'
 
 interface ProfileRow {
   role: 'admin' | 'editor'
@@ -30,14 +31,14 @@ export default defineEventHandler(async (event) => {
 
   await supabase.from('profiles').update({ role } as never).eq('id', id)
 
-  await supabase.from('audit_log').insert({
+  await insertAuditLog(supabase, {
     table_name: 'profiles',
     record_id: id,
     action: 'update',
     diff: { role: [current.role, role] },
     actor_id: actor.id,
     actor_name: actorProfile.name,
-  } as never)
+  })
 
   return { ok: true }
 })

@@ -1,6 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { getParishId } from '../../../utils/getParishId'
+import { insertAuditLog } from '../../../utils/auditLog'
 import type { ParishConfig } from '../../../api/parish-config.get'
 
 type Body = Omit<ParishConfig, 'parish_id'>
@@ -82,7 +83,7 @@ export default defineEventHandler(async (event) => {
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })
 
-  await supabase.from('audit_log').insert({
+  await insertAuditLog(supabase, {
     table_name: 'parish_config',
     record_id:  parishId,
     action:     'update',
@@ -90,7 +91,7 @@ export default defineEventHandler(async (event) => {
     actor_id:   profile.id,
     actor_name: profile.name,
     diff:       Object.keys(diff).length ? diff : null,
-  } as never)
+  })
 
   return { ok: true }
 })

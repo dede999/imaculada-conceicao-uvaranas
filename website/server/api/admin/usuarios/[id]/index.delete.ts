@@ -1,5 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../../utils/requireAdmin'
+import { insertAuditLog } from '../../../../utils/auditLog'
 
 export default defineEventHandler(async (event) => {
   const { user: actor, profile: actorProfile } = await requireAdmin(event)
@@ -21,14 +22,14 @@ export default defineEventHandler(async (event) => {
   const { error } = await supabase.auth.admin.deleteUser(id)
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })
 
-  await supabase.from('audit_log').insert({
+  await insertAuditLog(supabase, {
     table_name: 'profiles',
     record_id: id,
     action: 'delete',
-    diff: { name: target.name, role: target.role },
+    diff: { name: [target.name, null], role: [target.role, null] },
     actor_id: actor.id,
     actor_name: actorProfile.name,
-  } as never)
+  })
 
   return { ok: true }
 })

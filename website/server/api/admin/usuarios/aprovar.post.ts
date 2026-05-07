@@ -1,5 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
+import { insertAuditLog } from '../../../utils/auditLog'
 
 interface UserRequest {
   id: string
@@ -67,14 +68,14 @@ export default defineEventHandler(async (event) => {
     parish_id: request.parish_id,
   } as never)
 
-  await supabase.from('audit_log').insert({
+  await insertAuditLog(supabase, {
     table_name: 'user_requests',
     record_id: id,
     action: 'approve',
     parish_id: request.parish_id,
     actor_id: actor.id,
     actor_name: actorProfile.name,
-  } as never)
+  })
 
   return { ok: true }
 })

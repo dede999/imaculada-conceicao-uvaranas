@@ -1,6 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { getParishId } from '../../../utils/getParishId'
+import { insertAuditLog } from '../../../utils/auditLog'
 
 type Sections = { instagram: boolean; ministries: boolean }
 type Diff = Record<string, [unknown, unknown]>
@@ -93,7 +94,7 @@ export default defineEventHandler(async (event) => {
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })
 
-  await supabase.from('audit_log').insert({
+  await insertAuditLog(supabase, {
     table_name: 'parish_config',
     record_id:  parishId,
     action:     'restore',
@@ -101,7 +102,7 @@ export default defineEventHandler(async (event) => {
     actor_id:   profile.id,
     actor_name: profile.name,
     diff:       Object.keys(diff).length ? diff : null,
-  } as never)
+  })
 
   return { ok: true }
 })

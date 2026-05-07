@@ -14,6 +14,7 @@ const { data, refresh } = await useAsyncData('admin-noticias',
 
 const list = computed(() => data.value ?? [])
 const deleting = ref<string | null>(null)
+const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
 
 async function togglePublish(item: NoticiaRow) {
   await $fetch(`/api/admin/noticias/${item.id}`, { method: 'PATCH', body: { published: !item.published } })
@@ -21,7 +22,7 @@ async function togglePublish(item: NoticiaRow) {
 }
 
 async function remove(id: string) {
-  if (!confirm('Excluir esta notícia?')) return
+  if (!await showConfirm('Excluir esta notícia?')) return
   deleting.value = id
   await $fetch(`/api/admin/noticias/${id}`, { method: 'DELETE' })
   deleting.value = null
@@ -58,6 +59,7 @@ async function remove(id: string) {
     </div>
 
     <p v-else class="empty">Nenhuma notícia cadastrada ainda.</p>
+    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

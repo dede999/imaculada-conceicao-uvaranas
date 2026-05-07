@@ -76,6 +76,7 @@ const addingContact = ref(false)
 const contactSaving = ref(false)
 const deleting = ref<string | null>(null)
 const actionError = ref('')
+const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
 
 async function addContact() {
   if (!contactForm.value) { actionError.value = 'Valor obrigatório.'; return }
@@ -96,7 +97,7 @@ async function addContact() {
 }
 
 async function deleteContact(id: string) {
-  if (!confirm('Excluir este contato?')) return
+  if (!await showConfirm('Excluir este contato?')) return
   deleting.value = id
   await $fetch(`/api/admin/contacts/${id}`, { method: 'DELETE' })
   deleting.value = null
@@ -127,7 +128,7 @@ async function addImage() {
 }
 
 async function deleteImage(id: string) {
-  if (!confirm('Excluir esta imagem?')) return
+  if (!await showConfirm('Excluir esta imagem?')) return
   deleting.value = id
   await $fetch(`/api/admin/images/${id}`, { method: 'DELETE' })
   deleting.value = null
@@ -268,6 +269,7 @@ async function deleteImage(id: string) {
       </section>
 
     </template>
+    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

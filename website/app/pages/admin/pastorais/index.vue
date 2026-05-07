@@ -14,9 +14,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const deleting = ref<string | null>(null)
+const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
 
 async function deletePastoral(p: Pastoral) {
-  if (!confirm(`Excluir "${p.name}"? Esta ação não pode ser desfeita.`)) return
+  if (!await showConfirm(`Excluir "${p.name}"? Esta ação não pode ser desfeita.`)) return
   deleting.value = p.id
   try {
     await $fetch(`/api/admin/pastorais/${p.id}`, { method: 'DELETE' })
@@ -56,6 +57,7 @@ async function deletePastoral(p: Pastoral) {
     </table>
 
     <p v-else-if="pastorais !== null" class="empty">Nenhuma pastoral cadastrada.</p>
+    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

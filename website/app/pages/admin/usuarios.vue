@@ -30,9 +30,10 @@ const users = computed(() => data.value?.users ?? [])
 const currentUser = useSupabaseUser()
 const actionLoading = ref<string | null>(null)
 const actionError = ref('')
+const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
 
 async function deleteUser(id: string, name: string) {
-  if (!confirm(`Excluir o usuário "${name || 'sem nome'}"? Esta ação não pode ser desfeita.`)) return
+  if (!await showConfirm(`Excluir o usuário "${name || 'sem nome'}"? Esta ação não pode ser desfeita.`)) return
   actionLoading.value = id
   actionError.value = ''
   try {
@@ -290,6 +291,7 @@ async function addToParish(profile: SearchedProfile) {
         </div>
       </div>
     </section>
+    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

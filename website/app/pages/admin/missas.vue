@@ -61,6 +61,7 @@ function resetForms() {
 const saving  = ref(false)
 const deleting = ref<string | null>(null)
 const actionError = ref('')
+const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
 
 // ── Add handlers ───────────────────────────────────────────────────
 async function addMass(chapel_id: string) {
@@ -121,7 +122,7 @@ async function addCatechism(chapel_id: string) {
 
 // ── Delete handlers ────────────────────────────────────────────────
 async function deleteMass(id: string) {
-  if (!confirm('Excluir este horário de missa?')) return
+  if (!await showConfirm('Excluir este horário de missa?')) return
   deleting.value = id
   await $fetch(`/api/admin/masses/${id}`, { method: 'DELETE' })
   deleting.value = null
@@ -129,7 +130,7 @@ async function deleteMass(id: string) {
 }
 
 async function deleteConfession(id: string) {
-  if (!confirm('Excluir este horário de confissão?')) return
+  if (!await showConfirm('Excluir este horário de confissão?')) return
   deleting.value = id
   await $fetch(`/api/admin/confessions/${id}`, { method: 'DELETE' })
   deleting.value = null
@@ -137,7 +138,7 @@ async function deleteConfession(id: string) {
 }
 
 async function deleteCatechism(id: string) {
-  if (!confirm('Excluir esta turma de catequese?')) return
+  if (!await showConfirm('Excluir esta turma de catequese?')) return
   deleting.value = id
   await $fetch(`/api/admin/catechism/${id}`, { method: 'DELETE' })
   deleting.value = null
@@ -281,6 +282,7 @@ async function deleteCatechism(id: string) {
 
       </section>
     </div>
+    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

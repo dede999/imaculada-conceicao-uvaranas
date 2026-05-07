@@ -96,7 +96,7 @@ async function save() {
       },
     })
     saveMessage.value = { type: 'ok', text: t('admin.aparencia.saved') }
-    await Promise.all([refreshConfig(), refreshHistory()])
+    await Promise.all([refreshConfig(), refreshHistory(), refreshNuxtData('parish-config')])
   }
   catch {
     saveMessage.value = { type: 'err', text: t('admin.aparencia.save_error') }
@@ -126,7 +126,7 @@ async function restore(id: number) {
       body: { history_id: id },
     })
     restoreMessage.value = { type: 'ok', text: t('admin.aparencia.history.restored') }
-    await Promise.all([refreshConfig(), refreshHistory()])
+    await Promise.all([refreshConfig(), refreshHistory(), refreshNuxtData('parish-config')])
   }
   catch {
     restoreMessage.value = { type: 'err', text: t('admin.aparencia.history.restore_error') }

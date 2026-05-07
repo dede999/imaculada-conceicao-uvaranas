@@ -48,18 +48,16 @@ const latestAnnouncement = computed(() =>
 )
 
 const dayLabel = (day: number): string => t(`w_day.${day}`)
-const formatMasses = (masses: Array<{ days: number[]; times: string[] }> | undefined): string => {
+const formatMasses = (masses: Array<{ day_of_week: number; time: string }> | undefined): string => {
   if (!masses?.length) return '—'
-  const map = new Map<number, Set<string>>()
+  const map = new Map<number, string[]>()
   for (const m of masses) {
-    for (const day of m.days) {
-      if (!map.has(day)) map.set(day, new Set())
-      m.times.forEach(time => map.get(day)!.add(time))
-    }
+    if (!map.has(m.day_of_week)) map.set(m.day_of_week, [])
+    map.get(m.day_of_week)!.push(m.time)
   }
   return Array.from(map.entries())
     .sort(([a], [b]) => a - b)
-    .map(([day, times]) => `${dayLabel(day)} (${Array.from(times).sort().join(' · ')})`)
+    .map(([day, times]) => `${dayLabel(day)} (${times.join(' · ')})`)
     .join(' · ')
 }
 
@@ -70,9 +68,9 @@ const currentMinutes = computed(() => {
 })
 
 function isConfessionNow(chapel: any): boolean {
-  if (!chapel.confession?.length) return false
-  return chapel.confession.some((c: any) => {
-    if (!c.days.includes(currentDay.value)) return false
+  if (!chapel.confessions?.length) return false
+  return chapel.confessions.some((c: any) => {
+    if (c.day_of_week !== currentDay.value) return false
     const parts = (s: string) => s.split(':').map(Number)
     const start = (parts(c.time_start)[0] ?? 0) * 60 + (parts(c.time_start)[1] ?? 0)
     const end   = (parts(c.time_end)[0]   ?? 0) * 60 + (parts(c.time_end)[1]   ?? 0)
@@ -154,7 +152,7 @@ useHead({ title: parishName })
             <tbody>
               <tr
                 v-for="chapel in chapels"
-                :key="chapel.path"
+                :key="chapel.slug"
                 :class="chapel.type === 'matriz' ? 'row-matriz' : 'row-branch'"
               >
                 <td>
@@ -170,12 +168,12 @@ useHead({ title: parishName })
                 </td>
                 <td>
                   <div class="cell-catechism">
-                    <template v-if="chapel.catechism?.length">
+                    <template v-if="chapel.catechism_groups?.length">
                       <span
-                        v-for="cat in chapel.catechism"
-                        :key="cat.group"
+                        v-for="cat in chapel.catechism_groups"
+                        :key="cat.id"
                         class="cat-pill"
-                      >{{ cat.group }}</span>
+                      >{{ cat.group_name }}</span>
                     </template>
                     <span v-else class="text-muted">{{ t('home.chapels.catechism_none') }}</span>
                   </div>
@@ -188,7 +186,7 @@ useHead({ title: parishName })
         <div class="chapels-carousel">
           <ChapelCard
             v-for="chapel in chapels"
-            :key="chapel.path"
+            :key="chapel.slug"
             :chapel="(chapel as any)"
             class="carousel-item"
           />

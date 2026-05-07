@@ -1,5 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../utils/requireAuth'
+import { applyParishFilter } from '../../utils/parishGuard'
 
 export interface DashboardData {
   profile: { name: string; role: string }
@@ -27,21 +28,21 @@ export default defineEventHandler(async (event) => {
 
   const queries = await Promise.all([
     // noticias published count
-    supabase.from('noticias').select('id', { count: 'exact', head: true }).eq('published', true),
+    applyParishFilter(supabase.from('noticias').select('id', { count: 'exact', head: true }).eq('published', true), profile),
     // noticias drafts count
-    supabase.from('noticias').select('id', { count: 'exact', head: true }).eq('published', false),
+    applyParishFilter(supabase.from('noticias').select('id', { count: 'exact', head: true }).eq('published', false), profile),
     // upcoming eventos
-    supabase.from('eventos').select('id', { count: 'exact', head: true })
-      .eq('status', 'active').gte('date', today),
+    applyParishFilter(supabase.from('eventos').select('id', { count: 'exact', head: true })
+      .eq('status', 'active').gte('date', today), profile),
     // pastorais count
-    supabase.from('pastorais').select('id', { count: 'exact', head: true }),
+    applyParishFilter(supabase.from('pastorais').select('id', { count: 'exact', head: true }), profile),
     // chapels count
-    supabase.from('chapels').select('id', { count: 'exact', head: true }),
+    applyParishFilter(supabase.from('chapels').select('id', { count: 'exact', head: true }), profile),
     // next 3 eventos detail
-    supabase.from('eventos')
+    applyParishFilter(supabase.from('eventos')
       .select('id, title, date, time, location')
       .eq('status', 'active').gte('date', today)
-      .order('date').limit(3),
+      .order('date').limit(3), profile),
     // pending requests (admin only)
     isAdmin
       ? supabase.from('user_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')

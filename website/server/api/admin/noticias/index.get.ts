@@ -1,14 +1,17 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { requireAdmin } from '../../../utils/requireAdmin'
+import { requireAuth } from '../../../utils/requireAuth'
+import { applyParishFilter } from '../../../utils/parishGuard'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  const { profile } = await requireAuth(event)
   const supabase = serverSupabaseServiceRole(event)
 
-  const { data, error } = await supabase
+  let q = supabase
     .from('noticias')
     .select('id, slug, title, date, summary, published, updated_at')
     .order('date', { ascending: false })
+  q = applyParishFilter(q, profile)
+  const { data, error } = await q
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })
   return data as unknown as object[]

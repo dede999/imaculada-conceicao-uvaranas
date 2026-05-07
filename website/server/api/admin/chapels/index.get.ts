@@ -1,13 +1,14 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { requireAdmin } from '../../../utils/requireAdmin'
+import { requireAuth } from '../../../utils/requireAuth'
+import { applyParishFilter } from '../../../utils/parishGuard'
 import type { ChapelListItem, ChapelContact, ChapelImage, Mass, Confession, CatechismGroup } from '../../chapels/index.get'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  const { profile } = await requireAuth(event)
   const supabase = serverSupabaseServiceRole(event)
 
   const [chapelsRes, contactsRes, imagesRes, massesRes, confsRes, catRes] = await Promise.all([
-    supabase.from('chapels').select('id, slug, name, type, address, lat, lng, pastor, body, sort').order('sort'),
+    applyParishFilter(supabase.from('chapels').select('id, slug, name, type, address, lat, lng, pastor, body, sort').order('sort'), profile),
     supabase.from('chapel_contacts').select('id, chapel_id, type, value, sort').order('sort'),
     supabase.from('chapel_images').select('id, chapel_id, url, caption, sort').order('sort'),
     supabase.from('masses').select('id, chapel_id, day_of_week, time, note, active').order('day_of_week').order('time'),

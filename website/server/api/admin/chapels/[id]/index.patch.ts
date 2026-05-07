@@ -1,8 +1,9 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { requireAdmin } from '../../../../utils/requireAdmin'
+import { requireAuth } from '../../../../utils/requireAuth'
+import { assertChapelAccess } from '../../../../utils/parishGuard'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  const { profile } = await requireAuth(event)
   const id = getRouterParam(event, 'id')
   const body = await readBody<{
     name?: string; address?: string; pastor?: string
@@ -10,6 +11,7 @@ export default defineEventHandler(async (event) => {
   }>(event)
 
   const supabase = serverSupabaseServiceRole(event)
+  await assertChapelAccess(supabase, id as string, profile)
   const { error } = await supabase
     .from('chapels')
     .update(body as never)

@@ -1,16 +1,18 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { requireAdmin } from '../../../../utils/requireAdmin'
+import { requireAuth } from '../../../../utils/requireAuth'
+import { applyParishFilter } from '../../../../utils/parishGuard'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  const { profile } = await requireAuth(event)
   const id = getRouterParam(event, 'id')
   const supabase = serverSupabaseServiceRole(event)
 
-  const { data, error } = await supabase
+  let q = supabase
     .from('noticias')
     .select('*')
     .eq('id', id as never)
-    .single()
+  q = applyParishFilter(q, profile)
+  const { data, error } = await q.single()
 
   if (error || !data) throw createError({ statusCode: 404, statusMessage: 'Não encontrado' })
   return data as unknown as object

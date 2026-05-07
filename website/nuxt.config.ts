@@ -33,6 +33,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2024-04-03',
   runtimeConfig: {
+    parishId: process.env.PARISH_ID ?? '',
     public: {
       parishTimezone: parishConfig.location.timezone,
       parishName: parishConfig.name,

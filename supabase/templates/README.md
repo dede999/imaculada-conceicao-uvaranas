@@ -13,6 +13,7 @@ precisam ser aplicados manualmente no Dashboard do Supabase:
 
 | Template no Dashboard | Arquivo               | Assunto sugerido                                        |
 |-----------------------|-----------------------|---------------------------------------------------------|
+| Confirm signup        | `confirmation.html`   | Confirme seu acesso ao painel — Paróquia Imaculada Conceição |
 | Invite user           | `invite.html`         | Convite de acesso ao painel — Paróquia Imaculada Conceição |
 | Magic Link            | `magic_link.html`     | Link de acesso ao painel — Paróquia Imaculada Conceição |
 

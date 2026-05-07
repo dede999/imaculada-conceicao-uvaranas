@@ -20,6 +20,10 @@ max_frequency = "1m0s"
 otp_length = 8
 otp_expiry = 3600
 
+[auth.email.template.confirmation]
+subject = "Confirme seu acesso ao painel — Paróquia Imaculada Conceição"
+content_path = "./supabase/templates/confirmation.html"
+
 [auth.email.template.invite]
 subject = "Convite de acesso ao painel — Paróquia Imaculada Conceição"
 content_path = "./supabase/templates/invite.html"

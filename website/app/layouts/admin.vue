@@ -37,6 +37,10 @@ async function signOut() {
           <Icon name="lucide:clock" />
           Missas
         </NuxtLink>
+        <NuxtLink to="/admin/pastorais" class="sidebar-link">
+          <Icon name="lucide:heart-handshake" />
+          Pastorais
+        </NuxtLink>
         <NuxtLink to="/admin/usuarios" class="sidebar-link">
           <Icon name="lucide:users" />
           Usuários

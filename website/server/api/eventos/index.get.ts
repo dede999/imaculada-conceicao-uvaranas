@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { getParishId } from '../../utils/getParishId'
 
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseServiceRole(event)
@@ -6,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await supabase
     .from('eventos')
     .select('id, slug, title, type, date, end_date, status, summary')
+    .eq('parish_id', getParishId(event))
     .eq('published', true)
     .order('date', { ascending: false })
 

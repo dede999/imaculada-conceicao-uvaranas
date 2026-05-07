@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { getParishId } from '../../utils/getParishId'
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')
@@ -7,6 +8,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await supabase
     .from('eventos')
     .select('id, slug, title, type, date, end_date, status, summary, body')
+    .eq('parish_id', getParishId(event))
     .eq('slug', slug as never)
     .eq('published', true)
     .single()

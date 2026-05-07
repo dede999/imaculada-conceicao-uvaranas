@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { getParishId } from '../utils/getParishId'
 
 export default defineEventHandler(async (event) => {
   const { name, email, parish_role } = await readBody<{
@@ -17,6 +18,7 @@ export default defineEventHandler(async (event) => {
     name: name.trim(),
     email: email.trim().toLowerCase(),
     parish_role: parish_role.trim(),
+    parish_id: getParishId(event),
   } as never)
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })

@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { getParishId } from '../../utils/getParishId'
 import type {
   ChapelContact,
   ChapelImage,
@@ -40,6 +41,7 @@ export default defineEventHandler(async (event) => {
   const { data: chapelRow, error: chapelErr } = await supabase
     .from('chapels')
     .select('id, slug, name, type, address, lat, lng, pastor, body, sort')
+    .eq('parish_id', getParishId(event))
     .eq('slug', slug as never)
     .single()
 

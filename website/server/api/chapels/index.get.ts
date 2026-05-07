@@ -1,4 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
+import { getParishId } from '../../utils/getParishId'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,6 +71,7 @@ export default defineEventHandler(async (event) => {
       supabase
         .from('chapels')
         .select('id, slug, name, type, address, lat, lng, pastor, sort')
+        .eq('parish_id', getParishId(event))
         .order('sort'),
       supabase
         .from('chapel_contacts')

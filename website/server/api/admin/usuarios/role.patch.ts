@@ -13,6 +13,9 @@ export default defineEventHandler(async (event) => {
   if (!id || !['admin', 'editor'].includes(role)) {
     throw createError({ statusCode: 400, statusMessage: 'Parâmetros inválidos' })
   }
+  if (id === actor.id && role === 'editor') {
+    throw createError({ statusCode: 403, statusMessage: 'Não é possível se auto-rebaixar.' })
+  }
 
   const supabase = serverSupabaseServiceRole(event)
 

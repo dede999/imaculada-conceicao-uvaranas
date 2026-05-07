@@ -31,6 +31,20 @@ const currentUser = useSupabaseUser()
 const actionLoading = ref<string | null>(null)
 const actionError = ref('')
 
+async function deleteUser(id: string, name: string) {
+  if (!confirm(`Excluir o usuário "${name || 'sem nome'}"? Esta ação não pode ser desfeita.`)) return
+  actionLoading.value = id
+  actionError.value = ''
+  try {
+    await $fetch(`/api/admin/usuarios/${id}`, { method: 'DELETE' })
+    await refresh()
+  }
+  catch (e: unknown) {
+    actionError.value = (e as { data?: { statusMessage?: string } }).data?.statusMessage ?? 'Erro ao excluir'
+  }
+  finally { actionLoading.value = null }
+}
+
 async function approve(id: string) {
   actionLoading.value = id
   actionError.value = ''
@@ -137,6 +151,7 @@ function formatDate(iso: string) {
               <th>Papel</th>
               <th>Desde</th>
               <th />
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -148,15 +163,28 @@ function formatDate(iso: string) {
               </td>
               <td class="td-date">{{ formatDate(u.created_at) }}</td>
               <td class="td-action">
-                <button
-                  v-if="u.id !== currentUser?.id"
-                  class="btn-role"
-                  :disabled="actionLoading === u.id"
-                  @click="toggleRole(u.id, u.role)"
-                >
-                  {{ u.role === 'admin' ? 'Tornar editor' : 'Tornar admin' }}
-                </button>
+                <template v-if="u.id !== currentUser?.id">
+                  <button
+                    class="btn-role"
+                    :disabled="actionLoading === u.id"
+                    @click="toggleRole(u.id, u.role)"
+                  >
+                    {{ u.role === 'admin' ? 'Tornar editor' : 'Tornar admin' }}
+                  </button>
+                </template>
                 <span v-else class="you-label">você</span>
+              </td>
+              <td class="td-action">
+                <button
+                  v-if="u.id !== currentUser?.id && u.role === 'editor'"
+                  class="btn-delete"
+                  :disabled="actionLoading === u.id"
+                  :title="u.role === 'admin' ? 'Rebaixe para editor antes de excluir' : ''"
+                  @click="deleteUser(u.id, u.name)"
+                >
+                  Excluir
+                </button>
+                <span v-else-if="u.role === 'admin' && u.id !== currentUser?.id" class="admin-lock" title="Rebaixe para editor antes de excluir">🔒</span>
               </td>
             </tr>
           </tbody>
@@ -344,6 +372,27 @@ function formatDate(iso: string) {
   font-size: 12px;
   color: var(--text-muted);
   font-style: italic;
+}
+
+.btn-delete {
+  background: none;
+  border: 1px solid #fca5a5;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  cursor: pointer;
+  color: #b91c1c;
+  transition: background 0.1s;
+}
+
+.btn-delete:hover:not(:disabled) { background: #fef2f2; }
+.btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.admin-lock {
+  font-size: 14px;
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* ── History ─────────────────────────────────────────────────── */

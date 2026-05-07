@@ -1,36 +1,28 @@
 <script setup lang="ts">
-interface ConfessionSlot {
-  time_start: string
-  time_end: string
-  days: number[]
-}
-
-interface CatechismGroup {
-  group: string
-  days: number[]
-  time: string
-}
+interface MassRow { day_of_week: number; time: string; note: string | null }
+interface ConfessionRow { day_of_week: number; time_start: string; time_end: string }
+interface CatechismGroup { id: string; group_name: string; day_of_week: number | null; time: string | null }
 
 interface Chapel {
   name: string
   type: string
-  masses?: Array<{ days: number[]; times: string[] }>
-  confession?: ConfessionSlot[]
-  catechism?: CatechismGroup[]
+  masses?: MassRow[]
+  confessions?: ConfessionRow[]
+  catechism_groups?: CatechismGroup[]
 }
 
 const props = defineProps<{ chapel: Chapel }>()
 
 const { t } = useI18n()
 
-const activeGroup = ref<string | null>(null)
+const activeGroupId = ref<string | null>(null)
 let autoCloseTimer: ReturnType<typeof setTimeout> | null = null
 
-function openSheet(group: string) {
+function openSheet(id: string) {
   if (autoCloseTimer) clearTimeout(autoCloseTimer)
-  activeGroup.value = group
+  activeGroupId.value = id
   autoCloseTimer = setTimeout(() => {
-    activeGroup.value = null
+    activeGroupId.value = null
     autoCloseTimer = null
   }, 4000)
 }
@@ -40,11 +32,11 @@ function closeSheet() {
     clearTimeout(autoCloseTimer)
     autoCloseTimer = null
   }
-  activeGroup.value = null
+  activeGroupId.value = null
 }
 
 const activeGroupData = computed(() =>
-  props.chapel.catechism?.find((c) => c.group === activeGroup.value) ?? null
+  props.chapel.catechism_groups?.find((c) => c.id === activeGroupId.value) ?? null
 )
 
 function dayLabel(day: number): string {
@@ -52,21 +44,18 @@ function dayLabel(day: number): string {
 }
 
 const massesByDay = computed(() => {
-  const map = new Map<number, Set<string>>()
-  for (const entry of props.chapel.masses ?? []) {
-    for (const day of entry.days) {
-      if (!map.has(day)) map.set(day, new Set())
-      entry.times.forEach(time => map.get(day)!.add(time))
-    }
+  const map = new Map<number, string[]>()
+  for (const m of props.chapel.masses ?? []) {
+    if (!map.has(m.day_of_week)) map.set(m.day_of_week, [])
+    map.get(m.day_of_week)!.push(m.time)
   }
   return Array.from(map.entries())
     .sort(([a], [b]) => a - b)
-    .map(([day, times]) => ({ day, times: Array.from(times).sort() }))
+    .map(([day, times]) => ({ day, times }))
 })
 
-function formatConfession(slot: ConfessionSlot): string {
-  const days = slot.days.map(dayLabel).join(', ')
-  return `${days} · ${slot.time_start}–${slot.time_end}`
+function formatConfession(slot: ConfessionRow): string {
+  return `${dayLabel(slot.day_of_week)} · ${slot.time_start}–${slot.time_end}`
 }
 </script>
 
@@ -98,9 +87,9 @@ function formatConfession(slot: ConfessionSlot): string {
 
     <div class="card-section">
       <p class="section-label">{{ t('home.chapels.col_confession') }}</p>
-      <template v-if="chapel.confession?.length">
+      <template v-if="chapel.confessions?.length">
         <div
-          v-for="(slot, i) in chapel.confession"
+          v-for="(slot, i) in chapel.confessions"
           :key="i"
           class="conf-row"
         >
@@ -113,33 +102,29 @@ function formatConfession(slot: ConfessionSlot): string {
 
     <div class="card-section">
       <p class="section-label">{{ t('home.chapels.col_catechism') }}</p>
-      <div v-if="chapel.catechism?.length" class="pills-row">
+      <div v-if="chapel.catechism_groups?.length" class="pills-row">
         <button
-          v-for="cat in chapel.catechism"
-          :key="cat.group"
+          v-for="cat in chapel.catechism_groups"
+          :key="cat.id"
           type="button"
           class="cat-pill"
-          @click="openSheet(cat.group)"
+          @click="openSheet(cat.id)"
         >
-          {{ cat.group }}
+          {{ cat.group_name }}
         </button>
       </div>
       <span v-else class="no-data">{{ t('home.chapels.catechism_none') }}</span>
     </div>
 
     <Teleport to="body">
-      <div v-if="activeGroup" class="sheet-backdrop" @click="closeSheet">
+      <div v-if="activeGroupId" class="sheet-backdrop" @click="closeSheet">
         <div class="bottom-sheet" @click.stop>
           <div class="sheet-handle" aria-hidden="true" />
-          <p class="sheet-group-name">{{ activeGroupData?.group }}</p>
+          <p class="sheet-group-name">{{ activeGroupData?.group_name }}</p>
           <ul class="sheet-schedule">
-            <li
-              v-for="day in activeGroupData?.days"
-              :key="day"
-              class="sheet-row"
-            >
-              <span class="sheet-day">{{ dayLabel(day) }}</span>
-              <span class="sheet-time">{{ t('home.chapels.card_at') }} {{ activeGroupData?.time }}</span>
+            <li v-if="activeGroupData?.day_of_week != null" class="sheet-row">
+              <span class="sheet-day">{{ dayLabel(activeGroupData.day_of_week) }}</span>
+              <span v-if="activeGroupData.time" class="sheet-time">{{ t('home.chapels.card_at') }} {{ activeGroupData.time }}</span>
             </li>
           </ul>
         </div>

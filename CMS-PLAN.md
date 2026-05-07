@@ -113,19 +113,21 @@ paróquias (multi-tenant), com cada instância tendo sua própria identidade vis
 
 ---
 
-## Fases pendentes
-
-### Próxima — Log de auditoria (stub existe, falta conteúdo)
+### Fase 6 — Log de auditoria (stub existe, falta conteúdo)
 - [ ] `/admin/log`: buscar `audit_log` com paginação
 - [ ] Filtros por: tabela, ator, ação, intervalo de datas
 - [ ] Exibir `diff` JSONB de forma legível (campo: [antes → depois])
 - [ ] Somente admins acessam
 
-### Próxima — Dashboard funcional
-- [ ] Resumo de conteúdo: noticias publicadas, eventos futuros, pastorais
+### Fase 7 — Dashboard funcional
+- [ ] Resumo de conteúdo: notícias publicadas, eventos futuros, pastorais
 - [ ] Próximos 3 eventos
 - [ ] Últimas 5 entradas do audit_log
 - [ ] Acesso rápido aos módulos
+
+---
+
+## Em espera
 
 ### Transparência financeira
 - [ ] Aguardando dados do contador
@@ -138,7 +140,7 @@ paróquias (multi-tenant), com cada instância tendo sua própria identidade vis
 
 ---
 
-## Fase 6 — Multi-tenant
+## Fase 8 — Multi-tenant
 
 ### Conceito
 
@@ -250,11 +252,11 @@ tenant implícito. A ordem abaixo permite ir devagar sem quebrar nada:
 
 ---
 
-## Fase 7 — Customização por tenant
+## Fase 9 — Customização por tenant
 
 ### Sub-fases (em ordem de complexidade)
 
-#### B1 — Paleta de cores, ícone e seções visíveis (baixa complexidade, alto valor)
+#### 9.1 — Paleta de cores, ícone e seções visíveis (baixa complexidade, alto valor)
 
 ```sql
 create table parish_config (
@@ -294,7 +296,7 @@ create table parish_config_history (
 - Botão "Desfazer" restaura o snapshot anterior (lista dos últimos 10)
 - Nuxt injeta tokens CSS sobrescritos via `useHead()` — sem rebuild necessário
 
-#### B2 — Templates de layout (moderada complexidade, guardrails por design)
+#### 9.2 — Templates de layout (moderada complexidade, guardrails por design)
 
 Em vez de drag-n-drop livre, a paróquia escolhe entre um conjunto de templates
 pré-desenhados e testados. Cada template é uma combinação válida de seções — não
@@ -320,7 +322,7 @@ o resultado é sempre válido. Menos poder, mas menos desastres.
 - Mudança de template também grava snapshot para undo
 - Mesmo padrão pode ser aplicado a outras páginas no futuro (capelas, pastorais)
 
-#### B3 — Overrides de locale (alta complexidade, baixa prioridade)
+#### 9.3 — Overrides de locale (alta complexidade, baixa prioridade)
 
 - `parish_config.locale_overrides jsonb`: patch sobre `locales/pt-BR.json`
 - Ex: `{"parish.name": "Paróquia Bom Jesus", "home.hero.subtitle": "texto customizado"}`

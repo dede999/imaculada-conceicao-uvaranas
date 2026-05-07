@@ -2,9 +2,7 @@
 const { t } = useI18n()
 const config = useRuntimeConfig()
 
-const { data: pastorais } = await useAsyncData('pastorais-list', () =>
-  queryCollection('pastorais').all()
-)
+const { data: pastorais } = await usePastorais()
 
 const CATEGORIES = ['liturgia', 'formacao', 'social', 'movimentos', 'comunicacao'] as const
 
@@ -12,14 +10,10 @@ const grouped = computed(() =>
   CATEGORIES
     .map(cat => ({
       key: cat,
-      items: (pastorais.value ?? []).filter((p: any) => p.category === cat),
+      items: (pastorais.value ?? []).filter(p => p.category === cat),
     }))
     .filter(g => g.items.length > 0)
 )
-
-function slugOf(path: string): string {
-  return path.split('/').pop() ?? ''
-}
 
 useHead({ title: `${t('pastorais.page_title')} — ${config.public.parishShortName}` })
 </script>
@@ -42,11 +36,11 @@ useHead({ title: `${t('pastorais.page_title')} — ${config.public.parishShortNa
           <div class="nav-pills">
             <a
               v-for="pastoral in group.items"
-              :key="pastoral.path"
-              :href="`#${slugOf(pastoral.path)}`"
+              :key="pastoral.slug"
+              :href="`#${pastoral.slug}`"
               class="nav-pill"
             >
-              {{ (pastoral as any).name }}
+              {{ pastoral.name }}
             </a>
           </div>
         </div>
@@ -60,29 +54,29 @@ useHead({ title: `${t('pastorais.page_title')} — ${config.public.parishShortNa
 
           <article
             v-for="pastoral in group.items"
-            :key="pastoral.path"
-            :id="slugOf(pastoral.path)"
+            :key="pastoral.slug"
+            :id="pastoral.slug"
             class="pastoral-card"
           >
             <div class="card-header">
-              <h2 class="pastoral-name">{{ (pastoral as any).name }}</h2>
+              <h2 class="pastoral-name">{{ pastoral.name }}</h2>
               <a href="#pastorais-nav" class="back-link" :aria-label="t('pastorais.back')">
                 {{ t('pastorais.back') }}
               </a>
             </div>
 
-            <div v-if="(pastoral as any).coordinator || (pastoral as any).meetings" class="pastoral-meta">
-              <span v-if="(pastoral as any).coordinator" class="meta-item">
+            <div v-if="pastoral.coordinator || pastoral.meetings" class="pastoral-meta">
+              <span v-if="pastoral.coordinator" class="meta-item">
                 <span class="meta-label">{{ t('pastorais.coordinator') }}</span>
-                {{ (pastoral as any).coordinator }}
+                {{ pastoral.coordinator }}
               </span>
-              <span v-if="(pastoral as any).meetings" class="meta-item meta-item--meetings">
+              <span v-if="pastoral.meetings" class="meta-item meta-item--meetings">
                 <span class="meta-label">{{ t('pastorais.meetings') }}</span>
-                {{ (pastoral as any).meetings }}
+                {{ pastoral.meetings }}
               </span>
             </div>
 
-            <ContentRenderer :value="pastoral" class="prose" />
+            <div v-if="pastoral.body" v-html="pastoral.body" class="prose" />
           </article>
 
         </div>

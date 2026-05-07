@@ -16,7 +16,7 @@ const todayStr = new Date().toISOString().slice(0, 10)
 const [{ data: eventsData }, { data: newsData }, { data: pastoraisData }] = await Promise.all([
   useAsyncData('home-events', () => queryCollection('events').all()),
   useAsyncData('home-noticias', () => queryCollection('noticias').order('date', 'DESC').all()),
-  useAsyncData('home-pastorais', () => queryCollection('pastorais').all()),
+  usePastorais(),
 ])
 
 const MINISTRY_CATEGORIES = ['liturgia', 'formacao', 'social', 'movimentos', 'comunicacao'] as const

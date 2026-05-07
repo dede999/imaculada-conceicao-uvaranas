@@ -8,19 +8,18 @@ const { data: parishConfig } = await useAsyncData(
   () => $fetch<ParishConfig>('/api/parish-config'),
 )
 
-useHead(() => {
+const colorOverrides = computed<Record<string, string> | undefined>(() => {
   const colors = parishConfig.value?.colors ?? {}
-  const entries = Object.entries(colors)
-  if (!entries.length) return {}
-  const css = `:root {\n${entries.map(([k, v]) => `  ${k}: ${v};`).join('\n')}\n}`
-  return { style: [{ innerHTML: css, id: 'parish-color-overrides' }] }
+  return Object.keys(colors).length ? colors : undefined
 })
 </script>
 
 <template>
-  <NuxtRouteAnnouncer />
-  <AppNav v-if="!route.path.startsWith('/admin')" />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div :style="colorOverrides">
+    <NuxtRouteAnnouncer />
+    <AppNav v-if="!route.path.startsWith('/admin')" />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </div>
 </template>

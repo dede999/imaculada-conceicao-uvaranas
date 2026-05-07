@@ -1,0 +1,197 @@
+/* ── Admin shared styles — scoped to .admin-shell ─────────────────────────── */
+
+/* ── Form: header + back link ────────────────────────────────────────────── */
+
+.admin-shell .form-header { margin-bottom: 20px; }
+
+.admin-shell .back-link {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--fr-600);
+  text-decoration: none;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.admin-shell .back-link:hover { text-decoration: underline; }
+
+.admin-shell .page-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--fr-950);
+  margin: 0;
+}
+
+/* ── Form: error / success banners ──────────────────────────────────────── */
+
+.admin-shell .form-error {
+  background: #fde8e8;
+  color: #c0392b;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* ── Form: layout ────────────────────────────────────────────────────────── */
+
+.admin-shell .form { display: flex; flex-direction: column; gap: 16px; }
+
+.admin-shell .field { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+
+.admin-shell .field-row { flex-direction: row; gap: 16px; }
+
+.admin-shell .field label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fr-600);
+}
+
+.admin-shell .field input,
+.admin-shell .field textarea,
+.admin-shell .field select {
+  border: 1px solid #d4c9b8;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--fr-950);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+  background: #fff;
+}
+
+.admin-shell .field input:focus,
+.admin-shell .field textarea:focus,
+.admin-shell .field select:focus { border-color: var(--fr-600); }
+
+.admin-shell .field input[readonly] { background: #faf7f2; color: var(--text-muted); }
+
+/* ── Form: slug widget ───────────────────────────────────────────────────── */
+
+.admin-shell .slug-wrap { display: flex; gap: 6px; }
+.admin-shell .slug-wrap input { flex: 1; }
+
+.admin-shell .btn-lock {
+  background: none;
+  border: 1px solid #d4c9b8;
+  border-radius: 6px;
+  padding: 0 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ── Form: footer + save button ──────────────────────────────────────────── */
+
+.admin-shell .form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #e4ddd0;
+}
+
+.admin-shell .publish-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--fr-950);
+  cursor: pointer;
+}
+
+.admin-shell .btn-save {
+  background: var(--fr-600);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 24px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.admin-shell .btn-save:hover:not(:disabled) { background: var(--fr-800); }
+.admin-shell .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.admin-shell .loading {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ── List: page header ───────────────────────────────────────────────────── */
+
+.admin-shell .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.admin-shell .btn-new {
+  background: var(--fr-600);
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.admin-shell .btn-new:hover { background: var(--fr-800); }
+
+/* ── List: action buttons ────────────────────────────────────────────────── */
+
+.admin-shell .btn-edit,
+.admin-shell .btn-toggle,
+.admin-shell .btn-delete {
+  border: 1px solid #d4c9b8;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  cursor: pointer;
+  background: none;
+  transition: background 0.1s;
+  text-decoration: none;
+  color: var(--fr-800);
+}
+
+.admin-shell .btn-edit:hover,
+.admin-shell .btn-toggle:hover { background: #f5efe4; }
+
+.admin-shell .btn-delete { color: #c0392b; border-color: #f0c0b8; }
+.admin-shell .btn-delete:hover { background: #fde8e8; }
+.admin-shell .btn-delete:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── List: publish status badge ──────────────────────────────────────────── */
+
+.admin-shell .status {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.admin-shell .status.published { background: #d1f5e0; color: #1a7a4a; }
+.admin-shell .status.draft     { background: #f0ebe2; color: #8a7a60; }
+
+/* ── List: empty state ───────────────────────────────────────────────────── */
+
+.admin-shell .empty {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-muted);
+}

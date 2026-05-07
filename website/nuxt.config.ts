@@ -13,7 +13,7 @@ const parishConfigPath = join(projectRoot, 'parish.config.yaml')
 const parishConfig = parseYaml(readFileSync(parishConfigPath, 'utf-8'))
 
 export default defineNuxtConfig({
-  css: ['~/assets/css/tokens.css'],
+  css: ['~/assets/css/tokens.css', '~/assets/css/admin.css'],
   vite: {
     optimizeDeps: {
       include: ['@vueuse/core', '@vue/devtools-core', '@vue/devtools-kit'],

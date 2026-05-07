@@ -1,148 +1,12 @@
 <script setup lang="ts">
-import type { ParishConfig } from '~/server/api/parish-config.get'
-import type { HistoryEntry } from '~/server/api/admin/configuracoes/historico.get'
-
 definePageMeta({ layout: 'admin' })
 
-const { t } = useI18n()
-
-// ── Default token values (mirrors tokens.css) ─────────────────────────────
-const DEFAULT_COLORS: Record<string, string> = {
-  '--fr-950': '#412402',
-  '--fr-800': '#633806',
-  '--fr-600': '#854F0B',
-  '--fr-400': '#BA7517',
-  '--fr-200': '#EF9F27',
-  '--fr-50':  '#FAEEDA',
-  '--cv-950': '#04342C',
-  '--cv-600': '#0F6E56',
-  '--cv-400': '#1D9E75',
-  '--cv-50':  '#E1F5EE',
-}
-
-const AMBER_TOKENS = [
-  { key: '--fr-950', label: () => t('admin.aparencia.colors.fr_950') },
-  { key: '--fr-800', label: () => t('admin.aparencia.colors.fr_800') },
-  { key: '--fr-600', label: () => t('admin.aparencia.colors.fr_600') },
-  { key: '--fr-400', label: () => t('admin.aparencia.colors.fr_400') },
-  { key: '--fr-200', label: () => t('admin.aparencia.colors.fr_200') },
-  { key: '--fr-50',  label: () => t('admin.aparencia.colors.fr_50') },
-]
-
-const TEAL_TOKENS = [
-  { key: '--cv-950', label: () => t('admin.aparencia.colors.cv_950') },
-  { key: '--cv-600', label: () => t('admin.aparencia.colors.cv_600') },
-  { key: '--cv-400', label: () => t('admin.aparencia.colors.cv_400') },
-  { key: '--cv-50',  label: () => t('admin.aparencia.colors.cv_50') },
-]
-
-// ── Load data ──────────────────────────────────────────────────────────────
-const { data: remote, refresh: refreshConfig } = await useAsyncData(
-  'admin-aparencia',
-  () => $fetch<ParishConfig>('/api/admin/configuracoes/aparencia'),
-  { server: false },
-)
-
-const { data: history, refresh: refreshHistory } = await useAsyncData(
-  'admin-aparencia-history',
-  () => $fetch<HistoryEntry[]>('/api/admin/configuracoes/historico'),
-  { server: false },
-)
-
-// ── Editable state (deep copy from remote) ────────────────────────────────
-const colors   = ref<Record<string, string>>({ ...DEFAULT_COLORS })
-const iconType = ref<'tau' | 'sacred_heart' | 'custom'>('tau')
-const iconUrl  = ref<string>('')
-const sections = ref({ instagram: true, ministries: true })
-
-watch(remote, (cfg) => {
-  if (!cfg) return
-  colors.value   = { ...DEFAULT_COLORS, ...cfg.colors }
-  iconType.value = cfg.icon_type
-  iconUrl.value  = cfg.icon_url ?? ''
-  sections.value = { ...cfg.sections }
-}, { immediate: true })
-
-// ── Live preview CSS ───────────────────────────────────────────────────────
-const previewStyle = computed(() => {
-  return Object.entries(colors.value)
-    .map(([k, v]) => `${k}: ${v}`)
-    .join('; ')
-})
-
-// ── Save ──────────────────────────────────────────────────────────────────
-const saving      = ref(false)
-const saveMessage = ref<{ type: 'ok' | 'err'; text: string } | null>(null)
-let   saveTimer:  ReturnType<typeof setTimeout> | null = null
-
-async function save() {
-  saving.value = true
-  saveMessage.value = null
-  try {
-    // Only store non-default overrides
-    const overrides: Record<string, string> = {}
-    for (const [k, v] of Object.entries(colors.value)) {
-      if (v !== DEFAULT_COLORS[k]) overrides[k] = v
-    }
-
-    await $fetch('/api/admin/configuracoes/aparencia', {
-      method: 'PATCH',
-      body: {
-        colors: overrides,
-        icon_type: iconType.value,
-        icon_url: iconUrl.value || null,
-        home_layout: remote.value?.home_layout ?? 'standard',
-        sections: sections.value,
-      },
-    })
-    saveMessage.value = { type: 'ok', text: t('admin.aparencia.saved') }
-    await Promise.all([refreshConfig(), refreshHistory(), refreshNuxtData('parish-config')])
-  }
-  catch {
-    saveMessage.value = { type: 'err', text: t('admin.aparencia.save_error') }
-  }
-  finally {
-    saving.value = false
-    if (saveTimer) clearTimeout(saveTimer)
-    saveTimer = setTimeout(() => { saveMessage.value = null }, 4000)
-  }
-}
-
-// ── Reset to defaults ─────────────────────────────────────────────────────
-function resetColors() {
-  colors.value = { ...DEFAULT_COLORS }
-}
-
-// ── Undo ──────────────────────────────────────────────────────────────────
-const restoring      = ref<number | null>(null)
-const restoreMessage = ref<{ type: 'ok' | 'err'; text: string } | null>(null)
-
-async function restore(id: number) {
-  restoring.value = id
-  restoreMessage.value = null
-  try {
-    await $fetch('/api/admin/configuracoes/desfazer', {
-      method: 'POST',
-      body: { history_id: id },
-    })
-    restoreMessage.value = { type: 'ok', text: t('admin.aparencia.history.restored') }
-    await Promise.all([refreshConfig(), refreshHistory(), refreshNuxtData('parish-config')])
-  }
-  catch {
-    restoreMessage.value = { type: 'err', text: t('admin.aparencia.history.restore_error') }
-  }
-  finally {
-    restoring.value = null
-    setTimeout(() => { restoreMessage.value = null }, 4000)
-  }
-}
-
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleString('pt-BR', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  })
-}
+const {
+  AMBER_TOKENS, TEAL_TOKENS,
+  colors, iconType, iconUrl, sections, previewStyle,
+  saving, saveMessage, save, resetColors,
+  history, restoring, restoreMessage, restore,
+} = useAparenciaConfig()
 </script>
 
 <template>
@@ -286,79 +150,13 @@ function fmtDate(iso: string) {
 
       <!-- ── Right column: preview + history ────────────────────────── -->
       <div class="aside">
-
-        <!-- Live preview -->
-        <section class="card preview-card">
-          <h2 class="card-title">{{ $t('admin.aparencia.preview.title') }}</h2>
-          <div class="preview-shell" :style="previewStyle">
-            <div class="preview-sidebar">
-              <span class="preview-icon">
-                <img
-                  v-if="iconType === 'tau'"
-                  src="~/assets/tau.svg"
-                  alt="τ"
-                  class="preview-svg"
-                />
-                <img
-                  v-else-if="iconType === 'sacred_heart'"
-                  src="~/assets/sacred-heart.svg"
-                  alt="♡"
-                  class="preview-svg"
-                />
-                <img
-                  v-else-if="iconUrl"
-                  :src="iconUrl"
-                  alt="icon"
-                  class="preview-svg"
-                />
-                <span v-else class="preview-svg-fallback">τ</span>
-              </span>
-              <span class="preview-label">Painel</span>
-              <div class="preview-links">
-                <span class="preview-link preview-link--active" />
-                <span class="preview-link" />
-                <span class="preview-link" />
-              </div>
-            </div>
-            <div class="preview-main">
-              <div class="preview-bar" />
-              <div class="preview-bar preview-bar--short" />
-              <div class="preview-cards">
-                <span class="preview-stat" />
-                <span class="preview-stat" />
-                <span class="preview-stat" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- History -->
-        <section class="card">
-          <h2 class="card-title">{{ $t('admin.aparencia.history.title') }}</h2>
-          <span v-if="restoreMessage" :class="['restore-msg', restoreMessage.type]">
-            {{ restoreMessage.text }}
-          </span>
-          <p v-if="!history?.length" class="history-empty">
-            {{ $t('admin.aparencia.history.empty') }}
-          </p>
-          <ul v-else class="history-list">
-            <li v-for="entry in history" :key="entry.id" class="history-item">
-              <div class="history-meta">
-                <span class="history-date">{{ fmtDate(entry.created_at) }}</span>
-                <span v-if="entry.actor_name" class="history-actor">
-                  {{ $t('admin.aparencia.history.by') }} {{ entry.actor_name }}
-                </span>
-              </div>
-              <button
-                class="btn-restore"
-                :disabled="restoring === entry.id"
-                @click="restore(entry.id)"
-              >
-                {{ restoring === entry.id ? '…' : $t('admin.aparencia.history.restore') }}
-              </button>
-            </li>
-          </ul>
-        </section>
+        <AparenciaPreview :preview-style="previewStyle" :icon-type="iconType" :icon-url="iconUrl" />
+        <AparenciaHistorico
+          :history="history"
+          :restoring="restoring"
+          :restore-message="restoreMessage"
+          @restore="restore"
+        />
       </div>
     </div>
   </div>
@@ -366,8 +164,6 @@ function fmtDate(iso: string) {
 
 <style scoped>
 .aparencia-page { max-width: 1100px; }
-
-/* ── Header ──────────────────────────────────────────────────────────────── */
 
 .page-header {
   display: flex;
@@ -393,14 +189,7 @@ function fmtDate(iso: string) {
   margin: 0;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-/* ── Layout ──────────────────────────────────────────────────────────────── */
+.header-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 
 .layout {
   display: grid;
@@ -412,8 +201,6 @@ function fmtDate(iso: string) {
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
 }
-
-/* ── Cards ───────────────────────────────────────────────────────────────── */
 
 .card {
   background: #fff;
@@ -441,8 +228,6 @@ function fmtDate(iso: string) {
 }
 
 .card-header .card-title { margin: 0; }
-
-/* ── Buttons ─────────────────────────────────────────────────────────────── */
 
 .btn-save {
   background: var(--fr-400);
@@ -474,44 +259,15 @@ function fmtDate(iso: string) {
 
 .btn-ghost:hover { border-color: var(--fr-400); color: var(--fr-400); }
 
-.btn-restore {
-  background: none;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 4px 10px;
-  font-family: var(--font-sans);
-  font-size: 12px;
-  color: var(--text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.btn-restore:hover:not(:disabled) { border-color: var(--fr-400); color: var(--fr-400); }
-.btn-restore:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* ── Messages ────────────────────────────────────────────────────────────── */
-
-.save-msg, .restore-msg {
+.save-msg {
   font-family: var(--font-sans);
   font-size: 13px;
   padding: 5px 10px;
   border-radius: var(--radius-sm);
 }
 
-.save-msg.ok, .restore-msg.ok {
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-
-.save-msg.err, .restore-msg.err {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-/* ── Color swatches ──────────────────────────────────────────────────────── */
+.save-msg.ok  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.save-msg.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
 .palette-group { margin-bottom: 20px; }
 .palette-group:last-child { margin-bottom: 0; }
@@ -526,11 +282,7 @@ function fmtDate(iso: string) {
   margin: 0 0 10px;
 }
 
-.swatches {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.swatches { display: flex; flex-direction: column; gap: 6px; }
 
 .swatch {
   display: flex;
@@ -562,20 +314,8 @@ function fmtDate(iso: string) {
   margin-left: -38px;
 }
 
-.swatch-name {
-  flex: 1;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--text-primary);
-}
-
-.swatch-hex {
-  font-family: monospace;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-/* ── Icon options ────────────────────────────────────────────────────────── */
+.swatch-name { flex: 1; font-family: var(--font-sans); font-size: 13px; color: var(--text-primary); }
+.swatch-hex  { font-family: monospace; font-size: 12px; color: var(--text-muted); }
 
 .icon-options {
   display: grid;
@@ -597,10 +337,7 @@ function fmtDate(iso: string) {
   transition: border-color 0.15s;
 }
 
-.icon-option.selected {
-  border-color: var(--fr-400);
-  background: var(--fr-50);
-}
+.icon-option.selected { border-color: var(--fr-400); background: var(--fr-50); }
 
 .icon-preview {
   width: 40px;
@@ -611,32 +348,13 @@ function fmtDate(iso: string) {
   color: var(--fr-400);
 }
 
-.icon-preview--custom {
-  border: 1px dashed var(--border-default);
-  border-radius: 6px;
-}
+.icon-preview--custom { border: 1px dashed var(--border-default); border-radius: 6px; }
 
 .icon-svg { width: 100%; height: 100%; object-fit: contain; }
 
-.icon-placeholder {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.icon-name {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.icon-desc {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.3;
-}
+.icon-placeholder { font-family: var(--font-sans); font-size: 11px; color: var(--text-muted); }
+.icon-name { font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.icon-desc { font-family: var(--font-sans); font-size: 11px; color: var(--text-muted); line-height: 1.3; }
 
 .custom-url-wrap { margin-top: 4px; }
 
@@ -662,16 +380,9 @@ function fmtDate(iso: string) {
 
 .field-input:focus { border-color: var(--fr-400); }
 
-/* ── Section toggles ─────────────────────────────────────────────────────── */
-
 .section-toggles { display: flex; flex-direction: column; gap: 14px; }
 
-.toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 
 .toggle-info { flex: 1; }
 
@@ -683,13 +394,7 @@ function fmtDate(iso: string) {
   color: var(--text-primary);
 }
 
-.toggle-desc {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
+.toggle-desc { display: block; font-family: var(--font-sans); font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
 .toggle-btn {
   width: 42px;
@@ -718,149 +423,6 @@ function fmtDate(iso: string) {
 }
 
 .toggle-btn.on .toggle-knob { transform: translateX(18px); }
-
-/* ── Preview ─────────────────────────────────────────────────────────────── */
-
-.preview-card { margin-bottom: 16px; }
-
-.preview-shell {
-  display: flex;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.08);
-  height: 180px;
-  margin-top: 12px;
-}
-
-.preview-sidebar {
-  width: 70px;
-  background: var(--fr-950);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px 6px;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.preview-icon {
-  width: 24px;
-  height: 24px;
-  color: var(--fr-200);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.preview-svg { width: 100%; height: 100%; object-fit: contain; filter: brightness(0) saturate(100%) invert(85%) sepia(20%) saturate(400%) hue-rotate(10deg); }
-.preview-svg-fallback { font-size: 18px; color: var(--fr-200); }
-
-.preview-label {
-  font-size: 9px;
-  font-family: var(--font-sans);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(255,255,255,0.5);
-}
-
-.preview-links {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  padding: 0 4px;
-  margin-top: 4px;
-}
-
-.preview-link {
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255,255,255,0.15);
-}
-
-.preview-link--active {
-  background: var(--fr-200);
-  opacity: 0.8;
-}
-
-.preview-main {
-  flex: 1;
-  background: #f5f5f0;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.preview-bar {
-  height: 8px;
-  border-radius: 4px;
-  background: var(--fr-400);
-  opacity: 0.3;
-  width: 60%;
-}
-
-.preview-bar--short { width: 40%; opacity: 0.2; }
-
-.preview-cards {
-  display: flex;
-  gap: 6px;
-  margin-top: auto;
-}
-
-.preview-stat {
-  flex: 1;
-  height: 36px;
-  border-radius: 6px;
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.06);
-}
-
-/* ── History ─────────────────────────────────────────────────────────────── */
-
-.history-empty {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.history-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.history-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.history-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.history-date {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  color: var(--text-primary);
-}
-
-.history-actor {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-/* ── Utility ─────────────────────────────────────────────────────────────── */
 
 .sr-only {
   position: absolute;

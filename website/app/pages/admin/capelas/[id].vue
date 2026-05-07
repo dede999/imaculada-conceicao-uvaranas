@@ -57,44 +57,17 @@ async function saveMeta() {
     metaSuccess.value = true
     await refresh()
     setTimeout(() => { metaSuccess.value = false }, 3000)
-  } catch (e: any) {
-    metaError.value = e?.data?.statusMessage ?? 'Erro ao salvar.'
+  } catch (e: unknown) {
+    metaError.value = (e as { data?: { statusMessage?: string } }).data?.statusMessage ?? 'Erro ao salvar.'
   } finally {
     metaSaving.value = false
   }
 }
 
-// ── Contacts ───────────────────────────────────────────────────────
-const CONTACT_TYPES = ['phone', 'whatsapp', 'email', 'instagram', 'facebook', 'youtube', 'tiktok']
-const CONTACT_LABELS: Record<string, string> = {
-  phone: 'Telefone', whatsapp: 'WhatsApp', email: 'E-mail',
-  instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube', tiktok: 'TikTok',
-}
-
-const contactForm = reactive({ type: 'phone', value: '' })
-const addingContact = ref(false)
-const contactSaving = ref(false)
-const deleting = ref<string | null>(null)
+// ── Delete handlers (shared deleting state + confirm) ──────────────
+const deleting    = ref<string | null>(null)
 const actionError = ref('')
 const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
-
-async function addContact() {
-  if (!contactForm.value) { actionError.value = 'Valor obrigatório.'; return }
-  contactSaving.value = true; actionError.value = ''
-  try {
-    await $fetch('/api/admin/contacts', {
-      method: 'POST',
-      body: { chapel_id: chapelId, type: contactForm.type, value: contactForm.value },
-    })
-    addingContact.value = false
-    contactForm.type = 'phone'; contactForm.value = ''
-    await refresh()
-  } catch (e: any) {
-    actionError.value = e?.data?.statusMessage ?? 'Erro ao adicionar.'
-  } finally {
-    contactSaving.value = false
-  }
-}
 
 async function deleteContact(id: string) {
   if (!await showConfirm('Excluir este contato?')) return
@@ -102,29 +75,6 @@ async function deleteContact(id: string) {
   await $fetch(`/api/admin/contacts/${id}`, { method: 'DELETE' })
   deleting.value = null
   await refresh()
-}
-
-// ── Images ─────────────────────────────────────────────────────────
-const imageForm = reactive({ url: '', caption: '' })
-const addingImage = ref(false)
-const imageSaving = ref(false)
-
-async function addImage() {
-  if (!imageForm.url) { actionError.value = 'URL obrigatória.'; return }
-  imageSaving.value = true; actionError.value = ''
-  try {
-    await $fetch('/api/admin/images', {
-      method: 'POST',
-      body: { chapel_id: chapelId, url: imageForm.url, caption: imageForm.caption || '' },
-    })
-    addingImage.value = false
-    imageForm.url = ''; imageForm.caption = ''
-    await refresh()
-  } catch (e: any) {
-    actionError.value = e?.data?.statusMessage ?? 'Erro ao adicionar.'
-  } finally {
-    imageSaving.value = false
-  }
 }
 
 async function deleteImage(id: string) {
@@ -188,87 +138,26 @@ async function deleteImage(id: string) {
         </div>
       </section>
 
-      <!-- ── Contacts ───────────────────────────────────────── -->
-      <section class="card">
-        <div class="card-header">
-          <h2 class="card-title">Contatos</h2>
-          <button class="btn-add-inline" @click="addingContact = !addingContact">
-            {{ addingContact ? 'Cancelar' : '+ Adicionar' }}
-          </button>
-        </div>
+      <ChapelContacts
+        :contacts="chapel.contacts"
+        :deleting="deleting"
+        :chapel-id="chapelId"
+        @delete="deleteContact"
+        @added="refresh"
+        @error="actionError = $event"
+      />
 
-        <div v-if="chapel.contacts.length" class="rows-list">
-          <div v-for="c in chapel.contacts" :key="c.id" class="contact-row">
-            <span class="contact-type">{{ CONTACT_LABELS[c.type] ?? c.type }}</span>
-            <span class="contact-value">{{ c.value }}</span>
-            <button
-              class="btn-delete"
-              :disabled="deleting === c.id"
-              @click="deleteContact(c.id)"
-            >✕</button>
-          </div>
-        </div>
-        <p v-else class="empty-hint">Nenhum contato cadastrado. Capelas sem contatos herdam os contatos da matriz.</p>
-
-        <form v-if="addingContact" class="inline-form" @submit.prevent="addContact">
-          <select v-model="contactForm.type" class="form-select">
-            <option v-for="ct in CONTACT_TYPES" :key="ct" :value="ct">{{ CONTACT_LABELS[ct] }}</option>
-          </select>
-          <input
-            v-model="contactForm.value"
-            type="text"
-            class="form-input form-input--wide"
-            placeholder="Valor (ex: +55 83 99999-9999)"
-            required
-          />
-          <button type="submit" class="btn-save" :disabled="contactSaving">Salvar</button>
-        </form>
-      </section>
-
-      <!-- ── Images ─────────────────────────────────────────── -->
-      <section class="card">
-        <div class="card-header">
-          <h2 class="card-title">Imagens</h2>
-          <button class="btn-add-inline" @click="addingImage = !addingImage">
-            {{ addingImage ? 'Cancelar' : '+ Adicionar' }}
-          </button>
-        </div>
-
-        <div v-if="chapel.images.length" class="images-list">
-          <div v-for="img in chapel.images" :key="img.id" class="image-row">
-            <img :src="img.url" :alt="img.caption" class="image-thumb" />
-            <div class="image-meta">
-              <span class="image-url">{{ img.url }}</span>
-              <span v-if="img.caption" class="image-caption">{{ img.caption }}</span>
-            </div>
-            <button
-              class="btn-delete"
-              :disabled="deleting === img.id"
-              @click="deleteImage(img.id)"
-            >✕</button>
-          </div>
-        </div>
-        <p v-else class="empty-hint">Nenhuma imagem cadastrada.</p>
-
-        <form v-if="addingImage" class="inline-form inline-form--col" @submit.prevent="addImage">
-          <input
-            v-model="imageForm.url"
-            type="url"
-            class="form-input form-input--wide"
-            placeholder="URL da imagem"
-            required
-          />
-          <input
-            v-model="imageForm.caption"
-            type="text"
-            class="form-input form-input--wide"
-            placeholder="Legenda (opcional)"
-          />
-          <button type="submit" class="btn-save" :disabled="imageSaving">Salvar</button>
-        </form>
-      </section>
+      <ChapelImages
+        :images="chapel.images"
+        :deleting="deleting"
+        :chapel-id="chapelId"
+        @delete="deleteImage"
+        @added="refresh"
+        @error="actionError = $event"
+      />
 
     </template>
+
     <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
@@ -316,12 +205,6 @@ async function deleteImage(id: string) {
   gap: 16px;
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .card-title {
   font-family: var(--font-sans);
   font-size: 15px;
@@ -330,11 +213,7 @@ async function deleteImage(id: string) {
   margin: 0;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field--full { grid-column: 1 / -1; }
@@ -360,26 +239,11 @@ async function deleteImage(id: string) {
 }
 
 .form-input:focus { border-color: var(--fr-400); }
-.form-input--wide { flex: 1; min-width: 200px; }
 
-.form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
+.form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
 
-.success-msg {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: #166534;
-}
-
-.error-msg {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: #b91c1c;
-}
+.success-msg { font-family: var(--font-sans); font-size: 13px; color: #166534; }
+.error-msg   { font-family: var(--font-sans); font-size: 13px; color: #b91c1c; }
 
 .btn-primary {
   font-family: var(--font-sans);
@@ -396,151 +260,6 @@ async function deleteImage(id: string) {
 
 .btn-primary:hover:not(:disabled) { background: var(--fr-800); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.rows-list { display: flex; flex-direction: column; gap: 6px; }
-
-.contact-row, .image-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: #fafaf8;
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
-}
-
-.contact-type {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--fr-600);
-  min-width: 80px;
-}
-
-.contact-value {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--text-primary);
-  flex: 1;
-}
-
-.btn-delete {
-  margin-left: auto;
-  background: none;
-  border: none;
-  color: #b91c1c;
-  cursor: pointer;
-  font-size: 14px;
-  opacity: 0.5;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: opacity 0.1s, background 0.1s;
-}
-
-.btn-delete:hover:not(:disabled) { opacity: 1; background: #fef2f2; }
-.btn-delete:disabled { opacity: 0.2; cursor: not-allowed; }
-
-.empty-hint {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.btn-add-inline {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--fr-600);
-  background: none;
-  border: 1px solid var(--fr-400);
-  border-radius: 4px;
-  padding: 3px 10px;
-  cursor: pointer;
-  transition: background 0.1s;
-}
-
-.btn-add-inline:hover { background: var(--fr-50); }
-
-.inline-form {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 14px;
-  background: #f5f4f0;
-  border: 1px dashed #d4c9b8;
-  border-radius: 6px;
-}
-
-.inline-form--col { flex-direction: column; align-items: stretch; }
-
-.form-select {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--fr-950);
-  background: #fff;
-  border: 1px solid #d4c9b8;
-  border-radius: 5px;
-  padding: 5px 9px;
-  outline: none;
-}
-
-.form-select:focus { border-color: var(--fr-400); }
-
-.btn-save {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
-  background: var(--fr-600);
-  border: none;
-  border-radius: 5px;
-  padding: 6px 14px;
-  cursor: pointer;
-  transition: background 0.1s;
-  white-space: nowrap;
-  align-self: flex-end;
-}
-
-.btn-save:hover:not(:disabled) { background: var(--fr-800); }
-.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.images-list { display: flex; flex-direction: column; gap: 8px; }
-
-.image-thumb {
-  width: 60px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 4px;
-  flex-shrink: 0;
-  border: 1px solid var(--border-default);
-}
-
-.image-meta {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.image-url {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.image-caption {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--text-primary);
-}
 
 @media (max-width: 639px) {
   .form-grid { grid-template-columns: 1fr; }

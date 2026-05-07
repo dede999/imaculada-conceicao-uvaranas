@@ -111,19 +111,29 @@ paróquias (multi-tenant), com cada instância tendo sua própria identidade vis
 - [x] Regras de deleção: admin não pode ser deletado direto, não pode se auto-rebaixar,
       não pode deletar outro admin
 
----
-
-### Fase 6 — Log de auditoria (stub existe, falta conteúdo)
-- [ ] `/admin/log`: buscar `audit_log` com paginação
-- [ ] Filtros por: tabela, ator, ação, intervalo de datas
-- [ ] Exibir `diff` JSONB de forma legível (campo: [antes → depois])
-- [ ] Somente admins acessam
+### Fase 6 — Log de auditoria
+- [x] `/admin/log` com paginação (25 por página)
+- [x] Filtros por tabela, ação e intervalo de datas
+- [x] Diff JSONB legível (campo: antigo → novo)
+- [x] Somente admins acessam
 
 ### Fase 7 — Dashboard funcional
-- [ ] Resumo de conteúdo: notícias publicadas, eventos futuros, pastorais
-- [ ] Próximos 3 eventos
-- [ ] Últimas 5 entradas do audit_log
-- [ ] Acesso rápido aos módulos
+- [x] Saudação por hora do dia + role badge
+- [x] 6 stat cards (notícias, eventos, pastorais, capelas, usuários, pendências)
+- [x] Próximos 3 eventos e últimas 5 entradas do audit_log (só admin)
+- [x] Grade de acesso rápido aos módulos
+
+### Fase 8 — Multi-tenant
+- [x] Tabela `parishes` + junction `profile_parishes`
+- [x] `parish_id` em todas as tabelas de conteúdo (migration + backfill)
+- [x] RLS com `get_my_parish_ids()` e `is_super_admin()`
+- [x] `PARISH_ID` como env var em `nuxt.config.ts` (runtimeConfig privado)
+- [x] `getParishId()`, `applyParishFilter()`, `assertChapelAccess()` em `server/utils/`
+- [x] Todas as rotas públicas filtradas por `parish_id` do env var
+- [x] Todas as rotas admin filtradas por `parishIds` do perfil autenticado
+- [x] UI de atribuição cross-paróquia em `/admin/usuarios` (busca por nome/email,
+      adiciona editor existente à paróquia atual)
+- [x] Aprovação de usuário cria entrada em `profile_parishes` automaticamente
 
 ---
 
@@ -139,116 +149,6 @@ paróquias (multi-tenant), com cada instância tendo sua própria identidade vis
 - [ ] Verificar se o conteúdo atual está completo e aprovado
 
 ---
-
-## Fase 8 — Multi-tenant
-
-### Conceito
-
-O mesmo banco de dados serve a múltiplas paróquias. Cada paróquia é um **tenant** com
-seu próprio conteúdo, usuários e configuração. Diferentes fraternidades (e.g. Imaculada
-Conceição e Bom Jesus) partilham a infraestrutura mas não veem o conteúdo umas das outras.
-
-### Hierarquia de roles
-
-| Role | Escopo | Pode fazer |
-|------|--------|-----------|
-| `super_admin` | Todos os tenants | Ver e editar qualquer dado, gerenciar paróquias, promover admins |
-| `admin` | Sua paróquia | Gerenciar usuários e todo o conteúdo da paróquia |
-| `editor` | Sua paróquia | Editar conteúdo (notícias, eventos, pastorais, capelas) |
-
-> **Sobre "editor de capela":** deliberadamente não existe esse role. Criar dois tipos de
-> editor com hierarquia visível entre eles é um problema social, não técnico. O admin da
-> paróquia gerencia quem edita o quê através de treinamento e confiança — não de restrição
-> técnica. Se surgir necessidade real no futuro, revisitar.
-
-### Esquema
-
-```sql
--- Nova tabela central de tenants
-create table parishes (
-  id         uuid primary key default gen_random_uuid(),
-  slug       text unique not null,  -- usado no nuxt.config como identificador
-  name       text not null,
-  created_at timestamptz default now()
-);
-
--- profiles: adicionar parish_id e is_super_admin
-alter table profiles
-  add column parish_id    uuid references parishes(id),
-  add column is_super_admin boolean not null default false;
-
--- Todas as tabelas de conteúdo recebem parish_id
--- noticias, eventos, pastorais, chapels, etc.
-alter table noticias  add column parish_id uuid not null references parishes(id);
-alter table eventos   add column parish_id uuid not null references parishes(id);
-alter table pastorais add column parish_id uuid not null references parishes(id);
-alter table chapels   add column parish_id uuid not null references parishes(id);
--- (idem para masses, confessions, catechism_groups, chapel_contacts, chapel_images)
-
--- Slugs passam a ser únicos por paróquia, não globalmente
-alter table noticias  drop constraint noticias_slug_key;
-alter table noticias  add  constraint noticias_slug_parish_key unique (parish_id, slug);
--- (idem para eventos, pastorais, chapels)
-```
-
-### RLS com multi-tenant
-
-```sql
--- Função auxiliar (já existe padrão similar com get_my_role)
-create or replace function get_my_parish_id()
-returns uuid language sql security definer stable as $$
-  select parish_id from public.profiles where id = auth.uid()
-$$;
-
-create or replace function is_super_admin()
-returns boolean language sql security definer stable as $$
-  select coalesce(is_super_admin, false) from public.profiles where id = auth.uid()
-$$;
-
--- Exemplo de policy para noticias (replicar em todas as tabelas)
-alter table noticias enable row level security;
-
--- Leitura pública (publicadas) — sem restrição de tenant para SEO
-create policy "noticias_public_read" on noticias
-  for select using (published = true);
-
--- Admin e editor veem todo o conteúdo da sua paróquia
-create policy "noticias_tenant_read" on noticias
-  for select using (
-    is_super_admin()
-    or parish_id = get_my_parish_id()
-  );
-
--- Escrita restrita à paróquia do usuário (ou super_admin)
-create policy "noticias_tenant_write" on noticias
-  for all using (
-    is_super_admin()
-    or parish_id = get_my_parish_id()
-  );
-```
-
-### Impacto no código Nuxt
-
-- `nuxt.config.ts`: `runtimeConfig.public.parishSlug` identifica o tenant ativo
-- Todas as API routes públicas filtram por `parish_id` do tenant configurado
-- API routes admin filtram pelo `parish_id` do usuário autenticado (ou ignoram o filtro
-  se `is_super_admin`)
-- Nenhuma mudança visível para o usuário final — cada instância do site é "sua" paróquia
-
-### Estratégia de rollout incremental
-
-A migração não precisa acontecer de uma vez. O sistema atual funciona como um
-tenant implícito. A ordem abaixo permite ir devagar sem quebrar nada:
-
-1. Criar tabela `parishes`, inserir a Imaculada Conceição como primeiro tenant
-2. Migration: adicionar `parish_id` às tabelas de conteúdo, popular com o id da
-   Imaculada Conceição (todos os dados existentes ficam no tenant correto)
-3. Atualizar RLS policies (com `parish_id = get_my_parish_id()`)
-4. Atualizar API routes para filtrar por `parish_id` do runtime config
-5. Atualizar `nuxt.config.ts` com `parishSlug` e adicionar `parish_id` às API calls
-6. **Validar** que o site da Imaculada Conceição continua funcionando normalmente
-7. Só então: adicionar o segundo tenant (Bom Jesus), criar usuário admin para ele
-8. Testar isolamento: um tenant não pode ver o conteúdo do outro
 
 ---
 
@@ -338,13 +238,150 @@ o resultado é sempre válido. Menos poder, mas menos desastres.
 
 ---
 
+## Fase 10 — Templates de email em português
+
+### Motivação
+
+O email padrão do Supabase (convite e magic link) está em inglês, sem identidade visual
+e com remetente `noreply@mail.app.supabase.io`. Para usuários leigos, a experiência de
+onboarding começa mal antes mesmo de entrar no painel.
+
+### Abordagem
+
+Templates armazenados em `supabase/templates/` (versionados em Git, aplicados via
+`supabase db push`). SMTP built-in do Supabase por ora — o volume de uma paróquia
+não justifica um provedor externo. Se a entregabilidade se tornar problema, migrar
+para Resend (100 e-mails/dia grátis) numa fase 10.2.
+
+### Emails a customizar
+
+| Template | Gatilho |
+|----------|---------|
+| `invite.html` | Admin aprova solicitação → `inviteUserByEmail()` |
+| `magic_link.html` | Usuário solicita link de login |
+
+### Requisitos de conteúdo
+
+- Idioma: português brasileiro
+- Texto intercambiável: nome da paróquia via `PARISH_NAME` (env var) — embutido no
+  template em tempo de build; troca de tenant = troca da env var
+- Identidade visual: Tau SVG inline, paleta `fr-*` / `cv-*` como CSS inline no `<style>`
+  do próprio HTML de email
+- Estrutura: cabeçalho com símbolo + nome da paróquia, instrução clara em português,
+  botão CTA grande, rodapé com link para o site
+
+### Variáveis disponíveis nos templates Supabase
+
+```
+{{ .ConfirmationURL }}  — link de confirmação/convite
+{{ .Token }}           — token OTP (magic link manual)
+{{ .SiteURL }}         — URL base configurada no Supabase dashboard
+{{ .Email }}           — email do destinatário
+```
+
+### Arquivos a criar
+
+```
+supabase/templates/
+  invite.html
+  magic_link.html
+```
+
+### Limitação multi-tenant
+
+Com templates estáticos, a identidade visual não muda por tenant em runtime.
+Para branding real per-tenant seria necessário o hook `send_email` + Resend.
+Deixar para fase 10.2 quando o segundo tenant for onboardado.
+
+---
+
+## Fase 11 — Refatoração e organização
+
+### Motivação
+
+Com 8 fases entregues, surgem padrões repetidos: modal de confirmação, flash de
+sucesso/erro, paginação e inserção em `audit_log` estão duplicados em praticamente
+todas as páginas e handlers. A Fase 9 adicionará mais componentes. É o momento
+de organizar antes que a dívida cresça.
+
+### Componentes
+
+Extrair padrões repetidos para `app/components/admin/`:
+
+| Componente | Responsabilidade |
+|-----------|-----------------|
+| `AdminPageHeader.vue` | Título + botão de ação primária da página |
+| `AdminConfirmModal.vue` | Dialog genérico de confirmação com slot de mensagem |
+| `AdminFlash.vue` | Mensagem temporária de sucesso/erro (auto-dismiss) |
+| `AdminPagination.vue` | Prev/next + info de página atual |
+| `AdminFilterBar.vue` | Wrapper de filtros com grid responsivo |
+
+`AdminEditor.vue` já existe e segue essa convenção — manter sem mudança.
+
+Componentes públicos (`AppNav`, `ChapelCard`, `StatusPanel`, `InstagramFeed`):
+manter flat em `app/components/`. São poucos e estáveis; reorganizar geraria
+renaming em cascata sem ganho real.
+
+### Composables
+
+Criar `app/composables/admin/` para lógica exclusiva do painel:
+
+| Composable | Estado encapsulado |
+|-----------|-------------------|
+| `admin/useFlash.ts` | `{ flash, showFlash, clearFlash }` — tipo + mensagem |
+| `admin/useConfirm.ts` | `{ target, openConfirm, confirmed, cancel }` |
+
+Os três composables públicos (`useChapels`, `useParishTime`, `usePastorais`)
+ficam na raiz sem mudança.
+
+### Server utils
+
+Extrair inserção no `audit_log` para evitar duplicação nos 28 handlers:
+
+```typescript
+// server/utils/auditLog.ts
+export function insertAuditLog(supabase: SupabaseClient, opts: {
+  table_name: string
+  record_id: string
+  action: string
+  parish_id: string
+  actor_id: string
+  actor_name: string
+  diff?: Record<string, [unknown, unknown]>
+}): Promise<void>
+```
+
+### Server routes e páginas
+
+Sem reestruturação de pastas em nenhum dos dois — o file-based routing do Nitro
+já organiza por feature. O ganho está em handlers e páginas mais curtos com os
+novos utils e componentes.
+
+### Ordem de execução sugerida
+
+1. `server/utils/auditLog.ts` + atualizar os 28 handlers (menor risco, maior ganho)
+2. `useFlash` e `useConfirm`
+3. `AdminConfirmModal`, `AdminFlash`, `AdminPagination`
+4. Atualizar todas as páginas admin para usar os novos componentes/composables
+5. `AdminPageHeader` e `AdminFilterBar` (ganho cosmético, menor prioridade)
+
+---
+
 ## Decisões já tomadas
 
 - **Editor**: Tiptap (WYSIWYG) — implementado via `AdminEditor.vue`
 - **Slug**: gerado automaticamente do título, editável antes de salvar, bloqueado depois
 - **Pastorais**: migradas para Supabase (não ficaram em Markdown)
 - **Capelas**: completamente migradas, incluindo horários, contatos e galeria
-- **Editor de capela**: role deliberadamente não criado (ver Fase A)
+- **Editor de capela**: role deliberadamente não criado — problema social, não técnico
+- **Multi-tenant**: junction `profile_parishes` para editores (1-N paróquias);
+  admins veem tudo via `role = 'admin'` sem filtro de junction
+- **PARISH_ID**: env var privada no `runtimeConfig` — rotas públicas não dependem
+  do usuário autenticado para saber de qual paróquia exibir conteúdo
+- **super_admin**: flag `is_super_admin` em `profiles`; só super_admin cria/deleta
+  paróquias; admin gerencia conteúdo e usuários dentro da sua paróquia
+- **service_role**: todas as operações admin usam `serverSupabaseServiceRole` —
+  RLS é defesa em profundidade, não controle primário
 - **Carrossel Instagram**: CSS scroll-snap, sem biblioteca
 - **Tooltip CatechismPill**: CSS + VueUse, sem biblioteca
 - **Transparência**: aguardando contador — não tratar antes disso

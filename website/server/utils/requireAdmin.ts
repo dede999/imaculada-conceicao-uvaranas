@@ -1,6 +1,5 @@
 import type { H3Event } from 'h3'
 import { requireAuth } from './requireAuth'
-export type { AuthProfile } from './requireAuth'
 
 export async function requireAdmin(event: H3Event) {
   const result = await requireAuth(event)

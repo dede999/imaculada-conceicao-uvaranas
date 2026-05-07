@@ -49,6 +49,10 @@ async function signOut() {
           <Icon name="lucide:scroll-text" />
           Auditoria
         </NuxtLink>
+        <NuxtLink to="/admin/configuracoes/aparencia" class="sidebar-link">
+          <Icon name="lucide:palette" />
+          Aparência
+        </NuxtLink>
       </nav>
 
       <div class="sidebar-footer">

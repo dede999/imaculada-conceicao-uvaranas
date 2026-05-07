@@ -3,6 +3,7 @@ import tauRaw from '~/assets/tau.svg?raw'
 
 const { t } = useI18n()
 const config = useRuntimeConfig()
+const parishCfg = useParishConfig()
 
 const parishName = config.public.parishName as string
 const parishShortName = (config.public as any).parishShortName as string
@@ -200,12 +201,12 @@ useHead({ title: parishName })
         <NuxtLink to="/dizimo" class="tithe-cta">{{ t('home.tithe.cta') }}</NuxtLink>
       </article>
 
-      <article class="card card-instagram">
+      <article v-if="parishCfg?.sections?.instagram !== false" class="card card-instagram">
         <p class="eyebrow">{{ t('home.instagram.eyebrow') }}</p>
         <InstagramFeed />
       </article>
 
-      <article class="card card-ministries">
+      <article v-if="parishCfg?.sections?.ministries !== false" class="card card-ministries">
         <p class="eyebrow">{{ t('home.ministries.eyebrow') }}</p>
         <nav class="ministry-list" aria-label="Categorias de pastorais">
           <NuxtLink

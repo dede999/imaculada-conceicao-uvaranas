@@ -1,0 +1,7 @@
+<svg viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cross above the heart -->
+  <rect x="29" y="2"  width="6" height="16" rx="1.5" fill="currentColor"/>
+  <rect x="21" y="7"  width="22" height="6"  rx="1.5" fill="currentColor"/>
+  <!-- Heart body -->
+  <path d="M32 68 C15 54 3 41 3 27 C3 17 11 9 21 9 C25.5 9 30 11.5 32 15 C34 11.5 38.5 9 43 9 C53 9 61 17 61 27 C61 41 49 54 32 68 Z" fill="currentColor"/>
+</svg>

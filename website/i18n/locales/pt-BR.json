@@ -205,6 +205,59 @@
     "inperson_label": "Presencialmente",
     "inperson_body": "Contribuições podem ser entregues durante as missas ou diretamente na secretaria paroquial, de segunda a sexta, das 08h às 17h."
   },
+  "admin": {
+    "aparencia": {
+      "title": "Aparência",
+      "subtitle": "Paleta de cores, ícone e seções visíveis na página inicial",
+      "save": "Salvar alterações",
+      "saved": "Salvo com sucesso",
+      "save_error": "Erro ao salvar",
+      "colors": {
+        "title": "Paleta de cores",
+        "amber_label": "Tons âmbar (franciscano)",
+        "teal_label": "Tons verde-azulado (convento)",
+        "reset_all": "Restaurar padrão",
+        "fr_950": "Muito escuro",
+        "fr_800": "Escuro",
+        "fr_600": "Médio escuro",
+        "fr_400": "Médio",
+        "fr_200": "Claro",
+        "fr_50": "Muito claro",
+        "cv_950": "Muito escuro",
+        "cv_600": "Médio escuro",
+        "cv_400": "Médio",
+        "cv_50": "Muito claro"
+      },
+      "icon": {
+        "title": "Ícone / símbolo",
+        "tau": "Tau franciscano",
+        "tau_desc": "Fraternidades OFM, TOR e afins",
+        "sacred_heart": "Sagrado Coração",
+        "sacred_heart_desc": "Paróquias diocesanas e tradicionais",
+        "custom": "Imagem personalizada",
+        "custom_desc": "Paróquias com identidade própria",
+        "custom_url_label": "URL da imagem (SVG ou PNG)"
+      },
+      "sections": {
+        "title": "Seções visíveis",
+        "instagram": "Feed do Instagram",
+        "instagram_desc": "Exibe publicações recentes na página inicial",
+        "ministries": "Bloco de ministérios",
+        "ministries_desc": "Exibe pastorais e ministérios na página inicial"
+      },
+      "history": {
+        "title": "Histórico de alterações",
+        "empty": "Nenhuma alteração registrada",
+        "restore": "Restaurar",
+        "restored": "Configuração restaurada",
+        "restore_error": "Erro ao restaurar",
+        "by": "por"
+      },
+      "preview": {
+        "title": "Pré-visualização"
+      }
+    }
+  },
   "home": {
     "hero": {
       "link_masses": "Horários de Missa",

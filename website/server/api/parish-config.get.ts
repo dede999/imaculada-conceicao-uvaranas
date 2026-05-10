@@ -1,7 +1,14 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../utils/getParishId'
 
-export interface ParishConfig {
+export interface FooterConfig {
+  footer_show: boolean
+  footer_motto_latin: string
+  footer_motto_pt: string
+  footer_display_mode: 'latin_only' | 'both' | 'translation_only'
+}
+
+export interface ParishConfig extends FooterConfig {
   parish_id: string
   colors: Record<string, string>
   icon_type: 'tau' | 'sacred_heart' | 'custom'
@@ -16,6 +23,10 @@ const DEFAULT: Omit<ParishConfig, 'parish_id'> = {
   icon_url: null,
   home_layout: 'standard',
   sections: { instagram: true, ministries: true },
+  footer_show: true,
+  footer_motto_latin: 'Instaurare omnia in Christo',
+  footer_motto_pt: 'Restaurar todas as coisas em Cristo',
+  footer_display_mode: 'both',
 }
 
 export default defineEventHandler(async (event) => {
@@ -24,7 +35,7 @@ export default defineEventHandler(async (event) => {
 
   const { data } = await supabase
     .from('parish_config')
-    .select('parish_id, colors, icon_type, icon_url, home_layout, sections')
+    .select('parish_id, colors, icon_type, icon_url, home_layout, sections, footer_show, footer_motto_latin, footer_motto_pt, footer_display_mode')
     .eq('parish_id', parishId)
     .maybeSingle()
 

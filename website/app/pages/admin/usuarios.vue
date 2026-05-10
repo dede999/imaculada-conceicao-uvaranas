@@ -87,7 +87,7 @@ async function deleteUser(id: string, name: string) {
     </p>
     <p v-if="actionError" class="action-error">{{ actionError }}</p>
 
-    <UserRequests
+    <AdminUserRequests
       :pending="pending"
       :reviewed="reviewed"
       :loading="actionLoading"
@@ -95,7 +95,7 @@ async function deleteUser(id: string, name: string) {
       @reject="reject"
     />
 
-    <UserActive
+    <AdminUserActive
       :users="users"
       :current-user-id="currentUser?.id"
       :loading="actionLoading"
@@ -103,7 +103,7 @@ async function deleteUser(id: string, name: string) {
       @delete="deleteUser"
     />
 
-    <UserSearch
+    <AdminUserSearch
       @added="refresh"
       @error="actionError = $event"
     />

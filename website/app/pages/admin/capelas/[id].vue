@@ -138,7 +138,7 @@ async function deleteImage(id: string) {
         </div>
       </section>
 
-      <ChapelContacts
+      <AdminChapelContacts
         :contacts="chapel.contacts"
         :deleting="deleting"
         :chapel-id="chapelId"
@@ -147,7 +147,7 @@ async function deleteImage(id: string) {
         @error="actionError = $event"
       />
 
-      <ChapelImages
+      <AdminChapelImages
         :images="chapel.images"
         :deleting="deleting"
         :chapel-id="chapelId"

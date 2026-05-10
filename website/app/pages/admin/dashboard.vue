@@ -34,9 +34,9 @@ const isAdmin = computed(() => data.value?.profile.role === 'admin')
 
     <template v-if="data">
 
-      <DashboardStats :stats="data.stats" :is-admin="isAdmin" />
+      <AdminDashboardStats :stats="data.stats" :is-admin="isAdmin" />
 
-      <DashboardActivity
+      <AdminDashboardActivity
         :upcoming-eventos="data.upcoming_eventos"
         :recent-log="data.recent_log"
         :is-admin="isAdmin"

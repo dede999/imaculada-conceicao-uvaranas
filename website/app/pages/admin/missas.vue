@@ -62,7 +62,7 @@ async function deleteCatechism(id: string) {
           <h2 class="chapel-name">{{ chapel.name }}</h2>
         </div>
 
-        <ChapelMasses
+        <AdminChapelMasses
           :masses="chapel.masses"
           :chapel-id="chapel.id"
           :deleting="deleting"
@@ -70,7 +70,7 @@ async function deleteCatechism(id: string) {
           @added="refresh"
           @error="actionError = $event"
         />
-        <ChapelConfessions
+        <AdminChapelConfessions
           :confessions="chapel.confessions"
           :chapel-id="chapel.id"
           :deleting="deleting"
@@ -78,7 +78,7 @@ async function deleteCatechism(id: string) {
           @added="refresh"
           @error="actionError = $event"
         />
-        <ChapelCatechism
+        <AdminChapelCatechism
           :groups="chapel.catechism_groups"
           :chapel-id="chapel.id"
           :deleting="deleting"

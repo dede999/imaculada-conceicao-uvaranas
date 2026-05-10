@@ -150,8 +150,8 @@ const {
 
       <!-- ── Right column: preview + history ────────────────────────── -->
       <div class="aside">
-        <AparenciaPreview :preview-style="previewStyle" :icon-type="iconType" :icon-url="iconUrl" />
-        <AparenciaHistorico
+        <AdminAparenciaPreview :preview-style="previewStyle" :icon-type="iconType" :icon-url="iconUrl" />
+        <AdminAparenciaHistorico
           :history="history"
           :restoring="restoring"
           :restore-message="restoreMessage"

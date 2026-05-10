@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import tauRaw from '~/assets/tau.svg?raw'
-
 const { t } = useI18n()
 const config = useRuntimeConfig()
 const parishShortName = config.public.parishShortName as string
@@ -26,7 +24,7 @@ const links = [
     <div class="nav-inner">
 
       <NuxtLink to="/" class="nav-brand">
-        <span class="nav-tau" v-html="tauRaw" aria-hidden="true" />
+        <span class="nav-tau" aria-hidden="true">τ</span>
         <span class="nav-name">{{ parishShortName }}</span>
       </NuxtLink>
 
@@ -104,14 +102,13 @@ const links = [
 }
 
 .nav-tau {
-  display: block;
-  width: 16px;
-  height: 22px;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
   color: var(--fr-400);
+  line-height: 1;
   flex-shrink: 0;
 }
-
-.nav-tau :deep(svg) { width: 100%; height: 100%; }
 
 .nav-name {
   font-family: var(--font-serif);

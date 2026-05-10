@@ -6,6 +6,14 @@ async function signOut() {
   await supabase.auth.signOut()
   await navigateTo('/admin/login')
 }
+
+const { warning, secondsLeft, dismiss } = useIdleTimeout(signOut)
+
+const timeLeft = computed(() => {
+  const m = Math.floor(secondsLeft.value / 60)
+  const s = secondsLeft.value % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+})
 </script>
 
 <template>
@@ -64,6 +72,18 @@ async function signOut() {
     <main class="admin-main">
       <slot />
     </main>
+
+    <Transition name="idle-fade">
+      <div v-if="warning" class="idle-overlay" role="alertdialog" aria-modal="true" aria-labelledby="idle-title">
+        <div class="idle-card">
+          <p class="idle-icon" aria-hidden="true">⏱</p>
+          <h2 id="idle-title" class="idle-title">Sessão prestes a expirar</h2>
+          <p class="idle-body">Por inatividade, você será desconectado em</p>
+          <p class="idle-countdown">{{ timeLeft }}</p>
+          <button class="idle-btn" @click="dismiss">Continuar sessão</button>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -220,4 +240,78 @@ async function signOut() {
     padding: 20px 16px;
   }
 }
+
+/* ── Idle timeout overlay ────────────────────────────────────── */
+
+.idle-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.idle-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 40px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+}
+
+.idle-icon {
+  font-size: 32px;
+  margin: 0 0 12px;
+  line-height: 1;
+}
+
+.idle-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fr-950);
+  margin: 0 0 8px;
+}
+
+.idle-body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: #6b6b5e;
+  margin: 0 0 4px;
+}
+
+.idle-countdown {
+  font-family: var(--font-sans);
+  font-size: 36px;
+  font-weight: 700;
+  color: #b91c1c;
+  margin: 0 0 24px;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+.idle-btn {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--fr-600);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: background 0.1s;
+  width: 100%;
+}
+
+.idle-btn:hover { background: var(--fr-800); }
+
+.idle-fade-enter-active,
+.idle-fade-leave-active { transition: opacity 0.2s; }
+.idle-fade-enter-from,
+.idle-fade-leave-to { opacity: 0; }
 </style>

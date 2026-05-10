@@ -14,7 +14,7 @@ const { data, refresh } = await useAsyncData('admin-eventos',
 
 const list = computed(() => data.value ?? [])
 const deleting = ref<string | null>(null)
-const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
+const { confirm: showConfirm } = useAdminConfirm()
 
 async function togglePublish(item: EventoRow) {
   await $fetch(`/api/admin/eventos/${item.id}`, { method: 'PATCH', body: { published: !item.published } })
@@ -73,7 +73,6 @@ function statusLabel(status: string) {
     </div>
 
     <p v-else class="empty">Nenhum evento cadastrado ainda.</p>
-    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

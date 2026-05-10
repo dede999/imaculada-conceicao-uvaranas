@@ -7,13 +7,37 @@ async function signOut() {
   await navigateTo('/admin/login')
 }
 
-const { warning, secondsLeft, dismiss } = useIdleTimeout(signOut)
+const { open: confirmOpen, message: confirmMsg, onConfirm, onCancel } = useAdminConfirm()
+
+const { phase, secondsLeft, dismiss } = useIdleTimeout()
 
 const timeLeft = computed(() => {
   const m = Math.floor(secondsLeft.value / 60)
   const s = secondsLeft.value % 60
   return `${m}:${String(s).padStart(2, '0')}`
 })
+
+const reAuthPassword = ref('')
+const reAuthError    = ref('')
+const reAuthLoading  = ref(false)
+
+async function reAuthenticate() {
+  reAuthLoading.value = true
+  reAuthError.value   = ''
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email:    user.value?.email ?? '',
+      password: reAuthPassword.value,
+    })
+    if (error) throw error
+    reAuthPassword.value = ''
+    dismiss()
+  } catch {
+    reAuthError.value = 'Senha incorreta. Tente novamente.'
+  } finally {
+    reAuthLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -73,15 +97,45 @@ const timeLeft = computed(() => {
       <slot />
     </main>
 
+    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
+
     <Transition name="idle-fade">
-      <div v-if="warning" class="idle-overlay" role="alertdialog" aria-modal="true" aria-labelledby="idle-title">
-        <div class="idle-card">
+      <div v-if="phase !== 'idle'" class="idle-overlay" role="alertdialog" aria-modal="true" aria-labelledby="idle-title">
+
+        <!-- Warning: session about to expire -->
+        <div v-if="phase === 'warn'" class="idle-card">
           <p class="idle-icon" aria-hidden="true">⏱</p>
           <h2 id="idle-title" class="idle-title">Sessão prestes a expirar</h2>
           <p class="idle-body">Por inatividade, você será desconectado em</p>
           <p class="idle-countdown">{{ timeLeft }}</p>
           <button class="idle-btn" @click="dismiss">Continuar sessão</button>
+          <button class="idle-btn-ghost" @click="signOut">Sair agora</button>
         </div>
+
+        <!-- Expired: offer inline re-auth to preserve unsaved changes -->
+        <div v-else class="idle-card">
+          <p class="idle-icon" aria-hidden="true">🔒</p>
+          <h2 id="idle-title" class="idle-title">Sessão expirada</h2>
+          <p class="idle-body">Digite sua senha para continuar de onde parou.</p>
+          <form class="reauth-form" @submit.prevent="reAuthenticate">
+            <input type="email" :value="user?.email" readonly class="reauth-input reauth-email" autocomplete="username" />
+            <input
+              v-model="reAuthPassword"
+              type="password"
+              placeholder="Senha"
+              class="reauth-input"
+              :disabled="reAuthLoading"
+              autofocus
+              autocomplete="current-password"
+            />
+            <p v-if="reAuthError" class="reauth-error">{{ reAuthError }}</p>
+            <button type="submit" class="idle-btn" :disabled="reAuthLoading || !reAuthPassword">
+              {{ reAuthLoading ? 'Entrando…' : 'Continuar' }}
+            </button>
+            <button type="button" class="idle-btn-ghost" @click="signOut">Sair e descartar alterações</button>
+          </form>
+        </div>
+
       </div>
     </Transition>
   </div>
@@ -309,6 +363,53 @@ const timeLeft = computed(() => {
 }
 
 .idle-btn:hover { background: var(--fr-800); }
+
+.idle-btn-ghost {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: #6b6b5e;
+  background: none;
+  border: none;
+  padding: 6px 0 0;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.reauth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.reauth-input {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  border: 1px solid #d4c9b8;
+  border-radius: 5px;
+  padding: 8px 10px;
+  outline: none;
+  transition: border-color 0.1s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reauth-input:focus { border-color: var(--fr-400); }
+
+.reauth-email {
+  color: #8a7a60;
+  background: #f5f5f0;
+}
+
+.reauth-error {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: #b91c1c;
+  margin: 0;
+}
 
 .idle-fade-enter-active,
 .idle-fade-leave-active { transition: opacity 0.2s; }

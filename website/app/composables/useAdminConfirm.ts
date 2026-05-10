@@ -1,25 +1,17 @@
+// Module-level singleton — safe for admin-only (client-rendered) routes
+const _open    = ref(false)
+const _message = ref('')
+let _resolver: ((v: boolean) => void) | null = null
+
 export function useAdminConfirm() {
-  const open = ref(false)
-  const message = ref('')
-  let resolver: ((value: boolean) => void) | null = null
-
   function confirm(msg: string): Promise<boolean> {
-    message.value = msg
-    open.value = true
-    return new Promise((resolve) => { resolver = resolve })
+    _message.value = msg
+    _open.value = true
+    return new Promise(resolve => { _resolver = resolve })
   }
 
-  function onConfirm() {
-    open.value = false
-    resolver?.(true)
-    resolver = null
-  }
+  function onConfirm() { _open.value = false; _resolver?.(true);  _resolver = null }
+  function onCancel()  { _open.value = false; _resolver?.(false); _resolver = null }
 
-  function onCancel() {
-    open.value = false
-    resolver?.(false)
-    resolver = null
-  }
-
-  return { open, message, confirm, onConfirm, onCancel }
+  return { open: _open, message: _message, confirm, onConfirm, onCancel }
 }

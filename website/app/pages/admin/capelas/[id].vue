@@ -67,7 +67,7 @@ async function saveMeta() {
 // ── Delete handlers (shared deleting state + confirm) ──────────────
 const deleting    = ref<string | null>(null)
 const actionError = ref('')
-const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
+const { confirm: showConfirm } = useAdminConfirm()
 
 async function deleteContact(id: string) {
   if (!await showConfirm('Excluir este contato?')) return
@@ -158,7 +158,6 @@ async function deleteImage(id: string) {
 
     </template>
 
-    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

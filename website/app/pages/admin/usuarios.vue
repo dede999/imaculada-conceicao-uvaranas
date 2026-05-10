@@ -23,7 +23,7 @@ const users    = computed(() => data.value?.users ?? [])
 const currentUser   = useSupabaseUser()
 const actionLoading = ref<string | null>(null)
 const actionError   = ref('')
-const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
+const { confirm: showConfirm } = useAdminConfirm()
 
 async function approve(id: string) {
   actionLoading.value = id; actionError.value = ''
@@ -108,7 +108,6 @@ async function deleteUser(id: string, name: string) {
       @error="actionError = $event"
     />
 
-    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

@@ -14,7 +14,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 const deleting = ref<string | null>(null)
-const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
+const { confirm: showConfirm } = useAdminConfirm()
 
 async function deletePastoral(p: Pastoral) {
   if (!await showConfirm(`Excluir "${p.name}"? Esta ação não pode ser desfeita.`)) return
@@ -57,7 +57,6 @@ async function deletePastoral(p: Pastoral) {
     </table>
 
     <p v-else-if="pastorais !== null" class="empty">Nenhuma pastoral cadastrada.</p>
-    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

@@ -1,56 +1,68 @@
-const IDLE_MS  = 25 * 60 * 1000  // 25 min → show warning
-const WARN_MS  =  5 * 60 * 1000  // 5 min after warning → sign out
+const IDLE_MS = 25 * 60 * 1000  // 25 min idle → show warning
+const WARN_MS =  5 * 60 * 1000  // 5 min warning → expire
 
-export function useIdleTimeout(onExpire: () => void) {
-  const warning = ref(false)
+export function useIdleTimeout() {
+  const phase       = ref<'idle' | 'warn' | 'expired'>('idle')
   const secondsLeft = ref(WARN_MS / 1000)
 
-  let idleTimer:  ReturnType<typeof setTimeout> | null = null
-  let warnTimer:  ReturnType<typeof setTimeout> | null = null
+  let idleTimer:  ReturnType<typeof setTimeout>  | null = null
+  let warnTimer:  ReturnType<typeof setTimeout>  | null = null
   let countTimer: ReturnType<typeof setInterval> | null = null
 
-  function clearAll() {
+  const EVENTS = ['mousemove', 'keydown', 'pointerdown', 'scroll', 'touchstart'] as const
+
+  function clearTimers() {
     if (idleTimer)  clearTimeout(idleTimer)
     if (warnTimer)  clearTimeout(warnTimer)
     if (countTimer) clearInterval(countTimer)
+    idleTimer = warnTimer = countTimer = null
   }
 
-  function startCountdown() {
+  function schedule() {
+    clearTimers()
+    phase.value       = 'idle'
     secondsLeft.value = WARN_MS / 1000
-    countTimer = setInterval(() => {
-      secondsLeft.value -= 1
-      if (secondsLeft.value <= 0) clearInterval(countTimer!)
-    }, 1000)
-  }
-
-  function reset() {
-    clearAll()
-    warning.value = false
 
     idleTimer = setTimeout(() => {
-      warning.value = true
-      startCountdown()
+      phase.value       = 'warn'
+      secondsLeft.value = WARN_MS / 1000
+
+      countTimer = setInterval(() => {
+        secondsLeft.value -= 1
+        if (secondsLeft.value <= 0) clearInterval(countTimer!)
+      }, 1000)
+
       warnTimer = setTimeout(() => {
-        onExpire()
+        clearTimers()
+        EVENTS.forEach(e => window.removeEventListener(e, onActivity))
+        phase.value = 'expired'
       }, WARN_MS)
     }, IDLE_MS)
   }
 
-  function dismiss() {
-    reset()
+  function onActivity() {
+    if (phase.value === 'expired') return
+    schedule()
   }
 
-  const events = ['mousemove', 'keydown', 'pointerdown', 'scroll', 'touchstart']
+  // Call after user clicks "Continuar" (warn) or after successful re-auth (expired)
+  function dismiss() {
+    EVENTS.forEach(e => {
+      window.removeEventListener(e, onActivity)
+      window.addEventListener(e, onActivity, { passive: true })
+    })
+    schedule()
+  }
 
   onMounted(() => {
-    reset()
-    events.forEach(e => window.addEventListener(e, reset, { passive: true }))
+    schedule()
+    EVENTS.forEach(e => window.addEventListener(e, onActivity, { passive: true }))
   })
 
   onUnmounted(() => {
-    clearAll()
-    events.forEach(e => window.removeEventListener(e, reset))
+    clearTimers()
+    EVENTS.forEach(e => window.removeEventListener(e, onActivity))
   })
 
-  return { warning, secondsLeft, dismiss }
+  return { phase, secondsLeft, dismiss }
 }

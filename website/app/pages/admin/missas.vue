@@ -20,7 +20,7 @@ const chapels = computed<ChapelSchedule[]>(() => data.value ?? [])
 
 const deleting    = ref<string | null>(null)
 const actionError = ref('')
-const { open: confirmOpen, message: confirmMsg, confirm: showConfirm, onConfirm, onCancel } = useAdminConfirm()
+const { confirm: showConfirm } = useAdminConfirm()
 
 async function deleteMass(id: string) {
   if (!await showConfirm('Excluir este horário de missa?')) return
@@ -89,7 +89,6 @@ async function deleteCatechism(id: string) {
       </section>
     </div>
 
-    <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
   </div>
 </template>
 

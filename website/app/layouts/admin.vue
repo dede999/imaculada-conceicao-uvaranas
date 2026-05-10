@@ -85,6 +85,10 @@ async function reAuthenticate() {
           <Icon name="lucide:palette" />
           Aparência
         </NuxtLink>
+        <NuxtLink to="/admin/configuracoes/rodape" class="sidebar-link">
+          <Icon name="lucide:panel-bottom" />
+          Rodapé
+        </NuxtLink>
       </nav>
 
       <div class="sidebar-footer">

@@ -9,5 +9,5 @@
   # NUXT_SUPABASE_SECRET_KEY is the service-role key used only in Nitro server
   # functions; it legitimately appears in server-side build artifacts but is never
   # exposed to the client. All three are omitted from secrets scanning for this reason.
-  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,SUPABASE_KEY,NUXT_SUPABASE_SECRET_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,SUPABASE_KEY,NUXT_SUPABASE_SECRET_KEY,PARISH_ID"
 

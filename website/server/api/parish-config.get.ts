@@ -33,11 +33,21 @@ export default defineEventHandler(async (event) => {
   const parishId = getParishId(event)
   const supabase = serverSupabaseServiceRole(event)
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('parish_config')
     .select('parish_id, colors, icon_type, icon_url, home_layout, sections, footer_show, footer_motto_latin, footer_motto_pt, footer_display_mode')
     .eq('parish_id', parishId)
     .maybeSingle()
+
+  if (error) {
+    // Footer columns may not exist yet (migration pending) — fall back to base query
+    const { data: base } = await supabase
+      .from('parish_config')
+      .select('parish_id, colors, icon_type, icon_url, home_layout, sections')
+      .eq('parish_id', parishId)
+      .maybeSingle()
+    return { parish_id: parishId, ...DEFAULT, ...(base ?? {}) } as ParishConfig
+  }
 
   return (data ?? { parish_id: parishId, ...DEFAULT }) as ParishConfig
 })

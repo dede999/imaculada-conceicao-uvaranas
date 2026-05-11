@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import type { FooterConfig } from '~/server/api/parish-config.get'
+const props = defineProps<{
+  footerShow: boolean
+  footerMottoLatin: string
+  footerMottoPt: string
+  footerDisplayMode: 'latin_only' | 'both' | 'translation_only'
+}>()
 
-const props = defineProps<FooterConfig>()
-
-const showLatin      = computed(() => props.footer_display_mode !== 'translation_only')
-const showTranslation = computed(() => props.footer_display_mode !== 'latin_only')
+const showLatin       = computed(() => props.footerDisplayMode !== 'translation_only')
+const showTranslation = computed(() => props.footerDisplayMode !== 'latin_only')
 </script>
 
 <template>
-  <footer v-if="footer_show" class="app-footer">
+  <footer v-if="footerShow" class="app-footer">
     <div class="footer-inner">
       <p class="footer-motto">
-        <em v-if="showLatin" class="motto-latin">{{ footer_motto_latin }}</em>
+        <em v-if="showLatin" class="motto-latin">{{ footerMottoLatin }}</em>
         <span v-if="showLatin && showTranslation" class="motto-sep" aria-hidden="true">—</span>
-        <span v-if="showTranslation" class="motto-translation">{{ footer_motto_pt }}</span>
+        <span v-if="showTranslation" class="motto-translation">{{ footerMottoPt }}</span>
       </p>
     </div>
   </footer>

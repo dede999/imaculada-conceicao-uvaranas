@@ -1,7 +1,12 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin' })
 
-import type { FooterConfig } from '~/server/api/parish-config.get'
+interface FooterConfig {
+  footer_show: boolean
+  footer_motto_latin: string
+  footer_motto_pt: string
+  footer_display_mode: 'latin_only' | 'both' | 'translation_only'
+}
 
 const { data, refresh } = await useAsyncData<FooterConfig>(
   'admin-rodape',

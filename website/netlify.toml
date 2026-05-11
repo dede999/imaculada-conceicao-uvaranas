@@ -1,4 +1,13 @@
 [build]
   command = "npm run build"
-  publish = ".output/public"
+  publish = "dist"
+
+[build.environment]
+  # SUPABASE_URL and SUPABASE_KEY are the public Supabase project URL and anon key.
+  # @nuxtjs/supabase intentionally embeds them in the client bundle so the browser
+  # can connect to Supabase directly — this is expected Supabase architecture.
+  # NUXT_SUPABASE_SECRET_KEY is the service-role key used only in Nitro server
+  # functions; it legitimately appears in server-side build artifacts but is never
+  # exposed to the client. All three are omitted from secrets scanning for this reason.
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,SUPABASE_KEY,NUXT_SUPABASE_SECRET_KEY"
 

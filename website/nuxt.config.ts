@@ -48,6 +48,9 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
   },
+  nitro: {
+    preset: 'netlify',
+  },
   i18n: {
     defaultLocale: parishConfig.i18n.default_locale,
     strategy: 'prefix_except_default',

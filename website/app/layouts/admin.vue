@@ -9,6 +9,8 @@ async function signOut() {
 
 const { open: confirmOpen, message: confirmMsg, onConfirm, onCancel } = useAdminConfirm()
 
+const changePwOpen = ref(false)
+
 const { phase, secondsLeft, dismiss } = useIdleTimeout()
 
 const timeLeft = computed(() => {
@@ -93,6 +95,7 @@ async function reAuthenticate() {
 
       <div class="sidebar-footer">
         <span class="sidebar-user">{{ user?.email }}</span>
+        <button class="sidebar-changepw" @click="changePwOpen = true">Alterar senha</button>
         <button class="sidebar-signout" @click="signOut">Sair</button>
       </div>
     </aside>
@@ -102,6 +105,7 @@ async function reAuthenticate() {
     </main>
 
     <AdminConfirmModal :open="confirmOpen" :message="confirmMsg" @confirm="onConfirm" @cancel="onCancel" />
+    <AdminChangePasswordModal :open="changePwOpen" @close="changePwOpen = false" />
 
     <Transition name="idle-fade">
       <div v-if="phase !== 'idle'" class="idle-overlay" role="alertdialog" aria-modal="true" aria-labelledby="idle-title">
@@ -239,6 +243,24 @@ async function reAuthenticate() {
   font-size: 12px;
   color: #8a7a60;
   word-break: break-all;
+}
+
+.sidebar-changepw {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #8a7a60;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+}
+
+.sidebar-changepw:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #c8baa0;
 }
 
 .sidebar-signout {

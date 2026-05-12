@@ -11,9 +11,8 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  toggleRole:  [id: string, currentRole: string]
-  delete:      [id: string, name: string]
-  sendReset:   [email: string]
+  toggleRole: [id: string, currentRole: string]
+  delete:     [id: string, name: string]
 }>()
 
 function fmtDate(iso: string) {
@@ -36,7 +35,6 @@ function fmtDate(iso: string) {
             <th>Desde</th>
             <th />
             <th />
-            <th />
           </tr>
         </thead>
         <tbody>
@@ -55,17 +53,6 @@ function fmtDate(iso: string) {
                 </button>
               </template>
               <span v-else class="you-label">você</span>
-            </td>
-            <td class="td-action">
-              <button
-                v-if="u.email"
-                class="btn-reset"
-                :disabled="loading === u.id"
-                :title="`Enviar link de redefinição de senha para ${u.email}`"
-                @click="emit('sendReset', u.email)"
-              >
-                Redefinir senha
-              </button>
             </td>
             <td class="td-action">
               <button
@@ -141,21 +128,6 @@ function fmtDate(iso: string) {
 
 .btn-role:hover:not(:disabled) { background: #f5efe4; }
 .btn-role:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.btn-reset {
-  background: none;
-  border: 1px solid #bfdbfe;
-  border-radius: 5px;
-  padding: 4px 10px;
-  font-family: var(--font-sans);
-  font-size: 12px;
-  cursor: pointer;
-  color: #1d4ed8;
-  transition: background 0.1s;
-}
-
-.btn-reset:hover:not(:disabled) { background: #eff6ff; }
-.btn-reset:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .you-label { font-size: 12px; color: var(--text-muted); font-style: italic; }
 

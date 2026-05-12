@@ -12,12 +12,19 @@ onMounted(async () => {
   if (!session) await navigateTo('/admin/login')
 })
 
+function validatePassword(pwd: string): string | null {
+  if (pwd.length <= 8)           return 'A senha deve ter mais de 8 caracteres.'
+  if (!/[A-Z]/.test(pwd))        return 'Inclua pelo menos uma letra maiúscula.'
+  if (!/[a-z]/.test(pwd))        return 'Inclua pelo menos uma letra minúscula.'
+  if (!/[0-9]/.test(pwd))        return 'Inclua pelo menos um número.'
+  if (!/[^A-Za-z0-9]/.test(pwd)) return 'Inclua pelo menos um símbolo especial.'
+  return null
+}
+
 async function save() {
   error.value = ''
-  if (password.value.length < 8) {
-    error.value = 'A senha deve ter pelo menos 8 caracteres.'
-    return
-  }
+  const validationErr = validatePassword(password.value)
+  if (validationErr) { error.value = validationErr; return }
   if (password.value !== confirm.value) {
     error.value = 'As senhas não coincidem.'
     return

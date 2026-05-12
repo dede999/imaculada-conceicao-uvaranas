@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface Profile {
-  id: string; name: string; parish_role: string
+  id: string; name: string; email: string; parish_role: string
   role: 'admin' | 'editor'; created_at: string
 }
 
@@ -11,8 +11,9 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  toggleRole: [id: string, currentRole: string]
-  delete: [id: string, name: string]
+  toggleRole:  [id: string, currentRole: string]
+  delete:      [id: string, name: string]
+  sendReset:   [email: string]
 }>()
 
 function fmtDate(iso: string) {
@@ -29,9 +30,11 @@ function fmtDate(iso: string) {
         <thead>
           <tr>
             <th>Nome</th>
+            <th>E-mail</th>
             <th>Função na paróquia</th>
             <th>Papel</th>
             <th>Desde</th>
+            <th />
             <th />
             <th />
           </tr>
@@ -39,6 +42,7 @@ function fmtDate(iso: string) {
         <tbody>
           <tr v-for="u in users" :key="u.id">
             <td class="td-name">{{ u.name || '—' }}</td>
+            <td class="td-email">{{ u.email || '—' }}</td>
             <td>{{ u.parish_role || '—' }}</td>
             <td>
               <span :class="['role-badge', u.role]">{{ u.role }}</span>
@@ -51,6 +55,17 @@ function fmtDate(iso: string) {
                 </button>
               </template>
               <span v-else class="you-label">você</span>
+            </td>
+            <td class="td-action">
+              <button
+                v-if="u.email"
+                class="btn-reset"
+                :disabled="loading === u.id"
+                :title="`Enviar link de redefinição de senha para ${u.email}`"
+                @click="emit('sendReset', u.email)"
+              >
+                Redefinir senha
+              </button>
             </td>
             <td class="td-action">
               <button
@@ -104,8 +119,9 @@ function fmtDate(iso: string) {
 
 .user-table td { padding: 10px 12px; border-bottom: 1px solid #f0ebe2; color: var(--fr-950); vertical-align: middle; }
 
-.td-name { font-weight: 500; }
-.td-date { color: var(--text-muted); white-space: nowrap; }
+.td-name  { font-weight: 500; }
+.td-email { color: var(--text-muted); font-size: 13px; }
+.td-date  { color: var(--text-muted); white-space: nowrap; }
 
 .role-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
 .role-badge.admin  { background: var(--fr-50); color: var(--fr-800); }
@@ -125,6 +141,21 @@ function fmtDate(iso: string) {
 
 .btn-role:hover:not(:disabled) { background: #f5efe4; }
 .btn-role:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-reset {
+  background: none;
+  border: 1px solid #bfdbfe;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  cursor: pointer;
+  color: #1d4ed8;
+  transition: background 0.1s;
+}
+
+.btn-reset:hover:not(:disabled) { background: #eff6ff; }
+.btn-reset:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .you-label { font-size: 12px; color: var(--text-muted); font-style: italic; }
 

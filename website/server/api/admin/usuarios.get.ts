@@ -26,11 +26,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const users = ((usersRaw ?? []) as any[]).map((u) => {
-    if (u.name && u.parish_role) return u
     const email = emailById.get(u.id) ?? ''
+    if (u.name && u.parish_role) return { ...u, email }
     const req = requestByEmail.get(email)
     return {
       ...u,
+      email,
       name: u.name || req?.name || '',
       parish_role: u.parish_role || req?.parish_role || '',
     }

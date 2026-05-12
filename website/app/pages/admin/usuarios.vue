@@ -7,7 +7,7 @@ interface UserRequest {
 }
 
 interface Profile {
-  id: string; name: string; parish_role: string
+  id: string; name: string; email: string; parish_role: string
   role: 'admin' | 'editor'; created_at: string
 }
 
@@ -21,8 +21,10 @@ const reviewed = computed(() => (data.value?.requests ?? []).filter(r => r.statu
 const users    = computed(() => data.value?.users ?? [])
 
 const currentUser   = useSupabaseUser()
+const supabase      = useSupabaseClient()
 const actionLoading = ref<string | null>(null)
 const actionError   = ref('')
+const resetMsg      = ref('')
 const { confirm: showConfirm } = useAdminConfirm()
 
 async function approve(id: string) {
@@ -74,6 +76,20 @@ async function deleteUser(id: string, name: string) {
   }
   finally { actionLoading.value = null }
 }
+
+async function sendPasswordReset(email: string) {
+  resetMsg.value = ''
+  actionError.value = ''
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/admin/confirm`,
+  })
+  if (error) {
+    actionError.value = `Erro ao enviar: ${error.message}`
+  } else {
+    resetMsg.value = `Link de redefinição enviado para ${email}.`
+    setTimeout(() => { resetMsg.value = '' }, 4000)
+  }
+}
 </script>
 
 <template>
@@ -86,6 +102,7 @@ async function deleteUser(id: string, name: string) {
       </span>
     </p>
     <p v-if="actionError" class="action-error">{{ actionError }}</p>
+    <p v-if="resetMsg" class="reset-msg">{{ resetMsg }}</p>
 
     <AdminUserRequests
       :pending="pending"
@@ -101,6 +118,7 @@ async function deleteUser(id: string, name: string) {
       :loading="actionLoading"
       @toggle-role="toggleRole"
       @delete="deleteUser"
+      @send-reset="sendPasswordReset"
     />
 
     <AdminUserSearch
@@ -124,6 +142,16 @@ async function deleteUser(id: string, name: string) {
 .action-error {
   background: #fde8e8;
   color: #c0392b;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.reset-msg {
+  background: #ecfdf5;
+  color: #166534;
   border-radius: 6px;
   padding: 10px 14px;
   font-family: var(--font-sans);

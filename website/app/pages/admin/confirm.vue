@@ -5,8 +5,10 @@ const supabase = useSupabaseClient()
 const error = ref('')
 
 onMounted(async () => {
-  // Handle PKCE flow (?code=...) and implicit flow (#access_token=...)
-  const code = new URL(window.location.href).searchParams.get('code')
+  const url  = new URL(window.location.href)
+  const code = url.searchParams.get('code')
+  const type = url.searchParams.get('type') // 'invite' | 'recovery' | null
+
   if (code) {
     const { error: err } = await supabase.auth.exchangeCodeForSession(code)
     if (err) { error.value = err.message; return }
@@ -18,7 +20,11 @@ onMounted(async () => {
     return
   }
 
-  await navigateTo('/admin/dashboard')
+  if (type === 'invite' || type === 'recovery') {
+    await navigateTo('/admin/definir-senha')
+  } else {
+    await navigateTo('/admin/dashboard')
+  }
 })
 </script>
 
@@ -68,7 +74,7 @@ onMounted(async () => {
 .confirm-error {
   font-family: var(--font-sans);
   font-size: 14px;
-  color: #c0392b;
+  color: #b91c1c;
   margin: 16px 0 0;
   line-height: 1.6;
 }

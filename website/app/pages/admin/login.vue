@@ -2,23 +2,23 @@
 definePageMeta({ layout: false })
 
 const supabase = useSupabaseClient()
-const email = ref('')
-const sent = ref(false)
-const error = ref('')
-const loading = ref(false)
+const email    = ref('')
+const password = ref('')
+const error    = ref('')
+const loading  = ref(false)
 
-async function sendMagicLink() {
-  error.value = ''
+async function login() {
+  error.value   = ''
   loading.value = true
-  const { error: err } = await supabase.auth.signInWithOtp({
-    email: email.value,
-    options: { emailRedirectTo: `${window.location.origin}/admin/confirm` },
+  const { error: err } = await supabase.auth.signInWithPassword({
+    email:    email.value.trim().toLowerCase(),
+    password: password.value,
   })
   loading.value = false
   if (err) {
-    error.value = err.message
+    error.value = 'E-mail ou senha incorretos.'
   } else {
-    sent.value = true
+    await navigateTo('/admin/dashboard')
   }
 }
 </script>
@@ -31,34 +31,47 @@ async function sendMagicLink() {
         <span class="brand-name">Painel da Paróquia</span>
       </div>
 
-      <template v-if="!sent">
-        <p class="login-desc">
-          Digite seu e-mail para receber um link de acesso.
-        </p>
-        <form class="login-form" @submit.prevent="sendMagicLink">
+      <form class="login-form" @submit.prevent="login">
+        <div class="field">
+          <label for="login-email" class="field-label">E-mail</label>
           <input
+            id="login-email"
             v-model="email"
             type="email"
             required
             placeholder="seu@email.com"
             class="login-input"
             :disabled="loading"
+            autocomplete="username"
           />
-          <button type="submit" class="login-btn" :disabled="loading">
-            {{ loading ? 'Enviando…' : 'Enviar link de acesso' }}
-          </button>
-        </form>
-        <p v-if="error" class="login-error">{{ error }}</p>
-      </template>
-
-      <template v-else>
-        <div class="login-sent">
-          <p class="sent-msg">
-            Link enviado para <strong>{{ email }}</strong>.
-          </p>
-          <p class="sent-hint">Verifique sua caixa de entrada e clique no link para entrar.</p>
         </div>
-      </template>
+
+        <div class="field">
+          <label for="login-password" class="field-label">Senha</label>
+          <input
+            id="login-password"
+            v-model="password"
+            type="password"
+            required
+            placeholder="••••••••"
+            class="login-input"
+            :disabled="loading"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <p v-if="error" class="login-error">{{ error }}</p>
+
+        <button type="submit" class="login-btn" :disabled="loading || !email || !password">
+          {{ loading ? 'Entrando…' : 'Entrar' }}
+        </button>
+      </form>
+
+      <div class="login-links">
+        <NuxtLink to="/admin/recuperar-senha" class="login-link">Esqueceu sua senha?</NuxtLink>
+        <span class="link-sep" aria-hidden="true">·</span>
+        <NuxtLink to="/admin/solicitar" class="login-link">Solicitar acesso</NuxtLink>
+      </div>
     </div>
   </div>
 </template>
@@ -86,7 +99,7 @@ async function sendMagicLink() {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .brand-tau {
@@ -103,17 +116,24 @@ async function sendMagicLink() {
   color: var(--fr-950);
 }
 
-.login-desc {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0 0 20px;
-}
-
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fr-600);
+  letter-spacing: 0.04em;
 }
 
 .login-input {
@@ -127,8 +147,13 @@ async function sendMagicLink() {
   transition: border-color 0.15s;
 }
 
-.login-input:focus {
-  border-color: var(--fr-600);
+.login-input:focus { border-color: var(--fr-600); }
+
+.login-error {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: #b91c1c;
+  margin: 0;
 }
 
 .login-btn {
@@ -142,41 +167,31 @@ async function sendMagicLink() {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
+  margin-top: 4px;
 }
 
-.login-btn:hover:not(:disabled) {
-  background: var(--fr-800);
-}
+.login-btn:hover:not(:disabled) { background: var(--fr-800); }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.login-error {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: #c0392b;
-  margin: 4px 0 0;
-}
-
-.login-sent {
+.login-links {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
+  margin-top: 20px;
 }
 
-.sent-msg {
+.login-link {
   font-family: var(--font-sans);
-  font-size: 15px;
-  color: var(--fr-950);
-  margin: 0;
+  font-size: 12px;
+  color: var(--fr-600);
+  text-decoration: none;
 }
 
-.sent-hint {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0;
+.login-link:hover { text-decoration: underline; }
+
+.link-sep {
+  font-size: 12px;
+  color: #c8baa0;
 }
 </style>

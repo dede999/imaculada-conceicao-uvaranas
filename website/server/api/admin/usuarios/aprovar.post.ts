@@ -30,7 +30,6 @@ export default defineEventHandler(async (event) => {
   if (!request) throw createError({ statusCode: 404, statusMessage: 'Solicitação não encontrada ou já processada' })
 
   // Atomically claim the request: only succeeds if status is still 'pending'.
-  // Prevents duplicate invites from double-clicks or concurrent admin sessions.
   const { data: claimed } = await supabase
     .from('user_requests')
     .update({
@@ -45,28 +44,40 @@ export default defineEventHandler(async (event) => {
 
   if (!claimed) throw createError({ statusCode: 409, statusMessage: 'Solicitação já foi processada' })
 
-  // Status locked — safe to send the invite now
-  const origin = getRequestURL(event).origin
-  const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
-    request.email,
-    {
-      data:       { name: request.name, parish_role: request.parish_role },
-      redirectTo: `${origin}/admin/confirm`,
-    },
-  )
+  // Look up the pre-created auth user (new flow: user set password during solicitar)
+  const { data: { users: authUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 })
+  const existingUser = authUsers.find(u => u.email?.toLowerCase() === request.email.toLowerCase())
 
-  if (inviteError) {
-    // Roll back the status change so the admin can retry
-    await supabase
-      .from('user_requests')
-      .update({ status: 'pending', reviewed_by: null, reviewed_at: null } as never)
-      .eq('id', id)
-    throw createError({ statusCode: 500, statusMessage: inviteError.message })
+  let newUserId: string
+
+  if (existingUser) {
+    // New flow: account was created during solicitar — just wire parish access
+    newUserId = existingUser.id
+  } else {
+    // Legacy flow: no account exists yet — send invite email
+    const origin = getRequestURL(event).origin
+    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
+      request.email,
+      {
+        data:       { name: request.name, parish_role: request.parish_role },
+        redirectTo: `${origin}/admin/confirm`,
+      },
+    )
+
+    if (inviteError) {
+      // Roll back the status change so the admin can retry
+      await supabase
+        .from('user_requests')
+        .update({ status: 'pending', reviewed_by: null, reviewed_at: null } as never)
+        .eq('id', id)
+      throw createError({ statusCode: 500, statusMessage: inviteError.message })
+    }
+
+    newUserId = inviteData.user.id
   }
 
   // The handle_new_user trigger creates the profile on auth.users INSERT,
-  // so the profile exists by the time inviteUserByEmail returns.
-  const newUserId = inviteData.user.id
+  // so the profile exists by the time we get here.
   await supabase.from('profile_parishes').upsert({
     profile_id: newUserId,
     parish_id: request.parish_id,

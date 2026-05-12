@@ -1,20 +1,30 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-const name = ref('')
-const email = ref('')
-const parishRole = ref('')
-const submitted = ref(false)
-const error = ref('')
-const loading = ref(false)
+const name        = ref('')
+const email       = ref('')
+const parishRole  = ref('')
+const password    = ref('')
+const pwConfirm   = ref('')
+const submitted   = ref(false)
+const error       = ref('')
+const loading     = ref(false)
 
 async function submit() {
-  loading.value = true
   error.value = ''
+  if (password.value.length < 8) {
+    error.value = 'A senha deve ter pelo menos 8 caracteres.'
+    return
+  }
+  if (password.value !== pwConfirm.value) {
+    error.value = 'As senhas não coincidem.'
+    return
+  }
+  loading.value = true
   try {
     await $fetch('/api/solicitar', {
       method: 'POST',
-      body: { name: name.value, email: email.value, parish_role: parishRole.value },
+      body: { name: name.value, email: email.value, parish_role: parishRole.value, password: password.value },
     })
     submitted.value = true
   }
@@ -77,6 +87,33 @@ async function submit() {
             />
           </div>
 
+          <div class="field">
+            <label for="sol-password">Senha (mínimo 8 caracteres)</label>
+            <input
+              id="sol-password"
+              v-model="password"
+              type="password"
+              required
+              minlength="8"
+              placeholder="••••••••"
+              :disabled="loading"
+              autocomplete="new-password"
+            />
+          </div>
+
+          <div class="field">
+            <label for="sol-pw-confirm">Confirmar senha</label>
+            <input
+              id="sol-pw-confirm"
+              v-model="pwConfirm"
+              type="password"
+              required
+              placeholder="••••••••"
+              :disabled="loading"
+              autocomplete="new-password"
+            />
+          </div>
+
           <button type="submit" class="btn" :disabled="loading">
             {{ loading ? 'Enviando…' : 'Enviar solicitação' }}
           </button>
@@ -88,8 +125,7 @@ async function submit() {
         <div class="success">
           <p class="success-title">Solicitação enviada!</p>
           <p class="success-desc">
-            O administrador vai analisar seu pedido e você receberá um e-mail com o link de acesso
-            quando for aprovado.
+            O administrador vai analisar seu pedido. Assim que aprovado, faça login com seu e-mail e senha.
           </p>
         </div>
       </template>

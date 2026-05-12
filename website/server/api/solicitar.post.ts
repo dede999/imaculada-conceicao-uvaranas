@@ -2,14 +2,19 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../utils/getParishId'
 
 export default defineEventHandler(async (event) => {
-  const { name, email, parish_role } = await readBody<{
+  const { name, email, parish_role, password } = await readBody<{
     name: string
     email: string
     parish_role: string
+    password: string
   }>(event)
 
-  if (!name?.trim() || !email?.trim() || !parish_role?.trim()) {
+  if (!name?.trim() || !email?.trim() || !parish_role?.trim() || !password) {
     throw createError({ statusCode: 400, statusMessage: 'Preencha todos os campos' })
+  }
+
+  if (password.length < 8) {
+    throw createError({ statusCode: 400, statusMessage: 'A senha deve ter pelo menos 8 caracteres.' })
   }
 
   const normalizedEmail = email.trim().toLowerCase()
@@ -50,14 +55,31 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { error } = await supabase.from('user_requests').insert({
+  // Create the auth user immediately with the provided password.
+  // The account exists but has no parish access until the admin approves the request.
+  const { data: { user: newAuthUser }, error: authErr } = await supabase.auth.admin.createUser({
+    email: normalizedEmail,
+    password,
+    email_confirm: true,
+    user_metadata: { name: name.trim(), parish_role: parish_role.trim() },
+  })
+
+  if (authErr || !newAuthUser) {
+    throw createError({ statusCode: 500, statusMessage: authErr?.message ?? 'Erro ao criar conta' })
+  }
+
+  const { error: insertErr } = await supabase.from('user_requests').insert({
     name: name.trim(),
     email: normalizedEmail,
     parish_role: parish_role.trim(),
     parish_id: parishId,
   } as never)
 
-  if (error) throw createError({ statusCode: 500, statusMessage: error.message })
+  if (insertErr) {
+    // Clean up the auth user if the request record couldn't be created
+    await supabase.auth.admin.deleteUser(newAuthUser.id)
+    throw createError({ statusCode: 500, statusMessage: insertErr.message })
+  }
 
   return { ok: true }
 })

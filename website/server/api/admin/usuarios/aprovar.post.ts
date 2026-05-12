@@ -46,9 +46,13 @@ export default defineEventHandler(async (event) => {
   if (!claimed) throw createError({ statusCode: 409, statusMessage: 'Solicitação já foi processada' })
 
   // Status locked — safe to send the invite now
+  const origin = getRequestURL(event).origin
   const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
     request.email,
-    { data: { name: request.name, parish_role: request.parish_role } },
+    {
+      data:       { name: request.name, parish_role: request.parish_role },
+      redirectTo: `${origin}/admin/confirm`,
+    },
   )
 
   if (inviteError) {

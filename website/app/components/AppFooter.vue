@@ -18,7 +18,7 @@ const showTranslation = computed(() => props.footerDisplayMode !== 'latin_only')
         <span v-if="showLatin && showTranslation" class="motto-sep" aria-hidden="true">—</span>
         <span v-if="showTranslation" class="motto-translation">{{ footerMottoPt }}</span>
       </p>
-      <NuxtLink to="/admin/login" class="footer-admin-link">Área restrita</NuxtLink>
+      <NuxtLink to="/admin/login" class="footer-admin-btn">Área restrita</NuxtLink>
     </div>
   </footer>
 </template>
@@ -35,21 +35,38 @@ const showTranslation = computed(() => props.footerDisplayMode !== 'latin_only')
   max-width: 1280px;
   margin: 0 auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: var(--space-8);
+  justify-content: space-between;
+  gap: var(--space-16);
 }
 
-.footer-admin-link {
+@media (max-width: 479px) {
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+}
+
+.footer-admin-btn {
   font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--fr-400);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fr-800);
   text-decoration: none;
-  opacity: 0.5;
-  transition: opacity 0.15s;
+  white-space: nowrap;
+  border: 1px solid var(--fr-400);
+  border-radius: 4px;
+  padding: 4px 12px;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
 }
 
-.footer-admin-link:hover { opacity: 1; }
+.footer-admin-btn:hover {
+  background: var(--fr-200);
+  color: var(--fr-950);
+}
 
 .footer-motto {
   font-family: var(--font-serif);
@@ -59,8 +76,6 @@ const showTranslation = computed(() => props.footerDisplayMode !== 'latin_only')
   align-items: center;
   gap: var(--space-8);
   flex-wrap: wrap;
-  justify-content: center;
-  text-align: center;
   margin: 0;
 }
 

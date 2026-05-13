@@ -49,7 +49,7 @@ export default defineNuxtConfig({
     redirect: false,
   },
   nitro: {
-    preset: 'netlify',
+    preset: process.env.NITRO_PRESET ?? 'node-server',
   },
   i18n: {
     defaultLocale: parishConfig.i18n.default_locale,

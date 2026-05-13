@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
+const route = useRoute()
+
+const drawerOpen = ref(false)
+watch(() => route.fullPath, () => { drawerOpen.value = false })
 
 async function signOut() {
   await supabase.auth.signOut()
@@ -44,62 +48,103 @@ async function reAuthenticate() {
 
 <template>
   <div class="admin-shell">
-    <aside class="admin-sidebar">
-      <div class="sidebar-brand">
+
+    <!-- ── Top bar ─────────────────────────────────────────────── -->
+    <header class="admin-topbar">
+      <button
+        class="topbar-menu"
+        :aria-expanded="drawerOpen"
+        aria-label="Abrir menu"
+        @click="drawerOpen = !drawerOpen"
+      >
+        <Icon name="lucide:menu" />
+      </button>
+
+      <div class="topbar-brand">
         <span class="brand-tau">τ</span>
         <span class="brand-name">Painel</span>
       </div>
 
-      <nav class="sidebar-nav">
-        <NuxtLink to="/admin/dashboard" class="sidebar-link">
-          <Icon name="lucide:layout-dashboard" />
-          Painel
-        </NuxtLink>
-        <NuxtLink to="/admin/noticias" class="sidebar-link">
-          <Icon name="lucide:newspaper" />
-          Notícias
-        </NuxtLink>
-        <NuxtLink to="/admin/eventos" class="sidebar-link">
-          <Icon name="lucide:calendar" />
-          Eventos
-        </NuxtLink>
-        <NuxtLink to="/admin/capelas" class="sidebar-link">
-          <Icon name="lucide:church" />
-          Capelas
-        </NuxtLink>
-        <NuxtLink to="/admin/missas" class="sidebar-link">
-          <Icon name="lucide:clock" />
-          Missas
-        </NuxtLink>
-        <NuxtLink to="/admin/pastorais" class="sidebar-link">
-          <Icon name="lucide:heart-handshake" />
-          Pastorais
-        </NuxtLink>
-        <NuxtLink to="/admin/usuarios" class="sidebar-link">
-          <Icon name="lucide:users" />
-          Usuários
-        </NuxtLink>
-        <NuxtLink to="/admin/log" class="sidebar-link">
-          <Icon name="lucide:scroll-text" />
-          Auditoria
-        </NuxtLink>
-        <NuxtLink to="/admin/configuracoes/aparencia" class="sidebar-link">
-          <Icon name="lucide:palette" />
-          Aparência
-        </NuxtLink>
-        <NuxtLink to="/admin/configuracoes/rodape" class="sidebar-link">
-          <Icon name="lucide:panel-bottom" />
-          Rodapé
-        </NuxtLink>
-      </nav>
-
-      <div class="sidebar-footer">
-        <span class="sidebar-user">{{ user?.email }}</span>
-        <button class="sidebar-changepw" @click="changePwOpen = true">Alterar senha</button>
-        <button class="sidebar-signout" @click="signOut">Sair</button>
+      <div class="topbar-actions">
+        <span class="topbar-email">{{ user?.email }}</span>
+        <button class="topbar-changepw" @click="changePwOpen = true">Alterar senha</button>
+        <button class="topbar-signout" @click="signOut">Sair</button>
       </div>
-    </aside>
+    </header>
 
+    <!-- ── Drawer backdrop ─────────────────────────────────────── -->
+    <Transition name="drawer-backdrop">
+      <div
+        v-if="drawerOpen"
+        class="drawer-backdrop"
+        aria-hidden="true"
+        @click="drawerOpen = false"
+      />
+    </Transition>
+
+    <!-- ── Drawer panel ────────────────────────────────────────── -->
+    <Transition name="drawer-slide">
+      <aside v-if="drawerOpen" class="admin-drawer" role="dialog" aria-modal="true" aria-label="Menu de navegação">
+        <div class="drawer-header">
+          <span class="brand-tau">τ</span>
+          <span class="brand-name">Painel</span>
+          <button class="drawer-close" aria-label="Fechar menu" @click="drawerOpen = false">
+            <Icon name="lucide:x" />
+          </button>
+        </div>
+
+        <nav class="drawer-nav">
+          <NuxtLink to="/admin/dashboard" class="drawer-link">
+            <Icon name="lucide:layout-dashboard" />
+            Painel
+          </NuxtLink>
+          <NuxtLink to="/admin/noticias" class="drawer-link">
+            <Icon name="lucide:newspaper" />
+            Notícias
+          </NuxtLink>
+          <NuxtLink to="/admin/eventos" class="drawer-link">
+            <Icon name="lucide:calendar" />
+            Eventos
+          </NuxtLink>
+          <NuxtLink to="/admin/capelas" class="drawer-link">
+            <Icon name="lucide:church" />
+            Capelas
+          </NuxtLink>
+          <NuxtLink to="/admin/missas" class="drawer-link">
+            <Icon name="lucide:clock" />
+            Missas
+          </NuxtLink>
+          <NuxtLink to="/admin/pastorais" class="drawer-link">
+            <Icon name="lucide:heart-handshake" />
+            Pastorais
+          </NuxtLink>
+          <NuxtLink to="/admin/usuarios" class="drawer-link">
+            <Icon name="lucide:users" />
+            Usuários
+          </NuxtLink>
+          <NuxtLink to="/admin/log" class="drawer-link">
+            <Icon name="lucide:scroll-text" />
+            Auditoria
+          </NuxtLink>
+          <NuxtLink to="/admin/configuracoes/aparencia" class="drawer-link">
+            <Icon name="lucide:palette" />
+            Aparência
+          </NuxtLink>
+          <NuxtLink to="/admin/configuracoes/rodape" class="drawer-link">
+            <Icon name="lucide:panel-bottom" />
+            Rodapé
+          </NuxtLink>
+        </nav>
+
+        <div class="drawer-footer">
+          <span class="drawer-user">{{ user?.email }}</span>
+          <button class="drawer-changepw" @click="changePwOpen = true; drawerOpen = false">Alterar senha</button>
+          <button class="drawer-signout" @click="signOut">Sair</button>
+        </div>
+      </aside>
+    </Transition>
+
+    <!-- ── Main ───────────────────────────────────────────────── -->
     <main class="admin-main">
       <slot />
     </main>
@@ -152,31 +197,48 @@ async function reAuthenticate() {
 <style scoped>
 .admin-shell {
   display: flex;
+  flex-direction: column;
   min-height: 100dvh;
   background: #f5f5f0;
 }
 
-/* ── Sidebar ─────────────────────────────────────────────────── */
+/* ── Top bar ─────────────────────────────────────────────────── */
 
-.admin-sidebar {
-  width: 220px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  background: var(--fr-950);
-  color: #e8dcc8;
-  padding: 0;
+.admin-topbar {
   position: sticky;
   top: 0;
-  height: 100dvh;
-}
-
-.sidebar-brand {
+  z-index: 150;
+  height: 52px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+  padding: 0 20px;
+  background: var(--fr-950);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.topbar-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: #c8baa0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
+}
+.topbar-menu:hover { background: rgba(255,255,255,0.07); color: #fff; }
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .brand-tau {
@@ -195,59 +257,161 @@ async function reAuthenticate() {
   color: #c8baa0;
 }
 
-.sidebar-nav {
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-email {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: #8a7a60;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-changepw {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: #8a7a60;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+.topbar-changepw:hover { background: rgba(255,255,255,0.07); color: #c8baa0; }
+
+.topbar-signout {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  color: #c8baa0;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+.topbar-signout:hover { background: rgba(255,255,255,0.07); }
+
+/* ── Drawer backdrop ─────────────────────────────────────────── */
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 199;
+}
+
+.drawer-backdrop-enter-active,
+.drawer-backdrop-leave-active { transition: opacity 0.22s ease; }
+.drawer-backdrop-enter-from,
+.drawer-backdrop-leave-to { opacity: 0; }
+
+/* ── Drawer panel ────────────────────────────────────────────── */
+
+.admin-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100dvh;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: var(--fr-950);
+  color: #e8dcc8;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.drawer-slide-enter-active,
+.drawer-slide-leave-active { transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1); }
+.drawer-slide-enter-from,
+.drawer-slide-leave-to { transform: translateX(-100%); }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.drawer-close {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  border-radius: 5px;
+  color: #8a7a60;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.drawer-close:hover { background: rgba(255,255,255,0.07); color: #c8baa0; }
+
+.drawer-nav {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 12px 0;
+  padding: 10px 0;
   gap: 2px;
   overflow-y: auto;
 }
 
-.sidebar-link {
+.drawer-link {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 20px;
+  padding: 10px 20px;
   font-family: var(--font-sans);
   font-size: 14px;
   color: #c8baa0;
   text-decoration: none;
-  border-radius: 0;
   transition: background 0.1s, color 0.1s;
 }
-
-.sidebar-link:hover,
-.sidebar-link.router-link-active {
+.drawer-link:hover,
+.drawer-link.router-link-active {
   background: rgba(255, 255, 255, 0.07);
   color: #fff;
 }
-
-.sidebar-link.router-link-active {
+.drawer-link.router-link-active {
   border-left: 3px solid var(--fr-200);
   padding-left: 17px;
 }
 
-/* ── Footer ──────────────────────────────────────────────────── */
-
-.sidebar-footer {
+.drawer-footer {
   padding: 14px 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex-shrink: 0;
 }
 
-.sidebar-user {
+.drawer-user {
   font-family: var(--font-sans);
   font-size: 12px;
   color: #8a7a60;
   word-break: break-all;
 }
 
-.sidebar-changepw {
+.drawer-changepw {
   background: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 4px;
   color: #8a7a60;
   font-family: var(--font-sans);
@@ -257,15 +421,11 @@ async function reAuthenticate() {
   text-align: left;
   transition: background 0.1s, color 0.1s;
 }
+.drawer-changepw:hover { background: rgba(255,255,255,0.07); color: #c8baa0; }
 
-.sidebar-changepw:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #c8baa0;
-}
-
-.sidebar-signout {
+.drawer-signout {
   background: none;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 4px;
   color: #c8baa0;
   font-family: var(--font-sans);
@@ -275,10 +435,7 @@ async function reAuthenticate() {
   text-align: left;
   transition: background 0.1s;
 }
-
-.sidebar-signout:hover {
-  background: rgba(255, 255, 255, 0.07);
-}
+.drawer-signout:hover { background: rgba(255,255,255,0.07); }
 
 /* ── Main ────────────────────────────────────────────────────── */
 
@@ -288,37 +445,11 @@ async function reAuthenticate() {
   padding: 32px;
 }
 
-/* ── Mobile ──────────────────────────────────────────────────── */
-
 @media (max-width: 767px) {
-  .admin-shell {
-    flex-direction: column;
-  }
+  .topbar-email,
+  .topbar-changepw { display: none; }
 
-  .admin-sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 8px;
-  }
-
-  .sidebar-footer {
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .admin-main {
-    padding: 20px 16px;
-  }
+  .admin-main { padding: 20px 16px; }
 }
 
 /* ── Idle timeout overlay ────────────────────────────────────── */

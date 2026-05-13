@@ -1,4 +1,10 @@
-const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/confirm', '/admin/solicitar']
+const PUBLIC_ADMIN_PATHS = [
+  '/admin/login',
+  '/admin/confirm',
+  '/admin/solicitar',
+  '/admin/recuperar-senha',
+  '/admin/definir-senha',
+]
 
 export default defineNuxtRouteMiddleware((to) => {
   if (!to.path.startsWith('/admin')) return

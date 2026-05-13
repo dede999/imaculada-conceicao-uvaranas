@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../utils/requireAdmin'
 
 export interface AuditEntry {
@@ -26,7 +25,7 @@ export default defineEventHandler(async (event) => {
   const dateFrom = (query.date_from as string) || ''
   const dateTo = (query.date_to as string) || ''
 
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   let q = supabase
     .from('audit_log')

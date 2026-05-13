@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { insertAuditLog } from '../../../utils/auditLog'
 
@@ -18,7 +17,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Não é possível se auto-rebaixar.' })
   }
 
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   const { data } = await supabase
     .from('profiles')

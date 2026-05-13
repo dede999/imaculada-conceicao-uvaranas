@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../../utils/getParishId'
 
 export interface Pastoral {
@@ -13,7 +12,7 @@ export interface Pastoral {
 }
 
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
   const { data, error } = await supabase
     .from('pastorais')
     .select('id, slug, name, category, summary, coordinator, meetings, body')

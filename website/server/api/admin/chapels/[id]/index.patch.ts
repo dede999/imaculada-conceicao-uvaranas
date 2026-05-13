@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../../../utils/requireAuth'
 import { assertChapelAccess } from '../../../../utils/parishGuard'
 
@@ -10,7 +9,7 @@ export default defineEventHandler(async (event) => {
     lat?: number | null; lng?: number | null; body?: string
   }>(event)
 
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
   await assertChapelAccess(supabase, id as string, profile)
   const { error } = await supabase
     .from('chapels')

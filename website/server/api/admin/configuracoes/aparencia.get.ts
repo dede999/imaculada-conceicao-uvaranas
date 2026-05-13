@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { getParishId } from '../../../utils/getParishId'
 import type { ParishConfig } from '../../../api/parish-config.get'
@@ -14,7 +13,7 @@ const DEFAULT: Omit<ParishConfig, 'parish_id'> = {
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
   const parishId = getParishId(event)
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   const { data } = await supabase
     .from('parish_config')

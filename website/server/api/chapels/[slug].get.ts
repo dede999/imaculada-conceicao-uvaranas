@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../../utils/getParishId'
 import type {
   ChapelContact,
@@ -35,7 +34,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')
   if (!slug) throw createError({ statusCode: 400, statusMessage: 'slug is required' })
 
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   // Fetch the target chapel first to know its id and type
   const { data: chapelRow, error: chapelErr } = await supabase

@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { getParishId } from '../../../utils/getParishId'
 import { insertAuditLog } from '../../../utils/auditLog'
@@ -10,7 +9,7 @@ export default defineEventHandler(async (event) => {
   if (!profile_id) throw createError({ statusCode: 400, statusMessage: 'profile_id required' })
 
   const parishId = getParishId(event)
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   const { error } = await supabase
     .from('profile_parishes')

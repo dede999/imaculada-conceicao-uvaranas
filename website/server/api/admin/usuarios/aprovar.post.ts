@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { insertAuditLog } from '../../../utils/auditLog'
 
@@ -16,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
   if (!id) throw createError({ statusCode: 400, statusMessage: 'id obrigatório' })
 
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   // Fetch request details first (need email, name, parish_id)
   const { data: found } = await supabase

@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../utils/getParishId'
 
 export default defineEventHandler(async (event) => {
@@ -19,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
   const normalizedEmail = email.trim().toLowerCase()
   const parishId = getParishId(event)
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   // Block if there is already a pending or approved request for this email
   const { data: existing } = await supabase

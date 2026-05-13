@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../../../utils/requireAuth'
 import { applyParishFilter } from '../../../../utils/parishGuard'
 
@@ -10,7 +9,7 @@ export default defineEventHandler(async (event) => {
     summary?: string; body?: string; published?: boolean
   }>(event)
 
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
   let q = supabase
     .from('noticias')
     .update({ ...body, updated_by: user.id } as never)

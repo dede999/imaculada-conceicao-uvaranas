@@ -1,9 +1,8 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../utils/requireAdmin'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   const [{ data: requestsRaw }, { data: usersRaw }, { data: { users: authUsers } }] =
     await Promise.all([

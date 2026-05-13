@@ -1,4 +1,3 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../../utils/requireAuth'
 import { getParishId } from '../../../utils/getParishId'
 
@@ -11,7 +10,7 @@ export default defineEventHandler(async (event) => {
   }>(event)
 
   const parish_id = profile.role === 'editor' ? profile.parishIds[0] : getParishId(event)
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
   const { data, error } = await supabase
     .from('eventos')
     .insert({ ...body, parish_id, created_by: user.id, updated_by: user.id } as never)

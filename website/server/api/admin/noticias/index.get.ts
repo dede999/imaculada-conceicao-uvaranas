@@ -1,10 +1,9 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../../utils/requireAuth'
 import { applyParishFilter } from '../../../utils/parishGuard'
 
 export default defineEventHandler(async (event) => {
   const { profile } = await requireAuth(event)
-  const supabase = serverSupabaseServiceRole(event)
+  const supabase = useServiceRole()
 
   let q = supabase
     .from('noticias')

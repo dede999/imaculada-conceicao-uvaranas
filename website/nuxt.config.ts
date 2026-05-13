@@ -49,7 +49,7 @@ export default defineNuxtConfig({
     redirect: false,
   },
   nitro: {
-    preset: process.env.NITRO_PRESET ?? 'node-server',
+    preset: 'cloudflare-pages',
   },
   i18n: {
     defaultLocale: parishConfig.i18n.default_locale,

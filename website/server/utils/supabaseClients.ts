@@ -4,29 +4,27 @@ import type { H3Event } from 'h3'
 import { parseCookies, setCookie } from 'h3'
 
 export function useServiceRole() {
+  const { public: { supabase: { url } }, supabase: { serviceKey } } = useRuntimeConfig()
   return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!,
+    url,
+    serviceKey,
     { auth: { autoRefreshToken: false, persistSession: false } },
   )
 }
 
 export function useServerClient(event: H3Event) {
-  return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          const cookies = parseCookies(event)
-          return Object.entries(cookies).map(([name, value]) => ({ name, value }))
-        },
-        setAll(cookies) {
-          for (const { name, value, options } of cookies) {
-            setCookie(event, name, value, options as Parameters<typeof setCookie>[3])
-          }
-        },
+  const { public: { supabase: { url, key } } } = useRuntimeConfig()
+  return createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        const cookies = parseCookies(event)
+        return Object.entries(cookies).map(([name, value]) => ({ name, value }))
+      },
+      setAll(cookies) {
+        for (const { name, value, options } of cookies) {
+          setCookie(event, name, value, options as Parameters<typeof setCookie>[3])
+        }
       },
     },
-  )
+  })
 }

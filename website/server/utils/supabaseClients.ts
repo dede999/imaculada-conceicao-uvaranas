@@ -3,17 +3,22 @@ import { createServerClient } from '@supabase/ssr'
 import type { H3Event } from 'h3'
 import { parseCookies, setCookie } from 'h3'
 
+function getSupabaseEnv() {
+  const cfg = useRuntimeConfig()
+  return {
+    url:        (cfg.public.supabase as { url?: string }).url        || process.env.SUPABASE_URL         || '',
+    key:        (cfg.public.supabase as { key?: string }).key        || process.env.SUPABASE_KEY         || '',
+    serviceKey: (cfg.supabase        as { serviceKey?: string }).serviceKey || process.env.SUPABASE_SERVICE_KEY || '',
+  }
+}
+
 export function useServiceRole() {
-  const { public: { supabase: { url } }, supabase: { serviceKey } } = useRuntimeConfig()
-  return createClient(
-    url,
-    serviceKey,
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  )
+  const { url, serviceKey } = getSupabaseEnv()
+  return createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
 export function useServerClient(event: H3Event) {
-  const { public: { supabase: { url, key } } } = useRuntimeConfig()
+  const { url, key } = getSupabaseEnv()
   return createServerClient(url, key, {
     cookies: {
       getAll() {

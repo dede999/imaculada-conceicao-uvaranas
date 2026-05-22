@@ -10,6 +10,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   delete: [id: string]
   added: []
+  toggled: []
   error: [msg: string]
 }>()
 
@@ -20,9 +21,22 @@ const DAY_LABELS: Record<number, string> = {
 const days = [0, 1, 2, 3, 4, 5, 6]
 function dayLabel(d: number) { return DAY_LABELS[d] ?? String(d) }
 
-const open   = ref(false)
-const saving = ref(false)
-const form   = reactive({ day_of_week: 0, time: '', note: '' })
+const open     = ref(false)
+const saving   = ref(false)
+const toggling = ref<string | null>(null)
+const form     = reactive({ day_of_week: 0, time: '', note: '' })
+
+async function toggleActive(m: MassRow) {
+  toggling.value = m.id
+  try {
+    await $fetch(`/api/admin/masses/${m.id}`, { method: 'PATCH', body: { active: !m.active } })
+    emit('toggled')
+  } catch (e: unknown) {
+    emit('error', (e as { data?: { statusMessage?: string } }).data?.statusMessage ?? 'Erro ao alterar status.')
+  } finally {
+    toggling.value = null
+  }
+}
 
 async function add() {
   if (!form.time) { emit('error', 'Horário obrigatório.'); return }
@@ -58,6 +72,13 @@ async function add() {
         <span class="row-time">{{ m.time }}</span>
         <span v-if="m.note" class="row-note">{{ m.note }}</span>
         <span v-if="!m.active" class="row-inactive">inativo</span>
+        <button
+          class="btn-toggle"
+          :class="m.active ? 'btn-toggle--pause' : 'btn-toggle--resume'"
+          :disabled="toggling === m.id"
+          :title="m.active ? 'Suspender' : 'Ativar'"
+          @click="toggleActive(m)"
+        >{{ m.active ? '⏸' : '▶' }}</button>
         <button class="btn-delete" :disabled="deleting === m.id" @click="emit('delete', m.id)">✕</button>
       </div>
     </div>
@@ -126,6 +147,22 @@ async function add() {
 .row-time { font-family: var(--font-sans); font-size: 13px; color: var(--text-primary); }
 .row-note { font-family: var(--font-sans); font-size: 12px; color: var(--text-muted); font-style: italic; flex: 1; }
 .row-inactive { font-family: var(--font-sans); font-size: 11px; background: #fef2f2; color: #b91c1c; border-radius: 4px; padding: 1px 6px; }
+
+.btn-toggle {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  transition: opacity 0.1s, background 0.1s, border-color 0.1s;
+  opacity: 0.6;
+}
+
+.btn-toggle--pause { color: #78350f; }
+.btn-toggle--resume { color: var(--cv-600); }
+.btn-toggle:hover:not(:disabled) { opacity: 1; border-color: currentColor; background: #f5f4f0; }
+.btn-toggle:disabled { opacity: 0.2; cursor: not-allowed; }
 
 .btn-delete {
   margin-left: auto;

@@ -68,6 +68,7 @@ async function deleteCatechism(id: string) {
           :deleting="deleting"
           @delete="deleteMass"
           @added="refresh"
+          @toggled="refresh"
           @error="actionError = $event"
         />
         <AdminChapelConfessions

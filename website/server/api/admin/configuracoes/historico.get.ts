@@ -1,3 +1,4 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { getParishId } from '../../../utils/getParishId'
 
@@ -12,7 +13,7 @@ export interface HistoryEntry {
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
   const parishId = getParishId(event)
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
 
   const { data, error } = await supabase
     .from('parish_config_history')

@@ -1,3 +1,4 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../utils/requireAuth'
 import { applyParishFilter } from '../../utils/parishGuard'
 
@@ -22,7 +23,7 @@ export interface DashboardData {
 export default defineEventHandler(async (event) => {
   const { profile } = await requireAuth(event)
   const isAdmin = profile.role === 'admin'
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
   const today = new Date().toISOString().slice(0, 10)
 
   const queries = await Promise.all([

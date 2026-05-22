@@ -1,10 +1,11 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../../utils/requireAuth'
 import { applyParishFilter } from '../../../utils/parishGuard'
 import type { ChapelListItem, ChapelContact, ChapelImage, Mass, Confession, CatechismGroup } from '../../chapels/index.get'
 
 export default defineEventHandler(async (event) => {
   const { profile } = await requireAuth(event)
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
 
   const [chapelsRes, contactsRes, imagesRes, massesRes, confsRes, catRes] = await Promise.all([
     applyParishFilter(supabase.from('chapels').select('id, slug, name, type, address, lat, lng, pastor, body, sort').order('sort'), profile),

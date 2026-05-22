@@ -1,3 +1,4 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../../utils/getParishId'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -63,7 +64,7 @@ export interface ChapelListItem {
 // Branch chapels with no contacts inherit the matriz contacts (COALESCE).
 
 export default defineEventHandler(async (event) => {
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
 
   const [chapelsRes, contactsRes, imagesRes, massesRes, confsRes, catRes] =
     await Promise.all([

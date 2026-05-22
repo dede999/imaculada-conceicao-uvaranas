@@ -1,10 +1,11 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../../../utils/requireAuth'
 import { applyParishFilter } from '../../../../utils/parishGuard'
 
 export default defineEventHandler(async (event) => {
   const { profile } = await requireAuth(event)
   const id = getRouterParam(event, 'id')
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
   let q = supabase.from('pastorais').delete().eq('id', id as never)
   q = applyParishFilter(q, profile)
   const { error } = await q

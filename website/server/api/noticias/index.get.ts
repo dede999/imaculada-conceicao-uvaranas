@@ -1,7 +1,8 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../../utils/getParishId'
 
 export default defineEventHandler(async (event) => {
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
   const { data, error } = await supabase
     .from('noticias')
     .select('id, slug, title, date, summary')

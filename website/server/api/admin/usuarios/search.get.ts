@@ -1,3 +1,4 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAdmin } from '../../../utils/requireAdmin'
 import { getParishId } from '../../../utils/getParishId'
 
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
   if (q.length < 2) return []
 
   const parishId = getParishId(event)
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
 
   // Profiles already in this parish — to exclude from results
   const { data: inParish } = await supabase

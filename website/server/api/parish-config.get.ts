@@ -1,3 +1,4 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { getParishId } from '../utils/getParishId'
 
 export interface FooterConfig {
@@ -30,7 +31,7 @@ const DEFAULT: Omit<ParishConfig, 'parish_id'> = {
 
 export default defineEventHandler(async (event) => {
   const parishId = getParishId(event)
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
 
   const { data, error } = await supabase
     .from('parish_config')

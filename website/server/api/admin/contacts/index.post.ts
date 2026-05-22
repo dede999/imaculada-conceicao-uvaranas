@@ -1,10 +1,11 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
 import { requireAuth } from '../../../utils/requireAuth'
 import { assertChapelAccess } from '../../../utils/parishGuard'
 
 export default defineEventHandler(async (event) => {
   const { profile } = await requireAuth(event)
   const body = await readBody<{ chapel_id: string; type: string; value: string; sort?: number }>(event)
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
   await assertChapelAccess(supabase, body.chapel_id, profile)
   const { data, error } = await supabase.from('chapel_contacts').insert(body as never).select('id').single()
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })

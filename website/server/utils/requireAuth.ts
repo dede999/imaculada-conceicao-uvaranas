@@ -1,3 +1,4 @@
+import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
 import type { H3Event } from 'h3'
 
 export interface AuthProfile {
@@ -11,11 +12,11 @@ export interface AuthProfile {
 }
 
 export async function requireAuth(event: H3Event) {
-  const client = useServerClient(event)
+  const client = await serverSupabaseClient(event)
   const { data: { user } } = await client.auth.getUser()
   if (!user) throw createError({ statusCode: 401, statusMessage: 'Unauthenticated' })
 
-  const supabase = useServiceRole()
+  const supabase = serverSupabaseServiceRole(event)
 
   const { data: row } = await supabase
     .from('profiles')

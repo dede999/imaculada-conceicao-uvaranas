@@ -48,6 +48,9 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
   },
+  routeRules: {
+    '/admin/**': { ssr: false },
+  },
   nitro: {
     preset: process.env.NITRO_PRESET,
   },

@@ -1,0 +1,50 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Secrets required in GitHub → Settings → Secrets → Actions:
+#
+#   CF_API_TOKEN     Cloudflare API token with "Workers Scripts: Edit" + "Workers KV Storage: Edit"
+#   CF_ACCOUNT_ID    Cloudflare account ID (found in the right sidebar of any zone page)
+#   SUPABASE_URL     Supabase project URL (embedded in the client bundle at build time)
+#   SUPABASE_KEY     Supabase anon key   (embedded in the client bundle at build time)
+#
+# Runtime secrets — must also be set in Cloudflare Workers → Settings → Variables:
+#   PARISH_ID                 UUID of the parish row in Supabase
+#   SUPABASE_URL              same as above
+#   SUPABASE_KEY              same as above
+#   SUPABASE_SERVICE_KEY      Supabase service-role key (server-only, never in client bundle)
+
+jobs:
+  deploy:
+    name: Build & deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+        env:
+          NITRO_PRESET: cloudflare-module
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Deploy
+        run: bunx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}

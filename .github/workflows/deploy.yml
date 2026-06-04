@@ -22,6 +22,7 @@ jobs:
   deploy:
     name: Build & deploy to Cloudflare Workers
     runs-on: ubuntu-latest
+    environment: Production
     defaults:
       run:
         working-directory: website
@@ -39,7 +40,7 @@ jobs:
       - name: Build
         run: bun run build
         env:
-          NITRO_PRESET: cloudflare-module
+          NITRO_PRESET: cloudflare-pages
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 

@@ -1,0 +1,7 @@
+# Automatic HTTPS via Let's Encrypt (Caddy default).
+# Set DOMAIN in .env (e.g. paroquia.example.com or the Hetzner IP for HTTP-only tests).
+
+{$DOMAIN} {
+	encode gzip zstd
+	reverse_proxy web:3000
+}

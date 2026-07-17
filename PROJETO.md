@@ -35,8 +35,8 @@
 | i18n | @nuxtjs/i18n — estruturar desde o início, começar só com `pt-BR` |
 | Formulários / LGPD | Supabase (transparência financeira; dízimo é página estática) |
 | Dados financeiros | Script em Go ou Rust que lê `.xlsx` e gera `.json` |
-| CI/CD | GitHub Actions — deploy automático + script financeiro agendado (dia 1 de cada mês) |
-| Hospedagem | Netlify ou Vercel (tier gratuito) |
+| CI/CD | GitHub Actions — build da imagem Docker, push no GHCR, deploy no VPS via SSH |
+| Hospedagem | VPS (Hetzner) + Docker Compose + Caddy (HTTPS) |
 | Instagram embed | Behold.so (tier gratuito) |
 
 ### Observações de stack
@@ -243,13 +243,12 @@ const showEvent = computed(() =>
 ## CI/CD — GitHub Actions
 
 ### Deploy (em cada push para `main`)
-```yaml
-- uses: actions/checkout@v4
-- uses: actions/setup-node@v4
-- run: npm ci
-- run: npm run generate
-- uses: netlify/actions/cli@master
-```
+
+Build multi-stage (`Dockerfile`) → imagem em `ghcr.io/<org>/<repo>` → SSH no VPS → `docker compose pull && up`.
+
+No VPS: `docker-compose.yml`, `deploy/Caddyfile` e `.env` (secrets + `DOMAIN`). Caddy emite certificado Let's Encrypt automaticamente.
+
+Secrets do workflow: `SUPABASE_URL`, `SUPABASE_KEY`, `PARISH_ID`, `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_DEPLOY_PATH`.
 
 ### Script financeiro (dia 1 de cada mês)
 ```yaml
@@ -332,6 +331,6 @@ jobs:
 - [ ] Endereços reais das capelas
 - [ ] Horários reais de missa, confissão e catequese
 - [ ] Grupos de catequese existentes (Crianças / Jovens / Adultos / RICA?)
-- [ ] Provedor de hospedagem final (Netlify vs Vercel)
+- [x] Provedor de hospedagem final (VPS + Docker Compose)
 - [ ] Planilha financeira: Google Drive ou repositório?
 - [ ] Linguagem do script de importação: Go ou Rust?

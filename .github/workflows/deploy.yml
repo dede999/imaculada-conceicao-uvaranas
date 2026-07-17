@@ -5,47 +5,115 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Secrets required in GitHub → Settings → Secrets → Actions:
+# Secrets (GitHub → Settings → Secrets and variables → Actions):
 #
-#   CF_API_TOKEN     Cloudflare API token with "Workers Scripts: Edit" + "Workers KV Storage: Edit"
-#   CF_ACCOUNT_ID    Cloudflare account ID (found in the right sidebar of any zone page)
-#   SUPABASE_URL     Supabase project URL (embedded in the client bundle at build time)
-#   SUPABASE_KEY     Supabase anon key   (embedded in the client bundle at build time)
+#   SUPABASE_URL              Public Supabase project URL
+#   SUPABASE_KEY              Supabase anon key
+#   PARISH_ID                 Parish UUID
+#   VPS_HOST                  VPS IP or hostname
+#   VPS_USER                  SSH user (e.g. deploy)
+#   VPS_SSH_KEY               Private key for VPS_USER
+#   VPS_DEPLOY_PATH           Absolute path on VPS (e.g. /opt/paroquia)
 #
-# Runtime secrets — must also be set in Cloudflare Workers → Settings → Variables:
-#   PARISH_ID                 UUID of the parish row in Supabase
-#   SUPABASE_URL              same as above
-#   SUPABASE_KEY              same as above
-#   SUPABASE_SERVICE_KEY      Supabase service-role key (server-only, never in client bundle)
+# Optional:
+#   VPS_PORT                  SSH port (default 22)
+#   GHCR_READ_TOKEN           PAT with read:packages if the GHCR image is private
+#
+# On the VPS, keep a .env next to docker-compose.yml (never commit it).
+# NUXT_SUPABASE_SECRET_KEY / SUPABASE_SERVICE_KEY live only there.
+#
+# First boot on the VPS (once):
+#   mkdir -p /opt/paroquia && cd /opt/paroquia
+#   # copy docker-compose.yml, deploy/Caddyfile, and .env
+#   # make GHCR package public, or docker login ghcr.io
+#   docker compose pull && docker compose up -d
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  deploy:
-    name: Build & deploy to Cloudflare Workers
+  build-and-push:
+    name: Build and push image
     runs-on: ubuntu-latest
-    environment: Production
-    defaults:
-      run:
-        working-directory: website
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v2
+      - name: Image metadata
+        id: meta
+        run: |
+          IMAGE="${REGISTRY}/${IMAGE_NAME}"
+          IMAGE_LC=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
+          echo "image=${IMAGE_LC}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
         with:
-          bun-version: latest
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ github.sha }}
+          build-args: |
+            SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
+            PARISH_ID=${{ secrets.PARISH_ID }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Build
-        run: bun run build
+  deploy:
+    name: Deploy to VPS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: Production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync compose files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          source: "docker-compose.yml,deploy/Caddyfile"
+          target: ${{ secrets.VPS_DEPLOY_PATH }}
+          overwrite: true
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
         env:
-          NITRO_PRESET: cloudflare-pages
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          WEB_IMAGE: ${{ needs.build-and-push.outputs.image }}:${{ github.sha }}
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          envs: WEB_IMAGE,GHCR_READ_TOKEN
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.VPS_DEPLOY_PATH }}"
 
-      - name: Deploy
-        run: bunx wrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+            if [ -n "${GHCR_READ_TOKEN:-}" ]; then
+              echo "$GHCR_READ_TOKEN" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+            fi
+
+            export WEB_IMAGE
+            docker compose pull web
+            docker compose up -d --remove-orphans
+            docker image prune -f

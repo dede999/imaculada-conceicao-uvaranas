@@ -1,0 +1,310 @@
+{
+  "nav": {
+    "home": "Home",
+    "chapels": "Chapels",
+    "events": "Events",
+    "news": "News",
+    "ministries": "Ministries",
+    "tithe": "Tithe",
+    "transparency": "Transparency"
+  },
+  "chapel": {
+    "type": {
+      "matriz": "Main Parish",
+      "branch": "Chapel"
+    }
+  },
+  "status_panel": {
+    "mass_label": "Mass",
+    "confession_label": "Confession",
+    "now": "Now",
+    "next": "Next",
+    "no_mass_scheduled": "No mass scheduled",
+    "no_next_confession": "Next confession coming soon",
+    "in_progress_until": "In progress · ends at",
+    "today": "Today"
+  },
+  "w_day": {
+    "0": "Sun",
+    "1": "Mon",
+    "2": "Tue",
+    "3": "Wed",
+    "4": "Thu",
+    "5": "Fri",
+    "6": "Sat"
+  },
+  "capelas": {
+    "eyebrow": "Schedules",
+    "title": "Our Chapels",
+    "page_title": "Chapels and Schedules",
+    "subtitle": "Mass, confession and catechism schedules at all parish locations",
+    "address_label": "Address",
+    "masses_label": "Masses",
+    "confession_label": "Confession",
+    "catechism_label": "Catechism",
+    "no_masses": "No masses scheduled",
+    "no_confession": "No confession scheduled",
+    "branch_section": "Branch Chapels",
+    "view_detail": "View full page",
+    "back": "← Chapels",
+    "schedule_section": "Schedules",
+    "map_section": "Location",
+    "content_section": "About the Community",
+    "pastor": "Pastor",
+    "contact_phone": "Phone",
+    "contact_whatsapp": "WhatsApp",
+    "contact_email": "Email",
+    "social_links": "Social Media",
+    "other_chapels": "Other Chapels",
+    "modal_label": "Image gallery",
+    "modal_close": "Close",
+    "modal_prev": "Previous image",
+    "modal_next": "Next image"
+  },
+  "pastorais": {
+    "page_title": "Ministries and Movements",
+    "eyebrow": "Community",
+    "subtitle": "Groups and movements that animate the parish's mission",
+    "coordinator": "Coordinator",
+    "meetings": "Meetings",
+    "back": "← Ministries",
+    "categories": {
+      "liturgia": "Liturgy and Sacraments",
+      "formacao": "Faith Formation",
+      "social": "Social Action and Service",
+      "movimentos": "Movements and Associations",
+      "comunicacao": "Communications"
+    }
+  },
+  "eventos": {
+    "page_title": "Events and Announcements",
+    "eyebrow": "Calendar",
+    "upcoming": "Upcoming events",
+    "past": "Past events",
+    "empty_upcoming": "No events scheduled",
+    "badge_event": "Event",
+    "badge_announcement": "Announcement",
+    "status_cancelled": "Cancelled",
+    "status_postponed": "Postponed",
+    "read_more": "Read more →",
+    "back": "← Events"
+  },
+  "noticias": {
+    "page_title": "News",
+    "eyebrow": "Parish News",
+    "empty": "No publications available",
+    "read_more": "Read more →",
+    "back": "← News"
+  },
+  "dizimo": {
+    "page_title": "Tithe",
+    "eyebrow": "Contribute",
+    "title": "Tithe",
+    "subtitle": "A form of gratitude and mission",
+    "section_what": "What is the Tithe?",
+    "section_bible": "Tithe in the Bible",
+    "section_dimension_prefix": "Dimension",
+    "section_evangeliza": "How the Tithe Evangelizes",
+    "section_challenges": "Ongoing Challenges",
+    "section_where": "Where Should I Bring My Tithe?",
+    "section_prayers": "Prayers",
+    "section_oracao": "The Tither's Prayer",
+    "section_dimensions": "The dimensions of the tithe",
+    "section_how": "How to contribute",
+    "dimensions": {
+      "caritativa": {
+        "title": "Charitable",
+        "body": "In this dimension, the Christian manifests care for the poor of their community. The tithe is used to provide charity to those who come to the Church's door. Many people in various circumstances need material help. Following the example of Christ who stood by the poor, the tither learns to be charitable. Charity is a virtue of the Christian. When Christians give generously, the community has resources to help the poor.",
+        "what_bullet_1": "Tithe is compassion for those who have nothing",
+        "what_bullet_2": "Tithe is gratitude for the gift of sharing",
+        "what_bullet_3": "Tithe is an opportunity to demonstrate my faith in divine providence",
+        "bible_ot_title": "Old Testament",
+        "bible_ot_body": "\"…You shall set apart a tithe of all the yield of your seed that comes from the field year by year. Then the Levite, because he has no portion or inheritance with you, and the sojourner, the fatherless, and the widow, who are within your towns, shall come and eat and be filled, that the Lord your God may bless you in all the work of your hands that you do\" (Deuteronomy 14:28–29).",
+        "bible_nt_title": "New Testament",
+        "bible_nt_body": "\"There was not a needy person among them,\" for everything \"was distributed to each as any had need\" (Acts 4:34–35). Attention to the poor and their needs is a characteristic of the Apostolic Church. The Apostles asked Paul not to forget the poor (Gal 2:10). \"The preferential option for the poor is implicit in Christological faith\" and charity for the poor \"is a constitutive dimension of the Church's mission.\"",
+        "evangeliza_body": "\"Lord, when did we see you hungry or thirsty, naked or a stranger, and helped you? As you did it to one of the least of these my brothers, you did it to me\" (Matthew 25:35–40). A portion of the tithe given to the Church will be used to assist those most in need: needy families, food, clothing, medicines, care homes, and projects that promote life. Each community strives to be close to those in greatest need.",
+        "challenges_body": "\"What good is it, my brothers, if someone says he has faith but does not have works? Can that faith save him? If a brother or sister is poorly clothed and lacking in daily food, and one of you says to them, 'Go in peace, be warmed and filled,' without giving them the things needed for the body, what good is that? So also faith by itself, if it does not have works, is dead\" (James 2:14–18).",
+        "where_body": "\"You shall tithe all the yield of your seed that comes from the field year by year… And if the way is too long for you, so that you are not able to carry the tithe, when the Lord your God blesses you, because the place is too far from you… then you shall turn it into money and bind up the money in your hand and go to the place that the Lord your God chooses\" (cf. Deuteronomy 14:22–27).\n\nLOCATION: When you arrive at Church during the Eucharistic celebration, bring your tithe and offering during the offertory procession, or deliver it at a designated location in the parish: reception desk, parish office, tithe envelope, QR Code, or electronically via bank transfer or Pix.",
+        "prayer_1": "Lord, bless the tithers of our parish. Abundantly repay each one for their generous gift. Let us pray to the Lord.",
+        "prayer_2": "Lord, awaken in all Christians the importance of giving the tithe to meet the needs of those who suffer most. Let us pray to the Lord.",
+        "prayer_3": "Lord, awaken the faithful of our parish to understand that faith without works is dead, and may they offer their tithe freely and lovingly. Let us pray to the Lord.",
+        "prayer_4": "Lord, bless those who care for the sick and the needy so that charity may never lack, especially for those most in need. Let us pray to the Lord.",
+        "prayer_response": "LORD, IN YOUR IMMENSE LOVE, HEAR OUR PRAYER.",
+        "oracao_body": "Lord, all that I have, You have freely given me.\n\nThe tithe I return to You is an act of gratitude for Your infinite graces. It is not an alms to ease my conscience; it is a spontaneous, free, and generous gift.\n\nPour upon each of us the blessings needed to open our hearts to sharing and giving.\n\nHelp us to give with freedom and justice. Remove every form of selfishness from our hearts. May we love our brothers and sisters ever more.\n\nMay my tithe be pleasing to You, Lord! Amen.\n\n\"Whatever you did for one of the least of these brothers and sisters of mine, you did for me\" (Mt 25:40)"
+      },
+      "religiosa": {
+        "title": "Religious",
+        "body": "The tithe is a systematic and periodic contribution of the faithful, through which each community assumes co-responsibility for its own sustenance and that of the Church. It presupposes people who have been evangelized and are committed to evangelization.",
+        "what_bullet_1": "A sign of love for God and belonging to a community of faith;",
+        "what_bullet_2": "Gratitude to God for all that He allows me to have;",
+        "what_bullet_3": "A sign of faith in divine providence.",
+        "bible_ot_title": "Old Testament",
+        "bible_nt_title": "New Testament",
+        "bible_ot_body": "\"Bring the full tithe into the storehouse, that there may be food in my house. And thereby put me to the test, says the Lord of hosts, if I will not open the windows of heaven for you and pour down for you a blessing until there is no more need\" (Malachi 3:10).",
+        "bible_nt_body": "Paul writes to Christian communities: \"Whoever sows sparingly will also reap sparingly, and whoever sows bountifully will also reap bountifully. Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver\" (2 Corinthians 9:6–7). To be a tither is to live the experience of divine love.",
+        "dimension_body": "The first dimension of the tithe is therefore religious: it has to do with the Christian's relationship with God. By contributing a portion of their goods, the faithful deepen their relationship with the One from whom all that they are and all that they have comes, and they express gratitude, faith, and conversion. This dimension teaches us to love God above all, offering Him the fruit of our work in gratitude for all gifts received.",
+        "evangeliza_body": "The resources for the Religious Dimension are used to maintain the entire structure of the Church: clean and lit spaces, liturgical vestments and objects, utilities, office and cleaning supplies, parish secretariat staff, chapels and parish house, pastoral and catechetical centre expenses, parish vehicle, renovations, construction, etc.",
+        "challenges_body": "According to parish statistics, fewer than 10% of parishioners give the tithe. Is this fair? Everyone likes to see their home clean and tidy, and all family members contribute to expenses. The Church is no different. We are all called to share in the expenses that keep the Church in mission. Yet many Catholics struggle to understand the greatness of the tithe. Here it is God Himself who says: \"I will pour out for you a blessing beyond measure.\" God is like this — \"He who is faithful will be abundantly rewarded.\"",
+        "where_body": "\"In the place that the Lord your God will choose, to make his name dwell there, there you shall bring all that I command you: your burnt offerings and your sacrifices, your tithes and the contribution that you present, and all your finest vow offerings that you vow to the Lord\" (cf. Deuteronomy 12:11,14,28).\n\nLOCATION: During the Eucharistic celebration, bring your offering and tithe during the offertory procession. If you have already given by other means, present yourself before the altar to give thanks to the Lord.",
+        "prayer_1": "Lord, keep your Church so that it may not be afraid to proclaim its gospel, even in the face of the difficulties we ourselves impose. Let us pray to the Lord.",
+        "prayer_2": "May our communities grow in co-responsibility and maturity of faith. Let us pray to the Lord.",
+        "prayer_3": "May the tithe be embraced by the faithful as a life commitment, as an expression of faith and the desire to deepen the experience of God. Let us pray to the Lord.",
+        "prayer_4": "May our tithe be the reflection of a living and participatory Church, in response to the great gift of being loved by God as His children. Let us pray to the Lord.",
+        "prayer_response": "IN YOUR IMMENSE LOVE, HEAR OUR PRAYER.",
+        "oracao_body": "Lord, make me a conscious tither, responsible for my Parish.\n\nMay each tithe I give be a true act of thanksgiving, an act of love, a recognition of Your goodness to me.\n\nI know that all the good I have comes from You: peace, health, love, prosperity, blessings...\n\nHelp me to give my tithe with freedom and justice. Remove all selfishness from my heart. May I love my neighbour ever more. I want to be an instrument of peace and love in Your hands.\n\nMay my tithe be pleasing to You, Lord. Amen."
+      },
+      "missionaria": {
+        "title": "Missionary",
+        "body": "The tithe is a demonstration of gratitude and acknowledgment to God for everything we have received and everything we are. The tithe is a sharing that generates fraternity, unity, and solidarity. It is the commitment of every Christian to collaborate, as a community, with the Divine Project in this world.",
+        "what_bullet_1": "The tithe is Gratitude to God.",
+        "what_bullet_2": "The tithe is Mission.",
+        "what_bullet_3": "The tithe is the fruit of mature faith.",
+        "bible_ot_title": "Old Testament",
+        "bible_ot_body": "\"Give to the Most High as he has given to you, and as generously as you can afford. For the Lord is the one who repays, and he will repay you sevenfold\" (Sirach 35:10–13).",
+        "bible_nt_title": "New Testament",
+        "bible_nt_body": "Jesus approached them and said: \"All authority in heaven and on earth has been given to me. Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, teaching them to observe all that I have commanded you. And behold, I am with you always, to the end of the age\" (Matthew 28:18–20). To be a tither is to participate in the great mission of the Church: evangelization.",
+        "dimension_body": "The tithe has a missionary dimension. The faithful, co-responsible for their community, become aware that there are many communities unable to provide for their own needs with their own resources and that they need the collaboration of others.",
+        "evangeliza_body": "The tithe allows the sharing of resources among parishes of the same particular Church and among particular Churches, manifesting the communion among them. In each particular Church, in communion with the others, the one and unique Church of Christ is present and active. In this dimension, the Christian is understood to be a missionary of their community.",
+        "challenges_body": "\"How then will they call on him in whom they have not believed? And how are they to believe in him of whom they have never heard? And how are they to hear without someone preaching? And how are they to preach unless they are sent?\" (Romans 10:14–15). \"Those who help evangelization share the same merits as the evangelizer\" (Saint Paul VI).",
+        "where_body": "A portion of what the parish receives is sent to the Diocese, which invests in the formation of seminarians — future priests — and those who continue their studies. Our Diocese's seminaries depend on the tithe from parishes to cover maintenance of the seminary, college, transport, etc. A portion is also designated to help poorer dioceses in our country.\n\nLOCATION: During the Eucharistic celebration, bring your offering and tithe during the offertory procession. If you have already given by other means, go before the Lord's altar to give thanks.",
+        "prayer_1": "May our community be more fraternal in the mission of announcing the gospel of Jesus. Let us pray to the Lord.",
+        "prayer_2": "Mission belongs to the baptized. Lord, help us to understand that we are all responsible for the Church's mission. Let us pray to the Lord.",
+        "prayer_3": "Those who help the mission share the merits of the missionary. Lord, may our tithe help to form missionaries for the challenges of the modern world. Let us pray to the Lord.",
+        "prayer_4": "Lord, our tithe is the fruit of our love and commitment. Help us to be faithful in our witness as committed tithers. Let us pray to the Lord.",
+        "prayer_response": "LORD, IN YOUR IMMENSE LOVE, HEAR US.",
+        "oracao_body": "Receive, Lord, my tithe; it is not alms, for You are not a beggar. It is not a simple contribution, for You do not need it.\n\nThis offering, Lord, represents my recognition, my gratitude and love for all You have given me, my sharing with those who have less, my effort for the sustenance of the community.\n\nIf I have, it is because You gave to me. Amen!"
+      },
+      "eclesial": {
+        "title": "Ecclesial",
+        "body": "The Christian lives out their awareness of being a member of the Church, for which they are co-responsible, by contributing so that the community has what it needs to perform divine worship and carry out its mission. The awareness of being Church and belonging to a community leads the faithful to engage in community life, actively participating in its activities and collaborating so that the community may live its faith ever more fully.",
+        "what_bullet_1": "The tithe is communion with our brothers and sisters;",
+        "what_bullet_2": "The tithe is making my church more committed and transformative;",
+        "what_bullet_3": "The tithe is helping to maintain the church in which I was baptized.",
+        "bible_ot_title": "Old Testament",
+        "bible_ot_body": "The word tithe is found in Genesis 14:18–20: \"And Melchizedek king of Salem brought out bread and wine. He was priest of God Most High. And he blessed him and said, 'Blessed be Abram by God Most High, Possessor of heaven and earth; and blessed be God Most High, who has delivered your enemies into your hand!' And Abram gave him a tenth of everything.\" Abram offers God 10% of all his goods in gratitude for God's assistance in the struggle against his enemies. The tithe must spring from gratitude, from the recognition that God is Lord of all.",
+        "bible_nt_title": "New Testament",
+        "bible_nt_body": "\"Give, and it will be given to you. Good measure, pressed down, shaken together, running over, will be put into your lap. For with the measure you use it will be measured back to you\" (Luke 6:38).",
+        "dimension_body": "Through the tithe, the faithful live out their awareness of being members of the Church, for which they are co-responsible. This awareness of being Church leads the faithful to engage in community life, actively participating in its activities and collaborating so that the community lives its faith more fully and witnesses to it more faithfully. The tithe also gives parishes the means to contribute systematically to the particular Church, keeping alive the sense of belonging.",
+        "evangeliza_body": "The temple or chapel where the faithful gather to celebrate their faith is the fruit of the tithe. The pastoral centre that welcomes children, teens, youth, and adults is also the fruit of the tithe. Equipment — computers, projectors, microphones, phones — are purchased with the tithe. The pews and all the furnishings that provide comfort to the faithful come from the tithe. All of this is available for evangelization.",
+        "challenges_body": "\"Always be prepared to make a defence to anyone who asks you for a reason for the hope that is in you\" (1 Peter 3:15). We live in a time when generous people to help in evangelization — catechists, family groups, itinerant accompaniers for engaged couples, parents preparing for infant baptism, adult catechesis, community animators — are lacking.",
+        "where_body": "Our Diocese works to realize the Church's proposal of making the parish a network of communities. In the community many services are needed: Coordinator, Ministers, Catechists, Liturgy Teams, Family Pastoral, Baptism Pastoral, Tithe Pastoral, etc. There are many people in communities and chapels who wish to live their faith more fully by giving the tithe, but for various reasons — health, age, distance, lack of knowledge — are unable to bring the tithe to Church. Why not help? Register those who wish to be tithers. Guide them on how to use the QR Code or Pix. Bring them an envelope or card. This will be very important for our Church. Think about it.\n\nLOCATION: Where faith is celebrated — in the church where you participate. If you have already given your tithe or offering, join the procession to thank and praise God.",
+        "prayer_1": "Lord, our community needs structures and instruments for evangelization. Help us to be conscious tithers. Let us pray to the Lord.",
+        "prayer_2": "Lord, in the mission of evangelizing children we need spaces and pedagogical instruments. The tithe given in our communities is also intended for this purpose. Help us to be conscious tithers. Let us pray to the Lord.",
+        "prayer_3": "Lord, the Church as a building is for us the place of celebrating our faith, our meeting, our praise. We all like a beautiful and welcoming Church. Help us to be conscious tithers. Let us pray to the Lord.",
+        "prayer_4": "Lord, in the Church we baptize children, marry young people and celebrate the mystery of the Eucharist. We all like a vibrant, happy, joyful and beautiful Church. Give us awareness to be faithful tithers. Let us pray to the Lord.",
+        "prayer_response": "LORD OUR GOD, HEAR OUR PRAYER.",
+        "oracao_body": "Accept, Lord, with my tithe, my gratitude. I want to be an active member of the Church. You give me so many gifts, beginning with life itself! I want to return them in the form of service, in the form of offering. Accept, Lord, my desire to participate in the mission of the Church: to sanctify, to announce the Good News of Jesus, to transform the world so that it belongs to God and to all people.\n\nAccept, Lord, my tithe, the fruit of my daily work and sacrifice. I do not want to be indifferent or give only scraps. Help me to be faithful.\n\nMary, mother of Jesus and ours, give me the strength to persevere and to encourage others to be tithers, to commit to the Kingdom of God. Amen!"
+      }
+    },
+    "pix_label": "Pix (instant transfer)",
+    "pix_key_label": "Pix key",
+    "bank_label": "Bank transfer",
+    "bank_agency": "Branch",
+    "bank_account": "Account",
+    "bank_name": "Beneficiary",
+    "inperson_label": "In person",
+    "inperson_body": "Contributions may be delivered during masses or directly at the parish office, Monday to Friday, from 8am to 5pm."
+  },
+  "admin": {
+    "aparencia": {
+      "title": "Appearance",
+      "subtitle": "Colour palette, icon and visible sections on the home page",
+      "save": "Save changes",
+      "saved": "Saved successfully",
+      "save_error": "Error saving",
+      "colors": {
+        "title": "Colour palette",
+        "amber_label": "Amber tones (Franciscan)",
+        "teal_label": "Teal tones (convent)",
+        "reset_all": "Restore defaults",
+        "fr_950": "Very dark",
+        "fr_800": "Dark",
+        "fr_600": "Medium dark",
+        "fr_400": "Medium",
+        "fr_200": "Light",
+        "fr_50": "Very light",
+        "cv_950": "Very dark",
+        "cv_600": "Medium dark",
+        "cv_400": "Medium",
+        "cv_50": "Very light"
+      },
+      "icon": {
+        "title": "Icon / symbol",
+        "tau": "Franciscan Tau",
+        "tau_desc": "OFM, TOR and related fraternities",
+        "sacred_heart": "Sacred Heart",
+        "sacred_heart_desc": "Diocesan and traditional parishes",
+        "custom": "Custom image",
+        "custom_desc": "Parishes with their own identity",
+        "custom_url_label": "Image URL (SVG or PNG)"
+      },
+      "sections": {
+        "title": "Visible sections",
+        "instagram": "Instagram feed",
+        "instagram_desc": "Show recent posts on the home page",
+        "ministries": "Ministries block",
+        "ministries_desc": "Show ministries and pastoral groups on the home page"
+      },
+      "history": {
+        "title": "Change history",
+        "empty": "No changes recorded",
+        "restore": "Restore",
+        "restored": "Configuration restored",
+        "restore_error": "Error restoring",
+        "by": "by"
+      },
+      "preview": {
+        "title": "Preview"
+      }
+    }
+  },
+  "home": {
+    "hero": {
+      "link_masses": "Mass Schedule",
+      "link_location": "Directions"
+    },
+    "event": {
+      "eyebrow": "Upcoming Event",
+      "link": "See all events"
+    },
+    "news": {
+      "eyebrow": "Latest News",
+      "empty_title": "Coming soon",
+      "empty_body": "New publications will appear here.",
+      "link": "See all news"
+    },
+    "announcement": {
+      "eyebrow": "Announcement",
+      "empty_title": "No announcements",
+      "empty_body": "Notices and announcements will appear here.",
+      "link": "See all"
+    },
+    "chapels": {
+      "eyebrow": "Our Chapels",
+      "col_chapel": "Location",
+      "col_masses": "Masses",
+      "col_confession": "Confession",
+      "col_catechism": "Catechism",
+      "confession_none": "—",
+      "catechism_none": "—",
+      "badge_matriz": "Main",
+      "badge_branch": "Branch",
+      "card_at": "at"
+    },
+    "instagram": {
+      "eyebrow": "Instagram",
+      "placeholder": "Feed coming soon"
+    },
+    "tithe": {
+      "eyebrow": "Tithe",
+      "title": "Support the mission",
+      "body": "Your contribution sustains the sacramental life, social projects and maintenance of the community's sacred spaces.",
+      "cta": "Learn how to contribute"
+    },
+    "ministries": {
+      "eyebrow": "Ministries and Pastoral Groups",
+      "empty": "Coming soon",
+      "link": "See all ministries →"
+    }
+  }
+}
